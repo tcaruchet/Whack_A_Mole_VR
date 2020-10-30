@@ -105,9 +105,6 @@ public class TherapistPanelController : MonoBehaviour
     // When a pattern is selected on the dropdown (called by the dropdown)
     public void OnPatternSelected(int value)
     {
-        if (patternsList.Get() == 0) {
-            return;
-        }
         string label = patternsList.GetLabel(value);
         therapistUi.DropDownPatternSelected(label);
     }
