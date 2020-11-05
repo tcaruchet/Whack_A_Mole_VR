@@ -21,8 +21,26 @@ public class WallInfo {
     public float heightOffset;
 }
 
+[System.Serializable]
+public class WallSettings {
+    public Mole moleObject;
+    public int rowCount;
+    public int columnCount;
+    public float heightOffset;
+    public Vector3 wallSize;
+    public float xCurveRatio;
+    public float yCurveRatio;
+    public float maxAngle;
+    public Vector3 moleScale;
+}
+
 public class WallManager : MonoBehaviour
 {
+    [Header("Default Wall Settings")]
+    [SerializeField]
+    private WallSettings defaultWall = new WallSettings();
+
+    [Header("Runtime Wall Settings")]
     // The Mole object to be loaded
     [SerializeField]
     private Mole moleObject;
@@ -85,6 +103,7 @@ public class WallManager : MonoBehaviour
 
     void Start()
     {
+        SetDefaultWall();
         // Initialization of the LoggerNotifier.
         loggerNotifier = new LoggerNotifier(persistentEventsHeadersDefaults: new Dictionary<string, string>(){
             {"WallRowCount", "NULL"},
@@ -110,6 +129,18 @@ public class WallManager : MonoBehaviour
         wallGenerator = gameObject.GetComponent<WallGenerator>();
         wallCenter = new Vector3(wallSize.x/2f, wallSize.y/2f, 0);
         isInit = true;
+    }
+
+    public void SetDefaultWall() {
+        moleObject = defaultWall.moleObject;
+        rowCount = defaultWall.rowCount;
+        columnCount = defaultWall.columnCount;
+        heightOffset = defaultWall.heightOffset;
+        wallSize = defaultWall.wallSize;
+        xCurveRatio = defaultWall.xCurveRatio;
+        yCurveRatio = defaultWall.yCurveRatio;
+        maxAngle = defaultWall.maxAngle;
+        moleScale = defaultWall.moleScale;
     }
 
     private void UpdateWallLogs() {

@@ -38,6 +38,9 @@ public class TherapistUi : MonoBehaviour
     [SerializeField]
     private ApplicationManager applicationManager;
 
+    [SerializeField]
+    private WallManager wallManager;
+
     private GameDirector.GameState currentGameState = GameDirector.GameState.Stopped;
     private LoggerNotifier loggerNotifier;
     private Animation animationPlayer;
@@ -223,6 +226,8 @@ public class TherapistUi : MonoBehaviour
         if (patternName == "Random Moles")
         {
             patternManager.ClearPattern();
+            wallManager.Clear();
+            wallManager.SetDefaultWall();
             return;
         }
         patternManager.LoadPattern(patternName);
