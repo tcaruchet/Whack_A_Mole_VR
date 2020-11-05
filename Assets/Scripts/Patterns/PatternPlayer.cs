@@ -103,7 +103,7 @@ public class PatternPlayer: MonoBehaviour
     // Resets the state of pattern play (so it can be played again).
     private void ResetPlay()
     {
-        StopAllCoroutines();
+        waitForDuration = -1f;
         playIndex = 0;
         waitTimeLeft = 0f;
     }
