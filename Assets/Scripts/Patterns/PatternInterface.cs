@@ -227,6 +227,22 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetMainController(bool.Parse(tempValue));
         }
+        if (action.TryGetValue("PRISM", out tempValue))
+        {
+            modifiersManager.SetPrismOffset(ParseFloat(tempValue));
+        }
+        if (action.TryGetValue("HIDEWALL", out tempValue))
+        {
+            modifiersManager.SetHideWall((ModifiersManager.HideWall)System.Enum.Parse( typeof(ModifiersManager.HideWall), tempValue));
+        }
+        if (action.TryGetValue("HIDEWALLAMOUNT", out tempValue))
+        {
+            modifiersManager.SetHideWallAmount(ParseFloat(tempValue));
+        }
+        if (action.TryGetValue("GEOMETRICMIRROR", out tempValue))
+        {
+            modifiersManager.SetGeometricMirror(bool.Parse(tempValue));
+        }
     }
 
     // Regenerates the random variable

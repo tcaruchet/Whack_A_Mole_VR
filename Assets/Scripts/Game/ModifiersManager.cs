@@ -173,6 +173,10 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
+    public void SetHideWallAmount(float value) {
+        hideWallSlider.value = value;
+    }
+
     public void onHideWallSliderChanged() {
         var sliderValue = (float) hideWallSlider.value;
         var highVal = (float) hideWallSlider.maxValue;
