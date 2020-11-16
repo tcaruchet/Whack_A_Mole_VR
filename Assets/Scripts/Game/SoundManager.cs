@@ -26,7 +26,6 @@ public class SoundManager : MonoBehaviour
         outOfBoundClick
     }
 
-
     public static SoundManager Instance = null;
     private void Awake()
     {
@@ -44,25 +43,6 @@ public class SoundManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void PlaySound(GameObject source, Sound sound)
-    {
-        if(source == null)
-        {
-            SoundManager.Instance.GetComponent<AudioSource>().PlayOneShot(GetAudioClip(sound));
-
-            return;
-        }
-
-        AudioSource _audioSource = source.GetComponent<AudioSource>();
-
-        if (_audioSource == null)
-        {
-            source.AddComponent<AudioSource>();
-        }
-
-        _audioSource.PlayOneShot(GetAudioClip(sound)); 
-    }
-
     // whenever you want to reference a sound, put this line in the spot where you want it to play:
     // SoundManager.PlaySound(SoundManager.Sound.SoundName);
 
@@ -77,6 +57,29 @@ public class SoundManager : MonoBehaviour
         }
         Debug.LogError("Sound " + sound + " not found!");
         return null;
+    }
+
+    public void PlaySound(GameObject source, Sound sound)
+    {
+        AudioSource _audioSource = source.GetComponent<AudioSource>();
+
+        if (source == null)
+        {
+            SoundManager.Instance.GetComponent<AudioSource>().PlayOneShot(GetAudioClip(sound));
+
+            return;
+        }
+
+        if (_audioSource == null)
+        {
+            source.AddComponent<AudioSource>();
+            _audioSource = source.GetComponent<AudioSource>();
+        } 
+        
+        if (_audioSource)
+        {
+            _audioSource.PlayOneShot(GetAudioClip(sound));
+        }
     }
 }
 
