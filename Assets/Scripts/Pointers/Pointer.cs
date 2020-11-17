@@ -208,6 +208,8 @@ public abstract class Pointer : MonoBehaviour
                         {"PointerShootOrder", pointerShootOrder}
                     });
                     Shoot(hit);
+                } else {
+                    soundManager.PlaySound(gameObject, SoundManager.Sound.outOfBoundClick);
                 }
             }
         }
