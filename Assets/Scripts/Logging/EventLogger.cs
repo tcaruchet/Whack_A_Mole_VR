@@ -42,6 +42,7 @@ public class EventLogger : MonoBehaviour
     private string email = "";
     private LoggingManager loggingManager;
     private WallStateTracker wallStateTracker;
+    private string gameId = "NULL";
 
 
     // On start, init the logs with the mandatory columns.
@@ -118,6 +119,7 @@ public class EventLogger : MonoBehaviour
         {
             case "Game Started":
                 trackerHub.StartTrackers();
+                gameId = GenerateUid();
                 //InitFile();
                 SaveEventDatas(datas);
                 break;
@@ -185,7 +187,7 @@ public class EventLogger : MonoBehaviour
         Dictionary<string, string> tempDict = new Dictionary<string, string>();
         foreach(KeyValuePair<string, object> pair in currentMoleLog)
         {
-            tempDict.Add(pair.Key, pair.Value.ToString());
+            tempDict.Add(pair.Key, pair.Value.ToString().Replace(",", "."));
         }
         //UpdateHeadersAndDefaults(tempDict);
     }
@@ -238,13 +240,13 @@ public class EventLogger : MonoBehaviour
         }
 
         datas["TimeSinceLastEvent"] = GetPreviousEventTimeDiff().ToString("0.0000").Replace(",", ".");
-        datas["PupilTime"] = timeSync != null ? timeSync.GetPupilTimestamp().ToString() : "NULL";
-        datas["UnityToPupilTimeOffset"] = timeSync != null ? timeSync.UnityToPupilTimeOffset.ToString() : "NULL";
-        datas["GameId"] = GenerateUid();
+        datas["PupilTime"] = timeSync != null ? timeSync.GetPupilTimestamp().ToString().Replace(",", ".") : "NULL";
+        datas["UnityToPupilTimeOffset"] = timeSync != null ? timeSync.UnityToPupilTimeOffset.ToString().Replace(",", ".") : "NULL";
+        datas["GameId"] = gameId;
 
         foreach(KeyValuePair<string, object> pair in persistentLog)
         {
-            datas.Add(pair.Key, pair.Value.ToString());
+            datas.Add(pair.Key, pair.Value.ToString().Replace(",", "."));
         }
 
         loggingManager.Log("Event", datas);

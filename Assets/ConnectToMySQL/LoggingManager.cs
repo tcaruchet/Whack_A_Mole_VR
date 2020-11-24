@@ -63,6 +63,7 @@ public class LoggingManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
         NewFilestamp();
         if (savePath == "") {
             savePath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);

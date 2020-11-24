@@ -81,8 +81,8 @@ public class GazeLogger : MonoBehaviour
                 gazeHitPosition = hit.point;
                 objectHit = hit.transform.gameObject;
             }
-            gazeData["PupilTime"] = timeSync != null ? timeSync.GetPupilTimestamp().ToString() : "NULL";
-            gazeData["UnityToPupilTimeOffset"] = timeSync != null ? timeSync.UnityToPupilTimeOffset.ToString() : "NULL";
+            gazeData["PupilTime"] = timeSync != null ? timeSync.GetPupilTimestamp().ToString().Replace(",", ".") : "NULL";
+            gazeData["UnityToPupilTimeOffset"] = timeSync != null ? timeSync.UnityToPupilTimeOffset.ToString().Replace(",", ".") : "NULL";
             gazeData["PupilTimeSample"] = pupilTime;
             gazeData["GazeConfidence"] = gazeConfidence;
             gazeData["EyeCenter0X"] = eyeCenter0.x;
