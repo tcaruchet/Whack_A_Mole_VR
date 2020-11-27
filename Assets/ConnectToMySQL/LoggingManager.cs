@@ -55,7 +55,7 @@ public class LoggingManager : MonoBehaviour
     private string fileExtension = ".csv";
 
     private string filePath;
-    private char fieldSeperator = ',';
+    private char fieldSeperator = ';';
     private string sessionID = "";
     private string deviceID = "";
     private string filestamp;
