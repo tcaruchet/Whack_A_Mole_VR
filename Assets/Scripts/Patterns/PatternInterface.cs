@@ -14,6 +14,7 @@ public class PatternInterface : MonoBehaviour
     private WallManager wallManager;
     private ModifiersManager modifiersManager;
     private GameDirector gameDirector;
+    private MotorSpaceManager motorspaceManager;
     private float randVar = 0f;
 
     void Awake()
@@ -22,6 +23,7 @@ public class PatternInterface : MonoBehaviour
         wallManager = FindObjectOfType<WallManager>();
         modifiersManager = FindObjectOfType<ModifiersManager>();
         gameDirector = FindObjectOfType<GameDirector>();
+        motorspaceManager = FindObjectOfType<MotorSpaceManager>();
     }
 
     // Plays an action
@@ -222,6 +224,7 @@ public class PatternInterface : MonoBehaviour
         if (action.TryGetValue("MAINCONTROLLER", out tempValue))
         {
             modifiersManager.SetMainController((ModifiersManager.ControllerSetup)System.Enum.Parse( typeof(ModifiersManager.ControllerSetup), tempValue));
+            motorspaceManager.SetActiveMotorSpace(tempValue);
         }
         if (action.TryGetValue("PRISM", out tempValue))
         {

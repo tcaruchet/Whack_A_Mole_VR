@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class MotorSpaceManager : MonoBehaviour
 {
 
-    public enum ActiveMotorSpace { R, L, Both };
+    public enum ActiveMotorSpace { Right, Left, Both };
 
-    public ActiveMotorSpace motorspace = ActiveMotorSpace.R;
+    public ActiveMotorSpace motorspace = ActiveMotorSpace.Right;
 
     [SerializeField]
     public LaserMapper MotorSpaceRight;
@@ -29,15 +29,15 @@ public class MotorSpaceManager : MonoBehaviour
 
     public void SetActiveMotorSpace(string newMotorSpace) {
         motorspace = (MotorSpaceManager.ActiveMotorSpace)System.Enum.Parse( typeof(MotorSpaceManager.ActiveMotorSpace), newMotorSpace);
-        bool R = motorspace == ActiveMotorSpace.R ? true : false;
+        bool R = motorspace == ActiveMotorSpace.Right ? true : false;
         R = motorspace == ActiveMotorSpace.Both ? true : R;
-        bool L = motorspace == ActiveMotorSpace.L ? true : false;
+        bool L = motorspace == ActiveMotorSpace.Left ? true : false;
         L = motorspace == ActiveMotorSpace.Both ? true : L;
         bool mirrorR = isMirror;
-        mirrorR = motorspace == ActiveMotorSpace.R ? mirrorR : false;
+        mirrorR = motorspace == ActiveMotorSpace.Right ? mirrorR : false;
         mirrorR = motorspace == ActiveMotorSpace.Both ? false : mirrorR;
         bool mirrorL = isMirror;
-        mirrorL = motorspace == ActiveMotorSpace.L ? mirrorL : false;
+        mirrorL = motorspace == ActiveMotorSpace.Left ? mirrorL : false;
         mirrorL = motorspace == ActiveMotorSpace.Both ? false : mirrorL;
 
         MotorSpaceRight.gameObject.SetActive(R);
@@ -57,11 +57,11 @@ public class MotorSpaceManager : MonoBehaviour
             return;
         }
 
-        if (motorspace == ActiveMotorSpace.R) {
+        if (motorspace == ActiveMotorSpace.Right) {
             MotorSpaceMirrorRight.gameObject.SetActive(true);
             MotorSpaceMirrorLeft.gameObject.SetActive(false);
             MotorSpaceMirrorRight.UpdateMotorSpaceToMirror(MotorSpaceRight);
-        } else if (motorspace == ActiveMotorSpace.L) {
+        } else if (motorspace == ActiveMotorSpace.Left) {
             MotorSpaceMirrorLeft.gameObject.SetActive(true);
             MotorSpaceMirrorRight.gameObject.SetActive(false);
             MotorSpaceMirrorLeft.UpdateMotorSpaceToMirror(MotorSpaceLeft);
@@ -70,9 +70,9 @@ public class MotorSpaceManager : MonoBehaviour
     }
 
     public void CalibrateActiveMotorspace(bool calibrate) {
-        if (motorspace == ActiveMotorSpace.R) {
+        if (motorspace == ActiveMotorSpace.Right) {
             MotorSpaceRight.ToggleMotorCalibration(calibrate);
-        } else if (motorspace == ActiveMotorSpace.L) {
+        } else if (motorspace == ActiveMotorSpace.Left) {
             MotorSpaceLeft.ToggleMotorCalibration(calibrate);
         } else if (motorspace == ActiveMotorSpace.Both) {
             MotorSpaceRight.ToggleMotorCalibration(calibrate);
@@ -81,9 +81,9 @@ public class MotorSpaceManager : MonoBehaviour
     }
 
     public void ResetActiveMotorspace() {
-        if (motorspace == ActiveMotorSpace.R) {
+        if (motorspace == ActiveMotorSpace.Right) {
             MotorSpaceRight.SetDefaultMotorSpace();
-        } else if (motorspace == ActiveMotorSpace.L) {
+        } else if (motorspace == ActiveMotorSpace.Left) {
             MotorSpaceLeft.SetDefaultMotorSpace();
         } else if (motorspace == ActiveMotorSpace.Both) {
             MotorSpaceRight.SetDefaultMotorSpace();
@@ -92,7 +92,7 @@ public class MotorSpaceManager : MonoBehaviour
     }
 
     public void SetActiveMotorSpaceMultiplier() {
-        if (motorspace == ActiveMotorSpace.R) {
+        if (motorspace == ActiveMotorSpace.Right) {
 
         }
     }
@@ -103,10 +103,10 @@ public class MotorSpaceManager : MonoBehaviour
         var lowVal = (float) motorSpaceSlider.minValue;
         float multiplier = (sliderValue - lowVal) / highVal;
 
-        if (motorspace == ActiveMotorSpace.R) {
+        if (motorspace == ActiveMotorSpace.Right) {
             MotorSpaceRight.SetMultiplier(multiplier);
             if (isMirror) MotorSpaceMirrorRight.UpdateMotorSpaceToMirror(MotorSpaceRight);
-        } else if (motorspace == ActiveMotorSpace.L) {
+        } else if (motorspace == ActiveMotorSpace.Left) {
             MotorSpaceLeft.SetMultiplier(multiplier);
             if (isMirror) MotorSpaceMirrorLeft.UpdateMotorSpaceToMirror(MotorSpaceLeft);
         } else if (motorspace == ActiveMotorSpace.Both) {
