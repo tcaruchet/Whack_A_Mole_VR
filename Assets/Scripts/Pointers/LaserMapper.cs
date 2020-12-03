@@ -186,6 +186,7 @@ public class LaserMapper : MonoBehaviour
             {"MotorSpaceCenterPositionX", transform.position.x},
             {"MotorSpaceCenterPositionY", transform.position.y},
             {"MotorSpaceCenterPositionZ", transform.position.z},
+            {"MotorSpaceName", gameObject.name},
         });
     }
 
