@@ -57,10 +57,10 @@ public class LaserMapper : MonoBehaviour
     [SerializeField]
     private WallManager wallManager;
 
-    private Vector3 wallSpaceTopLeft = new Vector3(0f,0f,0f);
-    private Vector3 wallSpaceTopRight = new Vector3(0f,0f,0f);
-    private Vector3 wallSpaceBottomRight = new Vector3(0f,0f,0f);
-    private Vector3 wallSpaceBottomLeft = new Vector3(0f,0f,0f);
+    private Vector3 wallSpaceTopLeft = Vector3.zero;
+    private Vector3 wallSpaceTopRight = Vector3.zero;
+    private Vector3 wallSpaceBottomRight = Vector3.zero;
+    private Vector3 wallSpaceBottomLeft = Vector3.zero;
 
     private Vector3 wallSpaceCoord;
 
@@ -76,6 +76,8 @@ public class LaserMapper : MonoBehaviour
     private float minZ = -1f;
     private float maxZ = -1f;
     private Vector3 newCenter;
+    private float gainX = -1f;
+    private float gainY = -1f;
     private List<GameObject> calibPointList = new List<GameObject>();
 
     [SerializeField]
@@ -90,6 +92,7 @@ public class LaserMapper : MonoBehaviour
     {
         OnWallUpdated(wallManager.CreateWallInfo());
         CalculateMotorSpace();
+        CalculateGain();
         UpdateMotorSpaceVisualizer();
         onMotorSpaceChanged.Invoke(new MotorSpaceInfo { width = motorSpaceWidth, height = motorSpaceHeight, pos = transform.position} );
     }
@@ -153,6 +156,7 @@ public class LaserMapper : MonoBehaviour
             transform.position = newCenter;
             LogMotorSpaceChange("MotorSpace Calibration End");
             CalculateMotorSpace();
+            CalculateGain();
             UpdateMotorSpaceVisualizer();
             ResetCalibrationValues();
         } else {
@@ -186,6 +190,8 @@ public class LaserMapper : MonoBehaviour
             {"MotorSpaceCenterPositionX", transform.position.x},
             {"MotorSpaceCenterPositionY", transform.position.y},
             {"MotorSpaceCenterPositionZ", transform.position.z},
+            {"MotorSpaceGainX", gainX},
+            {"MotorSpaceGainY", gainY},
             {"MotorSpaceName", gameObject.name},
         });
     }
@@ -227,9 +233,28 @@ public class LaserMapper : MonoBehaviour
         wallSpaceBottomLeft = new Vector3(w.lowestX - wallSpaceMargin, w.lowestY - wallSpaceMargin, w.lowestZ);
     }
 
+    private void CalculateGain() {
+        if (wallSpaceTopLeft == Vector3.zero) {
+            gainX = -1f;
+            gainY = -1f;
+        } else if (motorSpaceTopRight == Vector3.zero) {
+            gainX = -1f;
+            gainY = -1f;
+        } else {
+            Debug.Log("motorspacetopleft");
+            Debug.Log((motorSpaceTopLeft.x));
+            Debug.Log("motorspacetopright");
+            Debug.Log((motorSpaceTopRight.x));
+            gainX = (wallSpaceTopRight.x - wallSpaceTopLeft.x) / (motorSpaceTopRight.x - motorSpaceTopLeft.x);
+            gainY = (wallSpaceTopRight.y - wallSpaceBottomRight.y) / (motorSpaceTopRight.y - motorSpaceBottomRight.y);
+        }
+    }
+
     // Whenever the wall udpates we want to recalculate the wallspace.
     public void OnWallUpdated(WallInfo wall) {
         CalculateWallSpace(wall);
+        CalculateGain();
+        LogMotorSpaceChange("Wall Size Update");
     }
 
     public void SetMultiplier(float m) {
@@ -241,12 +266,14 @@ public class LaserMapper : MonoBehaviour
     public void SetMotorSpaceWidth(float newWidth) {
         motorSpaceWidth = newWidth;
         CalculateMotorSpace();
+        CalculateGain();
         UpdateMotorSpaceVisualizer();
     }
 
     public void SetMotorSpaceHeight(float newHeight) {
         motorSpaceHeight = newHeight;
         CalculateMotorSpace();
+        CalculateGain();
         UpdateMotorSpaceVisualizer();
     }
 
@@ -269,45 +296,13 @@ public class LaserMapper : MonoBehaviour
         return wallSpaceCoord;
     }
 
-    void OnDrawGizmos() {
-        // Draw rectangle to indicate motorspace.
-        // Gizmos.DrawLine(motorSpaceTopLeft, motorSpaceTopRight);
-        // Gizmos.DrawLine(motorSpaceTopRight, motorSpaceBottomRight);
-        // Gizmos.DrawLine(motorSpaceBottomRight, motorSpaceBottomLeft);
-        // Gizmos.DrawLine(motorSpaceBottomLeft, motorSpaceTopLeft);
-
-        // // Draw rectangle to indicate wallspace
-        // Gizmos.DrawLine(wallSpaceTopLeft, wallSpaceTopRight);
-        // Gizmos.DrawLine(wallSpaceTopRight, wallSpaceBottomRight);
-        // Gizmos.DrawLine(wallSpaceBottomRight, wallSpaceBottomLeft);
-        // Gizmos.DrawLine(wallSpaceBottomLeft, wallSpaceTopLeft);
-
-        // // Draw cube to visualize the latest calculated wall space coordinate.
-        // Gizmos.DrawCube(wallSpaceCoord, new Vector3(0.05f,0.05f,0.05f)); 
-    }
-
-    // public void SetPosition(bool isRightHand) {
-    //     if (isRightHand) {
-    //         if (this.transform.position.x < 0f) {
-    //             this.transform.position = new Vector3(-this.transform.position.x, this.transform.position.y, this.transform.position.z);
-    //             LogMotorSpaceChange("MotorSpace Set Right");
-    //         }
-    //     } else {
-    //         if (this.transform.position.x > 0f) {
-    //             this.transform.position = new Vector3(-this.transform.position.x, this.transform.position.y, this.transform.position.z);
-    //             LogMotorSpaceChange("MotorSpace Set Left");
-    //         }
-    //     }
-    //     CalculateMotorSpace();
-    //     UpdateMotorSpaceVisualizer();
-    // }
-
     public void SetMotorSpace(MotorSpaceInfo motorspace) {
         motorSpaceWidth = motorspace.width;
         motorSpaceHeight = motorspace.height;
         transform.position = motorspace.pos;
         multiplier = motorspace.multiplier;
         CalculateMotorSpace();
+        CalculateGain();
         UpdateMotorSpaceVisualizer();
     }
 
