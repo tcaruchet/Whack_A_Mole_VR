@@ -111,6 +111,15 @@ public class WallManager : MonoBehaviour
             {"WallSizeX", "NULL"},
             {"WallSizeY", "NULL"},
             {"WallSizeZ", "NULL"},
+            {"WallBoundsXmin", "NULL"},
+            {"WallBoundsYmin", "NULL"},
+            {"WallBoundsZmin", "NULL"},
+            {"WallBoundsXmax", "NULL"},
+            {"WallBoundsYmax", "NULL"},
+            {"WallBoundsZmax", "NULL"},
+            {"WallCenterX", "NULL"},
+            {"WallCenterY", "NULL"},
+            {"WallCenterZ", "NULL"},
             {"WallCurveRatioX", "NULL"},
             {"WallCurveRatioY", "NULL"}
         });
@@ -121,6 +130,15 @@ public class WallManager : MonoBehaviour
             {"WallSizeX", wallSize.x},
             {"WallSizeY", wallSize.y},
             {"WallSizeZ", wallSize.z},
+            {"WallBoundsXmin", wallSize.x},
+            {"WallBoundsYmin", wallSize.y},
+            {"WallBoundsZmin", wallSize.z},
+            {"WallBoundsXmax", wallSize.x},
+            {"WallBoundsYmax", wallSize.y},
+            {"WallBoundsZmax", wallSize.z},
+            {"WallCenterX", wallSize.x},
+            {"WallCenterY", wallSize.y},
+            {"WallCenterZ", wallSize.z},
             {"WallCurveRatioX", xCurveRatio},
             {"WallCurveRatioY", yCurveRatio}
         });
@@ -144,12 +162,42 @@ public class WallManager : MonoBehaviour
     }
 
     private void UpdateWallLogs() {
+        MeshRenderer mesh = GetComponent<MeshRenderer>();
+        float boundsXmax = -1f;
+        float boundsXmin = -1f;
+        float boundsYmax = -1f;
+        float boundsYmin = -1f;
+        float boundsXcenter = -1f;
+        float boundsYcenter = -1f;
+        float boundsZcenter = -1f;
+        float boundsZmax = -1f;
+        float boundsZmin = -1f;
+        if (mesh != null) {
+            boundsXmax = mesh.bounds.max.x;
+            boundsYmax = mesh.bounds.max.y;
+            boundsZmax = mesh.bounds.max.z;
+            boundsXmin = mesh.bounds.min.x;
+            boundsYmin = mesh.bounds.min.y;
+            boundsZmin = mesh.bounds.min.z;
+            boundsXcenter = mesh.bounds.center.x;
+            boundsYcenter = mesh.bounds.center.y;
+            boundsZcenter = mesh.bounds.center.z;
+        }
         loggerNotifier.InitPersistentEventParameters(new Dictionary<string, object>(){
             {"WallRowCount", rowCount},
             {"WallColumnCount", columnCount},
             {"WallSizeX", wallSize.x},
             {"WallSizeY", wallSize.y},
             {"WallSizeZ", wallSize.z},
+            {"WallBoundsXmin", boundsXmin},
+            {"WallBoundsYmin", boundsYmin},
+            {"WallBoundsZmin", boundsZmin},
+            {"WallBoundsXmax", boundsXmax},
+            {"WallBoundsYmax", boundsYmax},
+            {"WallBoundsZmax", boundsZmax},
+            {"WallCenterX", boundsXcenter},
+            {"WallCenterY", boundsYcenter},
+            {"WallCenterZ", boundsZcenter},
             {"WallCurveRatioX", xCurveRatio},
             {"WallCurveRatioY", yCurveRatio}
         });
