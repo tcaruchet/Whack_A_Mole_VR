@@ -57,10 +57,10 @@ public class SampleLogger : MonoBehaviour
     }
 
     // // Update is called once per frame
-    // void Update()
-    // {
-        
-    // }
+    void Start ()
+    {
+        loggingManager.Log("Meta", "SamplingFrequency", samplingFrequency, LogMode.Overwrite);   
+    }
 
     // // Initialises the CSV file parameters (name and file path).
     // private void InitFile()
