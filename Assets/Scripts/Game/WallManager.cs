@@ -136,9 +136,9 @@ public class WallManager : MonoBehaviour
             {"WallBoundsXmax", wallSize.x},
             {"WallBoundsYmax", wallSize.y},
             {"WallBoundsZmax", wallSize.z},
-            {"WallCenterX", wallSize.x},
-            {"WallCenterY", wallSize.y},
-            {"WallCenterZ", wallSize.z},
+            {"WallCenterX", wallCenter.x},
+            {"WallCenterY", wallCenter.y},
+            {"WallCenterZ", wallCenter.z},
             {"WallCurveRatioX", xCurveRatio},
             {"WallCurveRatioY", yCurveRatio}
         });
