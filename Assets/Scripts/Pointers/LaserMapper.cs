@@ -90,6 +90,7 @@ public class LaserMapper : MonoBehaviour
     // Start is called before the first frame update
     void OnEnable()
     {
+        wallManager.stateUpdateEvent.AddListener(OnWallUpdated);
         OnWallUpdated(wallManager.CreateWallInfo());
         CalculateMotorSpace();
         CalculateGain();
