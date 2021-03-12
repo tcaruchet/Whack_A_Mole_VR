@@ -181,6 +181,10 @@ public class PatternInterface : MonoBehaviour
         {
             wallManager.UpdateMoleScale(newMoleScaleZ: ParseFloat(tempValue));
         }
+        if (action.TryGetValue("VISIBLE", out tempValue))
+        {
+            wallManager.SetWallVisible(bool.Parse(tempValue));
+        }
         wallManager.Enable();
     }
 

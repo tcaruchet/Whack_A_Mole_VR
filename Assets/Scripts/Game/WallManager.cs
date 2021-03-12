@@ -80,6 +80,11 @@ public class WallManager : MonoBehaviour
     [SerializeField]
     private Vector3 moleScale = Vector3.one;
 
+    [SerializeField]
+    private Material invisibleMaterial;
+    [SerializeField]
+    private MeshRenderer greyBackground;
+
     [System.Serializable]
     public class StateUpdateEvent : UnityEvent<WallInfo> { }
     public StateUpdateEvent stateUpdateEvent;
@@ -92,6 +97,7 @@ public class WallManager : MonoBehaviour
     private float updateCooldownDuration = .1f;
     private LoggerNotifier loggerNotifier;
     private int moleCount = 0;
+    private bool wallVisible = true;
 
     // Wall boundaries
     private float highestX = -1f;
@@ -111,12 +117,12 @@ public class WallManager : MonoBehaviour
             {"WallSizeX", "NULL"},
             {"WallSizeY", "NULL"},
             {"WallSizeZ", "NULL"},
-            {"WallBoundsXmin", "NULL"},
-            {"WallBoundsYmin", "NULL"},
-            {"WallBoundsZmin", "NULL"},
-            {"WallBoundsXmax", "NULL"},
-            {"WallBoundsYmax", "NULL"},
-            {"WallBoundsZmax", "NULL"},
+            {"WallBoundsXMin", "NULL"},
+            {"WallBoundsYMin", "NULL"},
+            {"WallBoundsZMin", "NULL"},
+            {"WallBoundsXMax", "NULL"},
+            {"WallBoundsYMax", "NULL"},
+            {"WallBoundsZMax", "NULL"},
             {"WallCenterX", "NULL"},
             {"WallCenterY", "NULL"},
             {"WallCenterZ", "NULL"},
@@ -130,12 +136,12 @@ public class WallManager : MonoBehaviour
             {"WallSizeX", wallSize.x},
             {"WallSizeY", wallSize.y},
             {"WallSizeZ", wallSize.z},
-            {"WallBoundsXmin", wallSize.x},
-            {"WallBoundsYmin", wallSize.y},
-            {"WallBoundsZmin", wallSize.z},
-            {"WallBoundsXmax", wallSize.x},
-            {"WallBoundsYmax", wallSize.y},
-            {"WallBoundsZmax", wallSize.z},
+            {"WallBoundsXMin", wallSize.x},
+            {"WallBoundsYMin", wallSize.y},
+            {"WallBoundsZMin", wallSize.z},
+            {"WallBoundsXMax", wallSize.x},
+            {"WallBoundsYMax", wallSize.y},
+            {"WallBoundsZMax", wallSize.z},
             {"WallCenterX", wallCenter.x},
             {"WallCenterY", wallCenter.y},
             {"WallCenterZ", wallCenter.z},
@@ -147,6 +153,20 @@ public class WallManager : MonoBehaviour
         wallGenerator = gameObject.GetComponent<WallGenerator>();
         wallCenter = new Vector3(wallSize.x/2f, wallSize.y/2f, 0);
         isInit = true;
+    }
+
+    // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
+    public void SetWallVisible(bool value)
+    {
+        if (wallVisible == value) return;
+        wallVisible = value;
+        if (!wallVisible) {
+            wallGenerator.SetMeshMaterial(invisibleMaterial);
+            greyBackground.enabled = true;
+        } else {
+            wallGenerator.ResetMeshMaterial();
+            greyBackground.enabled = false;
+        }
     }
 
     public void SetDefaultWall() {
@@ -189,12 +209,12 @@ public class WallManager : MonoBehaviour
             {"WallSizeX", wallSize.x},
             {"WallSizeY", wallSize.y},
             {"WallSizeZ", wallSize.z},
-            {"WallBoundsXmin", boundsXmin},
-            {"WallBoundsYmin", boundsYmin},
-            {"WallBoundsZmin", boundsZmin},
-            {"WallBoundsXmax", boundsXmax},
-            {"WallBoundsYmax", boundsYmax},
-            {"WallBoundsZmax", boundsZmax},
+            {"WallBoundsXMin", boundsXmin},
+            {"WallBoundsYMin", boundsYmin},
+            {"WallBoundsZMin", boundsZmin},
+            {"WallBoundsXMax", boundsXmax},
+            {"WallBoundsYMax", boundsYmax},
+            {"WallBoundsZMax", boundsZmax},
             {"WallCenterX", boundsXcenter},
             {"WallCenterY", boundsYcenter},
             {"WallCenterZ", boundsZcenter},

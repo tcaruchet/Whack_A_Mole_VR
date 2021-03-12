@@ -15,6 +15,7 @@ public class WallGenerator : MonoBehaviour
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
+    private Material startMaterial;
 
 
     void Start()
@@ -22,6 +23,7 @@ public class WallGenerator : MonoBehaviour
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshCollider = gameObject.AddComponent<MeshCollider>();
+        startMaterial = meshMaterial;
     }
 
     // Initialises the arrays
@@ -36,6 +38,14 @@ public class WallGenerator : MonoBehaviour
     {
         pointsList[xIndex + 1, yIndex + 1] = position;
         rotationsList[xIndex + 1, yIndex + 1] = rotation;
+    }
+
+    public void SetMeshMaterial(Material mat) {
+        meshMaterial = mat;
+    }
+
+    public void ResetMeshMaterial() {
+        meshMaterial = startMaterial;
     }
 
     // Generates the wall mesh.
