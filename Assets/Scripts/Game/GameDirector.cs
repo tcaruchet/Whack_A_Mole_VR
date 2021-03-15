@@ -36,11 +36,19 @@ public class GameDirector : MonoBehaviour
     private WallManager wallManager;
 
     [SerializeField]
+    private LoggingManager loggingManager;
+
+    [SerializeField]
+    private ProfileManager profileManager;
+
+    [SerializeField]
     private PupilLabs.RecordingController gazeRecorder;
 
     //temporarily serialized field for game test
     [SerializeField]
     private float gameDuration;
+
+    private float gameDefaultDuration;
     //temporarily serialized field for game test
     [SerializeField]
     private string gameDifficulty;
@@ -97,6 +105,7 @@ public class GameDirector : MonoBehaviour
     void Awake()
     {
         patternManager = FindObjectOfType<PatternManager>();
+        gameDefaultDuration = gameDuration;
     }
 
     void Start()
@@ -138,6 +147,7 @@ public class GameDirector : MonoBehaviour
 
         if(patternManager.PlayPattern())
         {
+            gameDuration = patternManager.GetPatternDuration();
             loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>()
             {
                 {"GameDuration", patternManager.GetPatternDuration()}
@@ -146,6 +156,7 @@ public class GameDirector : MonoBehaviour
         }
         else
         {
+            gameDuration = gameDefaultDuration;
             loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>()
             {
                 {"GameDuration", gameDuration}
@@ -167,6 +178,18 @@ public class GameDirector : MonoBehaviour
     public void StopGame()
     {
         if (gameState == GameState.Stopped) return;
+
+        var props = profileManager.GetSelectedProfileProperties();
+        var metaLog = new Dictionary<string, object>()
+        {
+            {"SessionDuration", gameDuration - currentGameTimeLeft},
+            {"SessionState", "Interrupted"},
+            {"ProfileName", props["Name"]},
+            {"ProfileID", profileManager.GetSelectedProfileId()},
+            {"ParticipantID", participantId},
+            {"testID", testId}
+        };
+        loggingManager.Log("Meta", metaLog, LogMode.Overwrite);
         loggerNotifier.NotifyLogger("Game Stopped", EventLogger.EventType.GameEvent, new Dictionary<string, object>()
         {
             {"GameState", System.Enum.GetName(typeof(GameDirector.GameState), gameState)}
@@ -205,7 +228,7 @@ public class GameDirector : MonoBehaviour
     public void SetGameDuration(float duration)
     {
         if (gameState == GameState.Playing) return;
-        gameDuration = duration;
+        gameDefaultDuration = duration;
     }
 
     public void SetParticipant(int participant)
@@ -389,6 +412,18 @@ public class GameDirector : MonoBehaviour
 
     private void OnGameEndTimeout()
     {
+        var props = profileManager.GetSelectedProfileProperties();
+
+        var metaLog = new Dictionary<string, object>()
+        {
+            {"SessionDuration", gameDuration - currentGameTimeLeft},
+            {"ProfileName", props["Name"]},
+            {"ProfileID", profileManager.GetSelectedProfileId()},
+            {"SessionState", "Finished"},
+            {"ParticipantID", participantId},
+            {"testID", testId}
+        };
+        loggingManager.Log("Meta", metaLog, LogMode.Overwrite);
         loggerNotifier.NotifyLogger("Game Finished", EventLogger.EventType.GameEvent, new Dictionary<string, object>()
         {
             {"GameState", System.Enum.GetName(typeof(GameDirector.GameState), gameState)}

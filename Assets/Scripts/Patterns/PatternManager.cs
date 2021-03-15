@@ -21,6 +21,8 @@ public class PatternManager : MonoBehaviour
     private PatternPlayer patternPlayer;
     private LoggerNotifier loggerNotifier;
     private PatternUpdateEvent patternUpdateEvent = new PatternUpdateEvent();
+    [SerializeField]
+    private LoggingManager loggingManager;
 
     [System.Serializable]
     public struct InternalPattern {
@@ -61,12 +63,14 @@ public class PatternManager : MonoBehaviour
             loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
                 {"PlayedPattern", "None"}
             });
+            loggingManager.Log("Meta", "SessionProgram","Random Moles", LogMode.Overwrite);
             return false;
         }
         patternPlayer.PlayPattern();
         loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
                 {"PlayedPattern", loadedPatternName}
             });
+        loggingManager.Log("Meta", "SessionProgram",loadedPatternName, LogMode.Overwrite);
         return true;
     }
 
