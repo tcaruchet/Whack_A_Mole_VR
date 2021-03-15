@@ -80,6 +80,13 @@ public class ProfileManager : MonoBehaviour
         return selectedProfileProperties;
     }
 
+    // Returns the profile ID of the selected profile.
+    public string GetSelectedProfileId()
+    {
+        if (selectedProfileId == "") return null;
+        return selectedProfileId;
+    }
+
     // Deletes from the disk all profiles present in the deletion buffer.
     private void DeleteProfilesFromDeletionBuffer()
     {
