@@ -114,3 +114,6 @@ The logged data are:
 * **WallColumnCount**: the count of columns of Moles on the wall
 * **WallSize** (X, Y, Z): the world size of the wall on the X, Y and Z axes
 * **WallCurveRatio** (X, Y): the curving ratio of the wall on the X and Y axes
+
+* **PupilTime**: The time in the PupilTime format, at the time the logging takes place.
+* **PupilTimeSample**: The time in PupilTime format, at the time we receive gaze data.
