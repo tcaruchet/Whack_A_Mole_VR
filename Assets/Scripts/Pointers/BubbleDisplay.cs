@@ -16,6 +16,15 @@ public class BubbleDisplay : MonoBehaviour
     private GameObject bubbleRender;
 
     [SerializeField]
+    private GameObject bubbleSphere;
+
+    [SerializeField]
+    private GameObject bubbleOutline;
+
+    [SerializeField]
+    private LineRenderer laserRender;
+
+    [SerializeField]
     private GameObject controllerRender;
 
     [SerializeField]
@@ -35,6 +44,9 @@ public class BubbleDisplay : MonoBehaviour
 
     [SerializeField]
     private float offsetZ = 0f;
+
+    [SerializeField]
+    private bool showBubble = false;
 
     [SerializeField]
     private LaserMapper laserMapper;
@@ -79,6 +91,9 @@ public class BubbleDisplay : MonoBehaviour
             if (!render) {
                 render = true;
                 bubbleRender.SetActive(true);
+                laserRender.enabled = showBubble;
+                bubbleOutline.SetActive(showBubble);
+                bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorActiveColor;
                 enterMotorStateEvent.Invoke(true);
@@ -90,6 +105,9 @@ public class BubbleDisplay : MonoBehaviour
             if (render) {
                 render = false;
                 bubbleRender.SetActive(false);
+                laserRender.enabled = showBubble;
+                bubbleOutline.SetActive(showBubble);
+                bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorDisabledColor;
                 enterMotorStateEvent.Invoke(false);
@@ -98,6 +116,10 @@ public class BubbleDisplay : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void Show(bool show) {
+        showBubble = show;
     }
 
     public void UpdateOwnPosition(Vector3 newPosition) {

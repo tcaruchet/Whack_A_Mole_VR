@@ -138,7 +138,7 @@ public abstract class Pointer : MonoBehaviour
 
         if (cursor) cursor.Enable();
 
-        if (laser) laser.enabled = true;
+        //if (laser) laser.enabled = true;
         state = States.Idle;
         active = true;
         pointerShootOrder = -1;
@@ -151,7 +151,7 @@ public abstract class Pointer : MonoBehaviour
 
         if (cursor) cursor.Disable();
 
-        if (laser) laser.enabled = false;
+        //if (laser) laser.enabled = false;
         active = false;
     }
 

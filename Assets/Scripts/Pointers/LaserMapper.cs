@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class MotorSpaceInfo {
@@ -43,6 +44,8 @@ public class LaserMapper : MonoBehaviour
     [SerializeField]
     private float motorSpaceHeight = 1f;
 
+    [SerializeField]
+    private bool showMotorspace = false;
 
     private float multiplier = 1f;
 
@@ -90,6 +93,7 @@ public class LaserMapper : MonoBehaviour
     // Start is called before the first frame update
     void Start() {
         SetDefaultMotorSpace();
+        ShowMotorspace(showMotorspace);
     }
     void OnEnable()
     {
@@ -219,7 +223,11 @@ public class LaserMapper : MonoBehaviour
         motorSpaceVisualizer.transform.position = transform.position + motorSpaceOffset;
         var visRect = motorSpaceVisualizer.GetComponent<RectTransform>();
         visRect.sizeDelta = new Vector2(motorSpaceWidth * 2 * multiplier, motorSpaceHeight * 2 * multiplier);
+    }
 
+    public void ShowMotorspace(bool show) {
+        var visImage = motorSpaceVisualizer.GetComponentInChildren<Image>();
+        visImage.enabled = show;
     }
 
     public bool CoordinateWithinMotorSpace(Vector3 coordinate) {
