@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MotorSpaceManager : MonoBehaviour
 {
 
-    public enum ActiveMotorSpace { Right, Left, Both };
+    public enum ActiveMotorSpace { Right, Left, Both, Off };
 
     public ActiveMotorSpace motorspace = ActiveMotorSpace.Right;
 

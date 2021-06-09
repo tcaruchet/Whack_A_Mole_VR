@@ -19,7 +19,7 @@ It is also possible to fully hide the chaperone by editing the steamvr.vrsetting
 
 public class ModifiersManager : MonoBehaviour
 {
-    public enum ControllerSetup {Left, Both, Right};
+    public enum ControllerSetup {Left, Both, Right, Off};
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
 

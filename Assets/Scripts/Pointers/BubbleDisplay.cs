@@ -25,7 +25,7 @@ public class BubbleDisplay : MonoBehaviour
     private bool parentY = true;
 
     [SerializeField]
-    private bool parentZ = false;
+    private bool parentZ = true;
 
     [SerializeField]
     private float offsetX = 0f;
