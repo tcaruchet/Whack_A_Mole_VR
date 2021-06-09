@@ -273,8 +273,14 @@ public abstract class Mole : MonoBehaviour
                 PlayEnabling();
                 break;
             case States.Disabling:
-                if (!fake) loggerNotifier.NotifyLogger("Mole Expired", EventLogger.EventType.MoleEvent);
-                else loggerNotifier.NotifyLogger("Fake Mole Expired", EventLogger.EventType.MoleEvent);
+                if (!fake) loggerNotifier.NotifyLogger("Mole Expired", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
+                            {
+                                {"MoleActivatedDuration", lifeTime}
+                            });
+                else loggerNotifier.NotifyLogger("Fake Mole Expired", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
+                            {
+                                {"MoleActivatedDuration", lifeTime}
+                            });
 
                 if (!fake) stateUpdateEvent.Invoke(false, this);
 
