@@ -21,6 +21,12 @@ public class GameStateContainer : MonoBehaviour
     private GameObject runningContainer;
 
     [SerializeField]
+    private GameObject dataSaveContainer;
+
+    [SerializeField]
+    private GameObject uploadingContainer;
+
+    [SerializeField]
     private Text gameStateText;
 
     [SerializeField]
@@ -33,6 +39,9 @@ public class GameStateContainer : MonoBehaviour
     [SerializeField]
     private Button pauseGameButton;
 
+    [SerializeField]
+    private LoggingManager loggingManager;
+
     void Awake() {
         countDownTextTemplate = countDownText.text;
     }
@@ -43,6 +52,7 @@ public class GameStateContainer : MonoBehaviour
         startContainer.SetActive(false);
         runningContainer.SetActive(false);
         countdownContainer.SetActive(true);
+        dataSaveContainer.SetActive(false);
     }
 
     // When the game starts, updates the text and shows the runningContainer (containing the chronometer, pause and stop buttons).
@@ -52,15 +62,54 @@ public class GameStateContainer : MonoBehaviour
         startContainer.SetActive(false);
         countdownContainer.SetActive(false);
         runningContainer.SetActive(true);
+        dataSaveContainer.SetActive(false);
     }
 
     // When the game stops, updates the text and hides the runningContainer and shows the start container (containing the start game button).
     public void OnStopGame()
     {
-        gameStateText.text = "Game is ready.";
+        gameStateText.text = "Keep this session?";
         runningContainer.SetActive(false);
         countdownContainer.SetActive(false);
+        startContainer.SetActive(false);
+        dataSaveContainer.SetActive(true);
+    }
+
+    public void OnUploadData()
+    {
+        startContainer.SetActive(false);
+        countdownContainer.SetActive(false);
+        runningContainer.SetActive(false);
+        dataSaveContainer.SetActive(false);
+        uploadingContainer.SetActive(true);
+        gameStateText.text = "Uploading Data..";
+        loggingManager.SaveAllLogs();
+        loggingManager.ClearAllLogs();
+        loggingManager.NewFilestamp();
+    }
+
+    public void OnDiscardData()
+    {
+        startContainer.SetActive(false);
+        countdownContainer.SetActive(false);
+        runningContainer.SetActive(false);
+        dataSaveContainer.SetActive(false);
+        uploadingContainer.SetActive(true);
+        bool localOnly = true;
+        gameStateText.text = "Hold on..";
+        loggingManager.SaveAllLogs(localOnly);
+        loggingManager.ClearAllLogs();
+        loggingManager.NewFilestamp();
+        Reset();
+    }
+
+    public void Reset() {
+        gameStateText.text = "Game is ready.";
         startContainer.SetActive(true);
+        countdownContainer.SetActive(false);
+        runningContainer.SetActive(false);
+        dataSaveContainer.SetActive(false);
+        uploadingContainer.SetActive(false);
     }
 
     // When the game pauses, darkens the pause button

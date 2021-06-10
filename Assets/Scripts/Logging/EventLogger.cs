@@ -127,9 +127,9 @@ public class EventLogger : MonoBehaviour
             case "Game Finished":
                 trackerHub.StopTrackers();
                 SaveEventDatas(datas);
-                loggingManager.SaveAllLogs();
-                loggingManager.ClearAllLogs();
-                loggingManager.NewFilestamp();
+                //loggingManager.SaveAllLogs();
+                //loggingManager.ClearAllLogs();
+                //loggingManager.NewFilestamp();
                 break;
             case "Mole Spawned":
                 SaveEventDatas(datas, true, true);
