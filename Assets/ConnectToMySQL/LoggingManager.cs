@@ -79,10 +79,14 @@ public class LoggingManager : MonoBehaviour
         return new Dictionary<string, Dictionary<int, object>>(collections[collectionLabel].log);
     }
 
-    public void SaveAllLogs() {
+    public void SaveAllLogs(bool localOnly = false) {
+        // Temporarily disable SQL if requested.
+        bool sqlSetting = enableMySQLSave;
+        if (localOnly) enableMySQLSave = false;
         foreach(KeyValuePair<string, LogCollection> pair in collections) {
             SaveLog(pair.Value.label);
         }
+        if (localOnly) enableMySQLSave = sqlSetting;
     }
 
     public void SaveLog(string collectionLabel) {
