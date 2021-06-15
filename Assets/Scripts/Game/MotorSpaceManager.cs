@@ -97,6 +97,49 @@ public class MotorSpaceManager : MonoBehaviour
         }
     }
 
+    public void SetMotorSpaceSmall() {
+        SetMotorSpace(0.15f, 0.1f);
+    }
+
+    public void SetMotorSpaceMedium() {
+        SetMotorSpace(0.6f, 0.4f);
+    }
+
+    public void SetMotorSpaceLarge() {
+        SetMotorSpace(1.2f, 0.8f);
+    }
+
+    public void SetMotorSpace(float width, float height) {
+        var mR = MotorSpaceRight.GetMotorSpace();
+        var mL = MotorSpaceLeft.GetMotorSpace();
+
+        MotorSpaceInfo mRNew = new MotorSpaceInfo { 
+            width = width, 
+            height = height, 
+            pos = mR.pos
+            };
+
+        MotorSpaceInfo mLNew = new MotorSpaceInfo { 
+            width = width, 
+            height = height, 
+            pos = mL.pos
+            };
+
+        bool mRState = MotorSpaceRight.gameObject.activeSelf;
+        bool mLState = MotorSpaceLeft.gameObject.activeSelf;
+
+        MotorSpaceRight.gameObject.SetActive(true);
+        MotorSpaceRight.SetMotorSpace(mRNew);
+        MotorSpaceRight.gameObject.SetActive(mRState);
+
+        MotorSpaceLeft.gameObject.SetActive(true);
+        MotorSpaceLeft.SetMotorSpace(mLNew);
+        MotorSpaceLeft.gameObject.SetActive(mLState);
+
+        if (isMirror) MotorSpaceMirrorRight.UpdateMotorSpaceToMirror(MotorSpaceRight);
+        if (isMirror) MotorSpaceMirrorLeft.UpdateMotorSpaceToMirror(MotorSpaceLeft);
+    }
+
     public void OnMultiplierSliderChanged() {
         var sliderValue = (float) motorSpaceSlider.value;
         var highVal = (float) motorSpaceSlider.maxValue;
