@@ -333,7 +333,6 @@ public class LaserMapper : MonoBehaviour
         motorSpaceHeight = motorspace.height;
         transform.position = motorspace.pos;
         multiplier = motorspace.multiplier;
-        Debug.Log(System.Enum.GetName(typeof(MotorCalcMode), motorspace.mode));
         CalculateMotorSpace(motorspace.mode);
         CalculateGain();
         UpdateMotorSpaceVisualizer(motorspace.mode);

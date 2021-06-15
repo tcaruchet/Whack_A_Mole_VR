@@ -35,7 +35,7 @@ public class MotorSpaceManager : MonoBehaviour
     bool isMirror = false;
 
     void Start() {
-        MotorSpaceInfo m = (MotorSpaceInfo) motorSpaceMedium.Clone();
+        MotorSpaceInfo m = (MotorSpaceInfo) motorSpaceLarge.Clone();
         MotorSpaceRight.SetDefaultMotorSpace(m);
         m.pos = new Vector2(m.pos.x * (-1), m.pos.y); // inverse position for left side.
         MotorSpaceLeft.SetDefaultMotorSpace(m);
@@ -132,7 +132,6 @@ public class MotorSpaceManager : MonoBehaviour
         MotorSpaceRight.gameObject.SetActive(mRState);
 
         m.pos = new Vector2(m.pos.x * (-1), m.pos.y);
-        Debug.Log(m.pos);
 
         MotorSpaceLeft.gameObject.SetActive(true);
         MotorSpaceLeft.SetMotorSpace(m);
