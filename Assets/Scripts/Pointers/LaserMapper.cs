@@ -10,6 +10,17 @@ public class MotorSpaceInfo {
     public float height;
     public Vector3 pos;
     public float multiplier = 1f;
+    public MotorCalcMode mode = MotorCalcMode.center;
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
+    }
+}
+
+public enum MotorCalcMode {
+    center,
+    bottom
 }
 
 public class LaserMapper : MonoBehaviour
@@ -99,10 +110,10 @@ public class LaserMapper : MonoBehaviour
     {
         wallManager.stateUpdateEvent.AddListener(OnWallUpdated);
         OnWallUpdated(wallManager.CreateWallInfo());
-        CalculateMotorSpace();
-        CalculateGain();
-        UpdateMotorSpaceVisualizer();
-        onMotorSpaceChanged.Invoke(new MotorSpaceInfo { width = motorSpaceWidth, height = motorSpaceHeight, pos = transform.position} );
+        //CalculateMotorSpace();
+        //CalculateGain();
+        //UpdateMotorSpaceVisualizer();
+        //onMotorSpaceChanged.Invoke(new MotorSpaceInfo { width = motorSpaceWidth, height = motorSpaceHeight, pos = transform.position} );
     }
 
     void Update()
@@ -205,13 +216,21 @@ public class LaserMapper : MonoBehaviour
     }
 
     // Update is called once per frame
-    void CalculateMotorSpace()
+    void CalculateMotorSpace(MotorCalcMode mode = MotorCalcMode.center)
     {
         var motorSpaceOrigin = transform.position + motorSpaceOffset;
         motorSpaceTopLeft = new Vector3(motorSpaceOrigin.x - (motorSpaceWidth * multiplier), motorSpaceOrigin.y + (motorSpaceHeight * multiplier), motorSpaceOrigin.z);
         motorSpaceTopRight = new Vector3(motorSpaceOrigin.x + (motorSpaceWidth * multiplier), motorSpaceOrigin.y + (motorSpaceHeight * multiplier), motorSpaceOrigin.z);
         motorSpaceBottomRight = new Vector3(motorSpaceOrigin.x + (motorSpaceWidth * multiplier), motorSpaceOrigin.y - (motorSpaceHeight * multiplier), motorSpaceOrigin.z);
         motorSpaceBottomLeft = new Vector3(motorSpaceOrigin.x - (motorSpaceWidth * multiplier), motorSpaceOrigin.y - (motorSpaceHeight * multiplier), motorSpaceOrigin.z);
+
+        if (mode == MotorCalcMode.bottom) {
+        motorSpaceTopLeft = new Vector3(motorSpaceOrigin.x - (motorSpaceWidth * multiplier), motorSpaceOrigin.y + (motorSpaceHeight * 2 * multiplier), motorSpaceOrigin.z);
+        motorSpaceTopRight = new Vector3(motorSpaceOrigin.x + (motorSpaceWidth * multiplier), motorSpaceOrigin.y + (motorSpaceHeight * 2 * multiplier), motorSpaceOrigin.z);
+        motorSpaceBottomRight = new Vector3(motorSpaceOrigin.x + (motorSpaceWidth * multiplier), motorSpaceOrigin.y, motorSpaceOrigin.z);
+        motorSpaceBottomLeft = new Vector3(motorSpaceOrigin.x - (motorSpaceWidth * multiplier), motorSpaceOrigin.y, motorSpaceOrigin.z);
+        }
+
         foreach (var bub in bubbleDisplay) {
             bub.UpdateOwnPosition(transform.position);
         }
@@ -219,8 +238,13 @@ public class LaserMapper : MonoBehaviour
         LogMotorSpaceChange("MotorSpace Size Update");
     }
 
-    void UpdateMotorSpaceVisualizer() {
+    void UpdateMotorSpaceVisualizer(MotorCalcMode mode = MotorCalcMode.center) {
+        if (mode == MotorCalcMode.center) {
         motorSpaceVisualizer.transform.position = transform.position + motorSpaceOffset;
+        } else if (mode == MotorCalcMode.bottom) {
+            Vector3 newPos = transform.position + motorSpaceOffset;
+            motorSpaceVisualizer.transform.position = new Vector3(newPos.x, newPos.y + (motorSpaceHeight), newPos.z);
+        }
         var visRect = motorSpaceVisualizer.GetComponent<RectTransform>();
         visRect.sizeDelta = new Vector2(motorSpaceWidth * 2 * multiplier, motorSpaceHeight * 2 * multiplier);
     }
@@ -309,12 +333,16 @@ public class LaserMapper : MonoBehaviour
         motorSpaceHeight = motorspace.height;
         transform.position = motorspace.pos;
         multiplier = motorspace.multiplier;
-        CalculateMotorSpace();
+        Debug.Log(System.Enum.GetName(typeof(MotorCalcMode), motorspace.mode));
+        CalculateMotorSpace(motorspace.mode);
         CalculateGain();
-        UpdateMotorSpaceVisualizer();
+        UpdateMotorSpaceVisualizer(motorspace.mode);
     }
 
-    public void SetDefaultMotorSpace() {
+    public void SetDefaultMotorSpace(MotorSpaceInfo motorspace = null) {
+        if (motorspace != null) {
+            defaultMotorSpace = motorspace;
+        }
         SetMotorSpace(defaultMotorSpace);
     }
 

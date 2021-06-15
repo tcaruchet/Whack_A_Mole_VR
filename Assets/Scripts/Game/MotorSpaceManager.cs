@@ -25,7 +25,21 @@ public class MotorSpaceManager : MonoBehaviour
     [SerializeField]
     private Slider motorSpaceSlider;
 
+    [SerializeField]
+    private MotorSpaceInfo motorSpaceSmall;
+    [SerializeField]
+    private MotorSpaceInfo motorSpaceMedium;
+    [SerializeField]
+    private MotorSpaceInfo motorSpaceLarge;
+
     bool isMirror = false;
+
+    void Start() {
+        MotorSpaceInfo m = (MotorSpaceInfo) motorSpaceMedium.Clone();
+        MotorSpaceRight.SetDefaultMotorSpace(m);
+        m.pos = new Vector2(m.pos.x * (-1), m.pos.y); // inverse position for left side.
+        MotorSpaceLeft.SetDefaultMotorSpace(m);
+    }
 
     public void SetActiveMotorSpace(string newMotorSpace) {
         motorspace = (MotorSpaceManager.ActiveMotorSpace)System.Enum.Parse( typeof(MotorSpaceManager.ActiveMotorSpace), newMotorSpace);
@@ -98,42 +112,30 @@ public class MotorSpaceManager : MonoBehaviour
     }
 
     public void SetMotorSpaceSmall() {
-        SetMotorSpace(0.15f, 0.1f);
+        SetMotorSpace((MotorSpaceInfo) motorSpaceSmall.Clone());
     }
 
     public void SetMotorSpaceMedium() {
-        SetMotorSpace(0.6f, 0.4f);
+        SetMotorSpace((MotorSpaceInfo) motorSpaceMedium.Clone());
     }
 
     public void SetMotorSpaceLarge() {
-        SetMotorSpace(1.2f, 0.8f);
+        SetMotorSpace((MotorSpaceInfo) motorSpaceLarge.Clone());
     }
 
-    public void SetMotorSpace(float width, float height) {
-        var mR = MotorSpaceRight.GetMotorSpace();
-        var mL = MotorSpaceLeft.GetMotorSpace();
-
-        MotorSpaceInfo mRNew = new MotorSpaceInfo { 
-            width = width, 
-            height = height, 
-            pos = mR.pos
-            };
-
-        MotorSpaceInfo mLNew = new MotorSpaceInfo { 
-            width = width, 
-            height = height, 
-            pos = mL.pos
-            };
-
+    public void SetMotorSpace(MotorSpaceInfo m) {
         bool mRState = MotorSpaceRight.gameObject.activeSelf;
         bool mLState = MotorSpaceLeft.gameObject.activeSelf;
 
         MotorSpaceRight.gameObject.SetActive(true);
-        MotorSpaceRight.SetMotorSpace(mRNew);
+        MotorSpaceRight.SetMotorSpace(m);
         MotorSpaceRight.gameObject.SetActive(mRState);
 
+        m.pos = new Vector2(m.pos.x * (-1), m.pos.y);
+        Debug.Log(m.pos);
+
         MotorSpaceLeft.gameObject.SetActive(true);
-        MotorSpaceLeft.SetMotorSpace(mLNew);
+        MotorSpaceLeft.SetMotorSpace(m);
         MotorSpaceLeft.gameObject.SetActive(mLState);
 
         if (isMirror) MotorSpaceMirrorRight.UpdateMotorSpaceToMirror(MotorSpaceRight);
