@@ -253,10 +253,6 @@ public class LaserMapper : MonoBehaviour
             gainX = -1f;
             gainY = -1f;
         } else {
-            Debug.Log("motorspacetopleft");
-            Debug.Log((motorSpaceTopLeft.x));
-            Debug.Log("motorspacetopright");
-            Debug.Log((motorSpaceTopRight.x));
             gainX = (wallSpaceTopRight.x - wallSpaceTopLeft.x) / (motorSpaceTopRight.x - motorSpaceTopLeft.x);
             gainY = (wallSpaceTopRight.y - wallSpaceBottomRight.y) / (motorSpaceTopRight.y - motorSpaceBottomRight.y);
         }
