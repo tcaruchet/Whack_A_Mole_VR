@@ -15,6 +15,7 @@ public class PatternInterface : MonoBehaviour
     private ModifiersManager modifiersManager;
     private GameDirector gameDirector;
     private MotorSpaceManager motorspaceManager;
+    private LoggerNotifier loggerNotifier;
     private float randVar = 0f;
 
     void Awake()
@@ -24,6 +25,15 @@ public class PatternInterface : MonoBehaviour
         modifiersManager = FindObjectOfType<ModifiersManager>();
         gameDirector = FindObjectOfType<GameDirector>();
         motorspaceManager = FindObjectOfType<MotorSpaceManager>();
+    }
+
+    void Start()
+    {
+        // Initialization of the LoggerNotifier. Here we will only pass parameters to PersistentEvent, even if we will also raise Events.
+        loggerNotifier = new LoggerNotifier(persistentEventsHeadersDefaults: new Dictionary<string, string>(){
+            {"PatternSegmentID", "NULL"},
+            {"PatternSegmentLabel", "NULL"},
+        });
     }
 
     // Plays an action
@@ -102,6 +112,17 @@ public class PatternInterface : MonoBehaviour
                 catch(System.Exception e)
                 {
                     Debug.LogError("Error in MODIFIER: " + e.Message);
+                }
+                break;
+
+            case "SEGMENT":
+                try
+                {
+                    SetSegment(action["ID"], action["LABEL"]);
+                }
+                catch(System.Exception e)
+                {
+                    Debug.LogError("Error in SEGMENT: " + e.Message);
                 }
                 break;
             
@@ -246,6 +267,13 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetGeometricMirror(bool.Parse(tempValue));
         }
+    }
+
+    private void SetSegment(string Idval, string label) {
+        loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
+            {"PatternSegmentID", Idval},
+            {"PatternSegmentLabel", label}
+            });
     }
 
     // Regenerates the random variable
