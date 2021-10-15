@@ -87,6 +87,7 @@ public class BubbleDisplay : MonoBehaviour
 
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
+            laserMapper.ShowMotorspace(false);
             this.transform.position = new Vector3(newPosX + offsetX, newPosY + offsetY, newPosZ + offsetZ);
             if (!render) {
                 render = true;
@@ -102,6 +103,7 @@ public class BubbleDisplay : MonoBehaviour
                 }
             }
         } else {
+            laserMapper.ShowMotorspace(true);
             if (render) {
                 render = false;
                 bubbleRender.SetActive(false);
