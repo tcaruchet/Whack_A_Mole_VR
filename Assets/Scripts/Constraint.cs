@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Constraint : MonoBehaviour
 {
@@ -19,6 +19,8 @@ public class Constraint : MonoBehaviour
             /*ROTATION*/
             // Get current head heading in scene (y-only, to avoid tilting the floor)
             float offsetAngle = steamCamera.rotation.eulerAngles.y;
+            float offsetX = steamCamera.transform.position.x;
+            float offsetZ = steamCamera.transform.position.z;
 
             // Now rotate CameraRig in opposite direction to compensate
             cameraRig.Rotate(0f, -offsetAngle, 0f);
@@ -27,7 +29,9 @@ public class Constraint : MonoBehaviour
             // calculate how much to add or subtract from the height, to arrive at y 1.6
             float headHeight = steamCamera.transform.localPosition.y;
             float heightChange = desiredHeight - headHeight;
-            transform.position = new Vector3(transform.position.x, heightChange, transform.position.z);
+            float xChange = transform.position.x - offsetX;
+            float zChange = transform.position.z - offsetZ;
+            transform.position = new Vector3(xChange, heightChange, zChange);
 
             Debug.Log("Seat recentered!");
         }
