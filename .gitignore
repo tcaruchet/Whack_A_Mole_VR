@@ -7,8 +7,8 @@ Library/
 [Bb]uilds/
 [Ll]ogs/
 [Aa]ssets/AssetStoreTools*
-[Aa]ssets/ConnectToMySQL/*.json
-[Aa]ssets/ConnectToMySQL/*.json.meta
+[Aa]ssets/LoggingManager/*.json
+[Aa]ssets/LoggingManager/*.json.meta
 # credential files
 mysql_auth.txt
 mysql_auth.txt.meta
