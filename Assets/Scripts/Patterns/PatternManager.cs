@@ -63,14 +63,14 @@ public class PatternManager : MonoBehaviour
             loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
                 {"PlayedPattern", "None"}
             });
-            loggingManager.Log("Meta", "SessionProgram","Random Moles", LogMode.Overwrite);
+            loggingManager.Log("Meta", "SessionProgram","Random Moles");
             return false;
         }
         patternPlayer.PlayPattern();
         loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
                 {"PlayedPattern", loadedPatternName}
             });
-        loggingManager.Log("Meta", "SessionProgram",loadedPatternName, LogMode.Overwrite);
+        loggingManager.Log("Meta", "SessionProgram",loadedPatternName);
         return true;
     }
 

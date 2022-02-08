@@ -224,7 +224,7 @@ public class LaserMapper : MonoBehaviour
     }
 
     // Update is called once per frame
-    void CalculateMotorSpace(MotorCalcMode mode = MotorCalcMode.center)
+    void CalculateMotorSpace(MotorCalcMode mode = MotorCalcMode.center, bool log = true)
     {
         var motorSpaceOrigin = transform.position + motorSpaceOffset;
         motorSpaceTopLeft = new Vector3(motorSpaceOrigin.x - (motorSpaceWidth * multiplier), motorSpaceOrigin.y + (motorSpaceHeight * multiplier), motorSpaceOrigin.z);
@@ -243,7 +243,9 @@ public class LaserMapper : MonoBehaviour
             bub.UpdateOwnPosition(transform.position);
         }
         onMotorSpaceChanged.Invoke(new MotorSpaceInfo { width = motorSpaceWidth, height = motorSpaceHeight, pos = transform.position} );
-        LogMotorSpaceChange("MotorSpace Size Update");
+        if (log) {
+            LogMotorSpaceChange("MotorSpace Size Update");
+        }
     }
 
     void UpdateMotorSpaceVisualizer(MotorCalcMode mode = MotorCalcMode.center) {
@@ -303,16 +305,16 @@ public class LaserMapper : MonoBehaviour
         UpdateMotorSpaceVisualizer();
     }
 
-    public void SetMotorSpaceWidth(float newWidth) {
+    public void SetMotorSpaceWidth(float newWidth, bool log = true) {
         motorSpaceWidth = newWidth;
-        CalculateMotorSpace();
+        CalculateMotorSpace(log:log);
         CalculateGain();
         UpdateMotorSpaceVisualizer();
     }
 
-    public void SetMotorSpaceHeight(float newHeight) {
+    public void SetMotorSpaceHeight(float newHeight, bool log = true) {
         motorSpaceHeight = newHeight;
-        CalculateMotorSpace();
+        CalculateMotorSpace(log:log);
         CalculateGain();
         UpdateMotorSpaceVisualizer();
     }
@@ -378,8 +380,8 @@ public class LaserMapper : MonoBehaviour
             motorSpaceWidth = Mathf.Lerp(motorSpaceWidth, motorspace.width, timer);
             transform.position = Vector3.Lerp(motorSpacedPosition, destinationPosition, timer);
 
-            SetMotorSpaceHeight(motorSpaceHeight);
-            SetMotorSpaceWidth(motorSpaceWidth);
+            SetMotorSpaceHeight(motorSpaceHeight, false);
+            SetMotorSpaceWidth(motorSpaceWidth, false);
 
             yield return null;
         }
