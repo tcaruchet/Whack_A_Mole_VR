@@ -198,7 +198,7 @@ public class GameDirector : MonoBehaviour
             {"ParticipantID", participantId},
             {"testID", testId}
         };
-        loggingManager.Log("Meta", metaLog, LogMode.Overwrite);
+        loggingManager.Log("Meta", metaLog);
         loggerNotifier.NotifyLogger("Game Stopped", EventLogger.EventType.GameEvent, new Dictionary<string, object>()
         {
             {"GameState", System.Enum.GetName(typeof(GameDirector.GameState), gameState)}
@@ -437,7 +437,7 @@ public class GameDirector : MonoBehaviour
             {"ParticipantID", participantId},
             {"testID", testId}
         };
-        loggingManager.Log("Meta", metaLog, LogMode.Overwrite);
+        loggingManager.Log("Meta", metaLog);
         loggerNotifier.NotifyLogger("Game Finished", EventLogger.EventType.GameEvent, new Dictionary<string, object>()
         {
             {"GameState", System.Enum.GetName(typeof(GameDirector.GameState), gameState)}

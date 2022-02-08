@@ -62,7 +62,7 @@ public class EventLogger : MonoBehaviour
         // logs.Add("GameId", new Dictionary<int, string>());
         // persistentLog.Add("ParticipantId", 0);
         // persistentLog.Add("TestId", 0);
-        loggingManager.Log("Meta", "DeviceID", SystemInfo.deviceUniqueIdentifier, LogMode.Overwrite);
+        loggingManager.Log("Meta", "DeviceID", SystemInfo.deviceUniqueIdentifier);
         trackerHub.Init();
     }
 
@@ -72,7 +72,7 @@ public class EventLogger : MonoBehaviour
         if (email == newEmail) return;
         email = newEmail.Replace("\n", "").Replace("\r", ""); // sanitize e-mail, to not contain newline characters.
         loggingManager.SetEmail(email);
-        loggingManager.Log("Meta", "Email", email, LogMode.Overwrite);
+        loggingManager.Log("Meta", "Email", email);
     }
 
     // // Function mostly called from the LoggerNotifier. Adds to the logs the columns (parameters) that will be used.

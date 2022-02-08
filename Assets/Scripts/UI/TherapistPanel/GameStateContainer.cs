@@ -83,8 +83,7 @@ public class GameStateContainer : MonoBehaviour
         dataSaveContainer.SetActive(false);
         uploadingContainer.SetActive(true);
         gameStateText.text = "Uploading Data..";
-        loggingManager.SaveAllLogs();
-        loggingManager.ClearAllLogs();
+        loggingManager.SaveAllLogs(shouldClear:true);
         loggingManager.NewFilestamp();
     }
 
@@ -95,10 +94,8 @@ public class GameStateContainer : MonoBehaviour
         runningContainer.SetActive(false);
         dataSaveContainer.SetActive(false);
         uploadingContainer.SetActive(true);
-        bool localOnly = true;
         gameStateText.text = "Hold on..";
-        loggingManager.SaveAllLogs(localOnly);
-        loggingManager.ClearAllLogs();
+        loggingManager.SaveAllLogs(targetType:TargetType.CSV, shouldClear:true);
         loggingManager.NewFilestamp();
         Reset();
     }
