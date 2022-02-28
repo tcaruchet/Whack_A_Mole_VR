@@ -80,16 +80,33 @@ public class LoggingManager : MonoBehaviour
 
         NewFilestamp();
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
+        if (CreateMetaCollection)
+        {
+            //if the log added is the Meta one and doesn't exists, we create it
+            //if (AddMetaCollectionToList())
+            AddMetaCollectionToList();
+            //AddToLogstore(logsList["Meta"], logData);
+            //
+            //}
+        }
+
         if (savePath == "")
         {
             savePath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
         }
+        
     }
 
 
     public void NewFilestamp()
     {
         sessionID = Guid.NewGuid().ToString();
+        deviceID = SystemInfo.deviceUniqueIdentifier;
+        foreach (var pair in logsList)
+        {
+            pair.Value.SessionId = sessionID;
+        }
     }
 
     public void SetSavePath(string path)
@@ -125,10 +142,6 @@ public class LoggingManager : MonoBehaviour
             Debug.LogWarning(collectionLabel + " already exists");
             return;
         }
-        if (CreateMetaCollection)
-        {
-            AddMetaCollectionToList();
-        }
         LogStore logStore = new LogStore(collectionLabel, email, sessionID, logStringOverTime);
         logsList.Add(collectionLabel, logStore);
     }
@@ -144,16 +157,6 @@ public class LoggingManager : MonoBehaviour
         //this will be executed only once if the log has not been created.
         else
         {
-            if (CreateMetaCollection)
-            {
-                //if the log added is the Meta one and doesn't exists, we create it
-                if (AddMetaCollectionToList() && collectionLabel == "Meta")
-                {
-                    AddToLogstore(logsList["Meta"], logData);
-                    return;
-                }
-            }
-
             LogStore newLogStore = new LogStore(collectionLabel, email, sessionID, logStringOverTime);
             AddToLogstore(newLogStore, logData);
             logsList.Add(collectionLabel, newLogStore);
@@ -182,16 +185,6 @@ public class LoggingManager : MonoBehaviour
         //this will be executed only once if the log has not been created.
         else
         {
-            if (CreateMetaCollection)
-            {
-                //if the log added is the Meta one and doesn't exists, we create it
-                if (AddMetaCollectionToList() && collectionLabel == "Meta")
-                {
-                    AddToLogstore(logsList["Meta"], columnLabel, value);
-                    return;
-                }
-            }
-
             LogStore newLogStore = new LogStore(collectionLabel, email, sessionID, logStringOverTime);
             logsList.Add(collectionLabel, newLogStore);
             AddToLogstore(newLogStore, columnLabel, value);
@@ -268,6 +261,12 @@ public class LoggingManager : MonoBehaviour
     {
         if (logsList.ContainsKey(collectionLabel))
         {
+ 
+            foreach (var targetType in targetsEnabled)
+            {
+                logsList[collectionLabel].AddSavingTarget(targetType);
+            }
+
             //we generate the string and then we save the logs in the callback
             //by doing this, we are sure that the logs will be exported only once
             GenerateLogString(collectionLabel, () =>
@@ -377,18 +376,21 @@ public class LoggingManager : MonoBehaviour
         if (!logsList.ContainsKey(label))
         {
             Debug.LogError("Could not find collection " + label + ". Aborting.");
+            logsList[label].RemoveSavingTarget(TargetType.MySql);
             return;
         }
 
         if (logsList[label].RowCount == 0)
         {
             Debug.LogError("Collection " + label + " is empty. Aborting.");
+            logsList[label].RemoveSavingTarget(TargetType.MySql);
             return;
         }
 
         connectToMySQL.AddToUploadQueue(logsList[label], label);
         connectToMySQL.UploadNow(() =>
         {
+            logsList[label].RemoveSavingTarget(TargetType.MySql);
             logsList[label].TargetsSaved[TargetType.MySql] = true;
             SaveCallback(logsList[label], shouldClear);
         });

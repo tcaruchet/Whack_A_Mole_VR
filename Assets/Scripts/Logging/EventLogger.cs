@@ -62,8 +62,13 @@ public class EventLogger : MonoBehaviour
         // logs.Add("GameId", new Dictionary<int, string>());
         // persistentLog.Add("ParticipantId", 0);
         // persistentLog.Add("TestId", 0);
-        loggingManager.Log("Meta", "DeviceID", SystemInfo.deviceUniqueIdentifier);
+
         trackerHub.Init();
+    }
+
+    void Start()
+    {
+        loggingManager.Log("Meta", "DeviceID", SystemInfo.deviceUniqueIdentifier);
     }
 
     // Updates the logged mail.
@@ -395,8 +400,8 @@ public class EventLogger : MonoBehaviour
     {
         object participantId;
         object testId;
-        persistentLog.TryGetValue("ParticipantId", out participantId);
-        persistentLog.TryGetValue("TestId", out testId);
+        persistentLog.TryGetValue("ParticipantID", out participantId);
+        persistentLog.TryGetValue("TestID", out testId);
         return participantId.ToString() + testId.ToString() + System.DateTime.Now.ToString("yyyy:MM:dd:HH:mm:ss").Replace(" ", "").Replace("/", "").Replace(":", "");
     }
 

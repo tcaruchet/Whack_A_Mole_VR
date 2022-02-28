@@ -435,7 +435,7 @@ public class GameDirector : MonoBehaviour
             {"ProfileID", profileManager.GetSelectedProfileId()},
             {"SessionState", "Finished"},
             {"ParticipantID", participantId},
-            {"testID", testId}
+            {"TestID", testId}
         };
         loggingManager.Log("Meta", metaLog);
         loggerNotifier.NotifyLogger("Game Finished", EventLogger.EventType.GameEvent, new Dictionary<string, object>()
