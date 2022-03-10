@@ -27,6 +27,16 @@ public class HmdCalibration : MonoBehaviour
         controllerGameObject.GetComponent<SteamVR_Behaviour_Pose>().onTransformUpdated.AddListener(delegate{PositionUpdated();});
     }
 
+    public void Update() {
+        if (!calibrated) {
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                        calibrationUpdate.Invoke();
+                        calibrated = true;
+            }
+        }
+    }
+
     // Update is called once per frame
     public void PositionUpdated() {
         // HACK: for some reason we need invoke the calibrationUpdate a couple of times..
