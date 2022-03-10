@@ -252,12 +252,14 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
-    // Sets the prism effect. Shifts the view (around y axis) by a given angle to create a shifting between seen view and real positions.
+    
     public void SetControllerOffset(float value)
     {
+
         controllerOffset = value;
-        rightControllerContainer.position = new Vector3(controllerOffset*0.1f,0,  0);
-        leftControllerContainer.position = new Vector3(controllerOffset*0.1f,0, 0);
+        rightControllerContainer.localPosition = new Vector3(controllerOffset*0.1f,0f,0f);
+        leftControllerContainer.localPosition = new Vector3(controllerOffset*0.1f,0f,0f);
+        
 
         loggerNotifier.NotifyLogger("Controller Offset Set "+value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
         {
