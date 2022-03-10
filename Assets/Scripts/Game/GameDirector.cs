@@ -144,7 +144,7 @@ public class GameDirector : MonoBehaviour
     // Starts the game.
     public void StartGame()
     {
-        constraint.SetReset();
+        //constraint.SetReset();
 
         if (gameState == GameState.Playing) return;
         LoadDifficulty();
