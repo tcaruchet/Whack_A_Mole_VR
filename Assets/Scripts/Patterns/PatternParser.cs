@@ -36,7 +36,7 @@ public class PatternParser
     public Dictionary<float, List<Dictionary<string, string>>> ParsePattern(string[] patternStrings)
     {
         Dictionary<float, List<Dictionary<string, string>>> parsedPattern = new Dictionary<float, List<Dictionary<string, string>>>();
-        float playTime = 0f;
+        float playTime = .5f; // add one second playTime buffer at the beginning.
         float moleDelay = 0f;
         float lifeTime = 0f;
         SetMoleCount(0);
@@ -123,7 +123,7 @@ public class PatternParser
         {
             playTime = moleDelay;
         }
-        
+        playTime = playTime + 1f; // add 1 second playTime buffer at the end.
         if (!parsedPattern.ContainsKey(playTime))
         {
             parsedPattern.Add(playTime, new List<Dictionary<string, string>>());
