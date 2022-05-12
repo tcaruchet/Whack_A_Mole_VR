@@ -28,6 +28,15 @@ public class DiskMole : Mole
     private Color popColor;
 
     [SerializeField]
+    private Texture textureEnabled;
+
+    [SerializeField]
+    private Texture textureDisabled;
+
+    [SerializeField]
+    private Texture fakeTexture;
+
+    [SerializeField]
     private AudioClip enableSound;
 
     [SerializeField]
@@ -77,10 +86,12 @@ public class DiskMole : Mole
         if (!fake)
         {
             PlayTransitionColor(getAnimationDuration(), meshMaterial.color, enabledColor);
+            meshMaterial.mainTexture =  textureEnabled;
         }
         else
         {
             PlayTransitionColor(getAnimationDuration(), meshMaterial.color, fakeEnabledColor);
+            meshMaterial.mainTexture =  fakeTexture;
         }
         base.PlayEnabling();
     }
@@ -91,6 +102,7 @@ public class DiskMole : Mole
         SwitchShader(false);
         PlayAnimation("EnableDisable");
         PlayTransitionColor(getAnimationDuration(), meshMaterial.color, disabledColor);
+        meshMaterial.mainTexture =  textureDisabled;
         base.PlayDisabling();
     }
 

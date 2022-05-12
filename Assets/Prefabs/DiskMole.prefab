@@ -25,12 +25,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5408287105649101920}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0, z: 0.082}
-  m_LocalScale: {x: 0.008, y: 0.08, z: 0.008}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0.125}
+  m_LocalScale: {x: 0.0072000003, y: 0.072, z: 0.0072}
   m_Children: []
-  m_Father: {fileID: 2929175525520110307}
-  m_RootOrder: 0
+  m_Father: {fileID: 8304183495515368931}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &3509655114196483969
 MeshFilter:
@@ -54,6 +54,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -103,14 +104,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8291215273352707670}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
-  m_Children:
-  - {fileID: 2188837287679406084}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.000036, y: 0.000007, z: 0.002}
+  m_LocalScale: {x: 0.020166203, y: 0.00017464352, z: 0.020519411}
+  m_Children: []
   m_Father: {fileID: 8304183495515368931}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &969450078566513001
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -118,7 +118,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8291215273352707670}
-  m_Mesh: {fileID: -2124705421725058983, guid: ab03b75b3a6b8204c99df4109fb234da, type: 3}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &2578120079720873691
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -133,6 +133,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -190,6 +191,7 @@ Transform:
   m_LocalScale: {x: 32, y: 32, z: 1}
   m_Children:
   - {fileID: 2929175525520110307}
+  - {fileID: 2188837287679406084}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -203,9 +205,9 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 0
-  serializedVersion: 3
+  serializedVersion: 4
   m_Convex: 0
-  m_CookingOptions: 14
+  m_CookingOptions: 30
   m_Mesh: {fileID: -2124705421725058983, guid: ab03b75b3a6b8204c99df4109fb234da, type: 3}
 --- !u!114 &4180968205085921596
 MonoBehaviour:
@@ -222,10 +224,13 @@ MonoBehaviour:
   disableCooldown: 3
   disabledColor: {r: 0.8235294, g: 0.8235294, b: 0.8235294, a: 1}
   enabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921569, a: 1}
-  fakeEnabledColor: {r: 0.85490197, g: 0.36078432, b: 0.2627451, a: 1}
+  fakeEnabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921567, a: 1}
   hoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}
-  fakeHoverColor: {r: 0.9098039, g: 0.7529412, b: 0.7254902, a: 1}
+  fakeHoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}
   popColor: {r: 1, g: 1, b: 1, a: 1}
+  textureEnabled: {fileID: 2800000, guid: 36ea2ae3da72dba49a98d2d221ee729e, type: 3}
+  textureDisabled: {fileID: 2800000, guid: 952da8b1e2fcebb4f8b973928fb68edb, type: 3}
+  fakeTexture: {fileID: 2800000, guid: 9d495e5ae54cec048ae2745207379129, type: 3}
   enableSound: {fileID: 8300000, guid: 093810481fbea044a888edafeb74156b, type: 3}
   disableSound: {fileID: 8300000, guid: 093810481fbea044a888edafeb74156b, type: 3}
   popSound: {fileID: 8300000, guid: 093810481fbea044a888edafeb74156b, type: 3}
