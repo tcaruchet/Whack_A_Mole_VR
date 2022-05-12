@@ -60,10 +60,8 @@ public class DiskMole : Mole
         opaqueShader = Shader.Find("Standard");
         glowShader = Shader.Find("Particles/Standard Unlit");
         audioSource = gameObject.GetComponent<AudioSource>();
-
-        SwitchShader(false);
         PlayAnimation("EnableDisable");
-        PlayTransitionColor(getAnimationDuration(), meshMaterial.color, disabledColor);
+        meshMaterial.color = disabledColor;
 
         base.Start();
     }
@@ -80,17 +78,16 @@ public class DiskMole : Mole
     protected override void PlayEnabling()
     {
         PlaySound(enableSound);
-        SwitchShader(false);
         PlayAnimation("EnableDisable");
 
         if (!fake)
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, enabledColor);
+            meshMaterial.color = enabledColor;
             meshMaterial.mainTexture =  textureEnabled;
         }
         else
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, fakeEnabledColor);
+            meshMaterial.color = fakeEnabledColor;
             meshMaterial.mainTexture =  fakeTexture;
         }
         base.PlayEnabling();
@@ -99,54 +96,48 @@ public class DiskMole : Mole
     protected override void PlayDisabling()
     {
         PlaySound(enableSound);
-        SwitchShader(false);
         PlayAnimation("EnableDisable");
-        PlayTransitionColor(getAnimationDuration(), meshMaterial.color, disabledColor);
+        meshMaterial.color = disabledColor;
         meshMaterial.mainTexture =  textureDisabled;
         base.PlayDisabling();
     }
 
     protected override void PlayHoverEnter() 
     {
-        SwitchShader(true);
-        PlayAnimation("HoverEnter");
         if (!fake)
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, hoverColor);
+            meshMaterial.color = hoverColor;
         }
         else
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, fakeHoverColor);
+            meshMaterial.color = fakeHoverColor;
         }
     }
 
     protected override void PlayHoverLeave() 
     {
-        SwitchShader(false);
-        PlayAnimation("HoverExit");
         if (!fake)
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, enabledColor);
+            meshMaterial.color = enabledColor;
         }
         else
         {
-            PlayTransitionColor(getAnimationDuration(), meshMaterial.color, fakeEnabledColor);
+            meshMaterial.color = fakeEnabledColor;
         }
     }
 
     protected override void PlayPop() 
     {
-        SwitchShader(false);
         PlayAnimation("PopOscill");
-        PlayTransitionColor(getAnimationDuration(), popColor, disabledColor);
+        meshMaterial.color = disabledColor;
+        meshMaterial.mainTexture =  textureDisabled;
         PlaySound(popSound);
     }
 
     protected override void PlayReset()
     {
-        SwitchShader(false);
         PlayAnimation("EnableDisable");
-        PlayTransitionColor(getAnimationDuration(), meshMaterial.color, disabledColor);
+        meshMaterial.color = disabledColor;
     }
 
     // Plays a sound.
