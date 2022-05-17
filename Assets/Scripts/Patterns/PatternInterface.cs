@@ -83,6 +83,7 @@ public class PatternInterface : MonoBehaviour
             case "MOLE":
                 try
                 {
+                    Debug.Log(action["X"] + action["Y"]);
                     SetMole(action["X"], action["Y"], action["LIFETIME"]);
                 }
                 catch(System.Exception e)
@@ -277,6 +278,18 @@ public class PatternInterface : MonoBehaviour
         if (action.TryGetValue("GEOMETRICMIRROR", out tempValue))
         {
             modifiersManager.SetGeometricMirror(bool.Parse(tempValue));
+        }
+        if (action.TryGetValue("RESTRICTMOTOR", out tempValue))
+        {
+            modifiersManager.SetMotorRestriction(bool.Parse(tempValue));
+        }
+        if (action.TryGetValue("RESTRICTMOTORUPPER", out tempValue))
+        {
+            modifiersManager.SetMotorRestrictionUpper(ParseFloat(tempValue));
+        }
+        if (action.TryGetValue("RESTRICTMOTORLOWER", out tempValue))
+        {
+            modifiersManager.SetMotorRestrictionLower(ParseFloat(tempValue));
         }
     }
 

@@ -104,6 +104,9 @@ public class ModifiersManager : MonoBehaviour
     private bool rightControllerMain;
     private float controllerOffset;
     private float prismOffset;
+    private bool motorRestriction;
+    private float motorRestrictionUpper = 1f;
+    private float motorRestrictionLower = 0.5f;
     private Dictionary<string, Pointer> controllersList;
     private LoggerNotifier loggerNotifier;
     private ModifierUpdateEvent modifierUpdateEvent = new ModifierUpdateEvent();
@@ -198,6 +201,61 @@ public class ModifiersManager : MonoBehaviour
         {
             {"HideWallAmount", hideWallAmount}
         });
+    }
+
+    public void SetMotorRestriction(bool value)
+    {
+        if (motorRestriction == value) return;
+
+        motorRestriction = value;
+        
+        MotorRestriction restriction = MotorRestriction.none;
+        if (value) {
+            restriction = MotorRestriction.restrict;
+        }
+
+        motorSpaceManager.SetMotorRestriction(restriction, motorRestrictionLower, motorRestrictionUpper);
+
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger("Motor Restriciton Set "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+
+        modifierUpdateEvent.Invoke("MotorRestriction", value.ToString());
+    }
+
+    public void SetMotorRestrictionUpper(float value)
+    {
+        if (motorRestrictionUpper == value) return;
+
+        motorRestrictionUpper = value;
+        
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger("Motor Restriciton Upper Set to "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+
+        modifierUpdateEvent.Invoke("MotorRestrictionUpper", value.ToString());
+    }
+
+    public void SetMotorRestrictionLower(float value)
+    {
+        if (motorRestrictionLower == value) return;
+
+        motorRestrictionLower = value;
+        
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger("Motor Restriciton Lower Set to "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+
+        modifierUpdateEvent.Invoke("MotorRestrictionLower", value.ToString());
     }
 
     // Sets a controller position and rotation's mirroring effect. Calls UpdateMirrorEffect to set the mirror.

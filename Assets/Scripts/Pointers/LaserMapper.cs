@@ -23,6 +23,11 @@ public enum MotorCalcMode {
     bottom
 }
 
+public enum MotorRestriction {
+    none,
+    restrict
+}
+
 public class LaserMapper : MonoBehaviour
 {
 
@@ -58,6 +63,11 @@ public class LaserMapper : MonoBehaviour
     [SerializeField]
     private bool showMotorspace = false;
 
+    [SerializeField]
+    private MotorRestriction motorRestriction = MotorRestriction.none;
+    private float upperRestriction = 1f; // 1f = right, 0.5f = middle, 0.0f = left
+    private float lowerRestriction = 0.5f;
+
     private float multiplier = 1f;
 
     private Vector3 motorSpaceTopLeft = new Vector3(0f,0f,0f);
@@ -77,7 +87,6 @@ public class LaserMapper : MonoBehaviour
     private Vector3 wallSpaceBottomLeft = Vector3.zero;
 
     private Vector3 wallSpaceCoord;
-
     private bool motorCalibration = false;
     private float distanceFromLastPoint = -1f;
     private float minDistancePoint = 0.050f;
@@ -164,6 +173,12 @@ public class LaserMapper : MonoBehaviour
             motorSpaceWidth = (maxX - minX) / 2;
             motorSpaceHeight = (maxY - minY) / 2;
         }
+    }
+
+    public void SetMotorRestriction(MotorRestriction restriction, float restrictionLower, float restrictionUpper) {
+        upperRestriction = restrictionUpper;
+        lowerRestriction = restrictionLower;
+        motorRestriction = restriction;
     }
 
     private void CreateCalibSphere(Vector3 pos) {
@@ -323,10 +338,46 @@ public class LaserMapper : MonoBehaviour
         // We convert our motorspace and our coordinate to be within a range where 0 is lowest.
         // Then we perform the normalization with division.
         // (coordinate within range) / (total range of  motorspace)
-        float normalizedX = (coord.x - motorSpaceTopLeft.x) / (motorSpaceTopRight.x - motorSpaceTopLeft.x);
+        float coordX = coord.x;
+
+        if (motorRestriction == MotorRestriction.restrict) {
+            float upperRestrictionNormalized = ((wallSpaceTopRight.x - wallSpaceTopLeft.x) * upperRestriction);
+            float lowerRestrictionNormalized = ((wallSpaceTopRight.x - wallSpaceTopLeft.x) * lowerRestriction);
+            float newLeft = wallSpaceTopLeft.x + lowerRestrictionNormalized;
+            float newRight = wallSpaceTopLeft.x + upperRestrictionNormalized;
+
+        //wallSpaceTopLeft = new Vector3(w.lowestX - wallSpaceMargin, w.highestY + wallSpaceMargin, w.lowestZ);
+        //wallSpaceTopRight = new Vector3(w.highestX + wallSpaceMargin, w.highestY + wallSpaceMargin, w.lowestZ);
+            CreateCalibSphere(wallSpaceTopLeft);
+            CreateCalibSphere(wallSpaceTopRight);
+
+            Debug.Log("upperRestriction: " + upperRestriction);
+            Debug.Log("lowerRestriction: " + lowerRestriction);
+            Debug.Log("upperRestrictionNormalized: " + upperRestrictionNormalized);
+            Debug.Log("lowerRestrictionNormalized: " + lowerRestrictionNormalized);
+            Debug.Log("Left Restriction: " + newLeft);
+            Debug.Log("Right Restriction: " + newRight);
+            if ((coord.x - transform.position.x) < newLeft) {
+                coordX = (newLeft + transform.position.x);
+            }
+            if ((coord.x - transform.position.x) > newRight) {
+                coordX = (newRight + transform.position.x);
+            }
+        }
+
+        float normalizedX = (coordX - motorSpaceTopLeft.x) / (motorSpaceTopRight.x - motorSpaceTopLeft.x);
         // We now multiply our normalized value with the total range of the wall space.
         // Finally, as the wallSpace does not start from 0, we need to add back the negative starting point.
         float wallX = ((wallSpaceTopRight.x - wallSpaceTopLeft.x) * normalizedX) + wallSpaceTopLeft.x;
+
+        Debug.Log("wallX: " + wallX);
+        Debug.Log("coordX: " + coordX);
+        Debug.Log("coord.x: " + coord.x);
+        Debug.Log("motorSpace Offset X: " + transform.position.x);
+
+        Debug.Log("wallSpaceTopRight: " + wallSpaceTopRight.x);
+        Debug.Log("wallSpaceTopLeft: " + wallSpaceTopLeft.x);
+
 
         // Repeat for Y coordinate.
         float normalizedY = (coord.y - motorSpaceBottomRight.y) / (motorSpaceTopRight.y - motorSpaceBottomRight.y);
