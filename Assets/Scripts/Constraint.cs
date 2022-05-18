@@ -17,10 +17,13 @@ public class Constraint : MonoBehaviour
     [SerializeField]    
     private Transform cameraRig;
 
+    private bool calibrated = false;
+
     public void SetReset()
     {
         if ((steamCamera != null) && (cameraRig != null))
         {
+            if (!calibrated) {
             /*ROTATION*/
             // Get current head heading in scene (y-only, to avoid tilting the floor)
             float offsetAngle = steamCamera.rotation.eulerAngles.y;
@@ -51,6 +54,8 @@ public class Constraint : MonoBehaviour
             
             transform.position = new Vector3(xChange, heightChange, zChange);
             Debug.Log("Seat recentered!");
+            calibrated = true;
+            }
         }
         else
         {
