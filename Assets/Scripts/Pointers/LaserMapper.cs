@@ -346,17 +346,6 @@ public class LaserMapper : MonoBehaviour
             float newLeft = wallSpaceTopLeft.x + lowerRestrictionNormalized;
             float newRight = wallSpaceTopLeft.x + upperRestrictionNormalized;
 
-        //wallSpaceTopLeft = new Vector3(w.lowestX - wallSpaceMargin, w.highestY + wallSpaceMargin, w.lowestZ);
-        //wallSpaceTopRight = new Vector3(w.highestX + wallSpaceMargin, w.highestY + wallSpaceMargin, w.lowestZ);
-            CreateCalibSphere(wallSpaceTopLeft);
-            CreateCalibSphere(wallSpaceTopRight);
-
-            Debug.Log("upperRestriction: " + upperRestriction);
-            Debug.Log("lowerRestriction: " + lowerRestriction);
-            Debug.Log("upperRestrictionNormalized: " + upperRestrictionNormalized);
-            Debug.Log("lowerRestrictionNormalized: " + lowerRestrictionNormalized);
-            Debug.Log("Left Restriction: " + newLeft);
-            Debug.Log("Right Restriction: " + newRight);
             if ((coord.x - transform.position.x) < newLeft) {
                 coordX = (newLeft + transform.position.x);
             }
@@ -369,14 +358,6 @@ public class LaserMapper : MonoBehaviour
         // We now multiply our normalized value with the total range of the wall space.
         // Finally, as the wallSpace does not start from 0, we need to add back the negative starting point.
         float wallX = ((wallSpaceTopRight.x - wallSpaceTopLeft.x) * normalizedX) + wallSpaceTopLeft.x;
-
-        Debug.Log("wallX: " + wallX);
-        Debug.Log("coordX: " + coordX);
-        Debug.Log("coord.x: " + coord.x);
-        Debug.Log("motorSpace Offset X: " + transform.position.x);
-
-        Debug.Log("wallSpaceTopRight: " + wallSpaceTopRight.x);
-        Debug.Log("wallSpaceTopLeft: " + wallSpaceTopLeft.x);
 
 
         // Repeat for Y coordinate.
