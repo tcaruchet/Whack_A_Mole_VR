@@ -102,13 +102,14 @@ public class BubbleDisplay : MonoBehaviour
 
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
-            StartCoroutine(FadeOutObject(OutOfBoundContainer, 3.0f));
-            StartCoroutine(OutOfBoundAnimation(false));
             this.transform.position = new Vector3(newPosX + offsetX, newPosY + offsetY, newPosZ + offsetZ);
             if (!render) {
+                StartCoroutine(FadeOutObject(OutOfBoundContainer, 20f));
+                StartCoroutine(OutOfBoundAnimation(false));
                 render = true;
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
+                laserMapper.ShowMotorspace(false);
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
@@ -119,9 +120,10 @@ public class BubbleDisplay : MonoBehaviour
                 }
             }
         } else {
-            StartCoroutine(FadeInObject(OutOfBoundContainer, 3.0f));
-            StartCoroutine(OutOfBoundAnimation(true));
-            if (render) {
+            if (render) {   
+                StartCoroutine(FadeInObject(OutOfBoundContainer, 20f));
+                StartCoroutine(OutOfBoundAnimation(true));
+                laserMapper.ShowMotorspace(true);
                 render = false;
                 bubbleRender.SetActive(false);
                 laserRender.enabled = showBubble;
@@ -207,7 +209,6 @@ public class BubbleDisplay : MonoBehaviour
             }
         }
         OutOfBoundContainer.SetActive(false);
-        laserMapper.ShowMotorspace(false);
     }
 
     public IEnumerator FadeInObject(GameObject gameObjects, float fadeSpeed)
@@ -226,6 +227,5 @@ public class BubbleDisplay : MonoBehaviour
                 yield return null;
             }
         }
-        laserMapper.ShowMotorspace(true);
     }
 }
