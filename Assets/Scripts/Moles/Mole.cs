@@ -14,6 +14,7 @@ Facilitates the creation of moles with different behaviours on specific events
 public abstract class Mole : MonoBehaviour
 {
     public enum MolePopAnswer {Ok, Fake, Expired, Disabled, Paused}
+    public enum MoleType {Target,DistractorLeft,DistractorRight}
 
     // The states may be reduced to 3 - 4 (by removing Popping, enabling...), however this could reduce the control over the Mole
     public enum States {Disabled, Enabled, Expired, Popping, Popped, Enabling, Disabling}
@@ -22,7 +23,7 @@ public abstract class Mole : MonoBehaviour
     private float disableCooldown = 3f;
 
     protected States state = States.Disabled;
-    protected bool fake = false;
+    protected MoleType moleType = MoleType.Target;
 
     private class StateUpdateEvent: UnityEvent<bool, Mole>{};
     private StateUpdateEvent stateUpdateEvent = new StateUpdateEvent();
@@ -96,9 +97,18 @@ public abstract class Mole : MonoBehaviour
         return state;
     }
 
+    public MoleType GetMoleType()
+    {
+        return moleType;
+    }
+
     public bool IsFake()
     {
-        return fake;
+        bool isFake = true;
+        if (moleType == Mole.MoleType.Target) {
+            isFake = false;
+        }
+        return isFake;
     }
 
     public bool CanBeActivated()
@@ -107,9 +117,9 @@ public abstract class Mole : MonoBehaviour
         return (!(state == States.Enabled || state == States.Enabling || state == States.Disabling));
     }
 
-    public void Enable(float enabledLifeTime, float expiringDuration, bool isFake = false, int moleSpawnOrder = -1)
+    public void Enable(float enabledLifeTime, float expiringDuration, MoleType type = MoleType.Target, int moleSpawnOrder = -1)
     {
-        fake = isFake;
+        moleType = type;
         lifeTime = enabledLifeTime;
         expiringTime = expiringDuration;
         spawnOrder = moleSpawnOrder;
@@ -154,7 +164,7 @@ public abstract class Mole : MonoBehaviour
             return MolePopAnswer.Expired;
         }
 
-        if (!fake) 
+        if (moleType == MoleType.Target) 
         {
             loggerNotifier.NotifyLogger("Mole Hit", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
             {
@@ -172,7 +182,8 @@ public abstract class Mole : MonoBehaviour
             {
                 {"MoleActivatedDuration", lifeTime - activatedTimeLeft},
                 {"MoleSurfaceHitLocationX", localHitPoint.x},
-                {"MoleSurfaceHitLocationY", localHitPoint.y}
+                {"MoleSurfaceHitLocationY", localHitPoint.y},
+                {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
             });
 
             ChangeState(States.Popping);
@@ -276,16 +287,16 @@ public abstract class Mole : MonoBehaviour
                 break;
             case States.Enabling:
 
-                if (!fake) loggerNotifier.NotifyLogger("Mole Spawned", EventLogger.EventType.MoleEvent);
+                if (moleType == MoleType.Target) loggerNotifier.NotifyLogger("Mole Spawned", EventLogger.EventType.MoleEvent);
                 else loggerNotifier.NotifyLogger("Fake Mole Spawned", EventLogger.EventType.MoleEvent);
 
-                if (!fake) stateUpdateEvent.Invoke(true, this);
+                if (moleType == MoleType.Target) stateUpdateEvent.Invoke(true, this);
 
                 timer = StartCoroutine(StartActivatedTimer(lifeTime));
                 PlayEnabling();
                 break;
             case States.Disabling:
-                if (!fake) loggerNotifier.NotifyLogger("Mole Expired", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
+                if (moleType == MoleType.Target) loggerNotifier.NotifyLogger("Mole Expired", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
                             {
                                 {"MoleActivatedDuration", lifeTime}
                             });
@@ -294,7 +305,7 @@ public abstract class Mole : MonoBehaviour
                                 {"MoleActivatedDuration", lifeTime}
                             });
 
-                if (!fake) stateUpdateEvent.Invoke(false, this);
+                if (moleType == MoleType.Target) stateUpdateEvent.Invoke(false, this);
 
                 PlayDisabling();
                 break;

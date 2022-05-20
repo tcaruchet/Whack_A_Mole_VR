@@ -34,7 +34,10 @@ public class DiskMole : Mole
     private Texture textureDisabled;
 
     [SerializeField]
-    private Texture fakeTexture;
+    private Texture distractorLeftTexture;
+
+    [SerializeField]
+    private Texture distractorRightTexture;
 
     [SerializeField]
     private AudioClip enableSound;
@@ -80,15 +83,19 @@ public class DiskMole : Mole
         PlaySound(enableSound);
         PlayAnimation("EnableDisable");
 
-        if (!fake)
+        if (moleType == Mole.MoleType.Target)
         {
             meshMaterial.color = enabledColor;
             meshMaterial.mainTexture =  textureEnabled;
         }
-        else
+        else if (moleType == Mole.MoleType.DistractorLeft)
         {
             meshMaterial.color = fakeEnabledColor;
-            meshMaterial.mainTexture =  fakeTexture;
+            meshMaterial.mainTexture =  distractorLeftTexture;
+        } else if (moleType == Mole.MoleType.DistractorRight)
+        {
+            meshMaterial.color = fakeEnabledColor;
+            meshMaterial.mainTexture =  distractorRightTexture;
         }
         base.PlayEnabling();
     }
@@ -104,7 +111,7 @@ public class DiskMole : Mole
 
     protected override void PlayHoverEnter() 
     {
-        if (!fake)
+        if (moleType == Mole.MoleType.Target)
         {
             meshMaterial.color = hoverColor;
         }
@@ -116,7 +123,7 @@ public class DiskMole : Mole
 
     protected override void PlayHoverLeave() 
     {
-        if (!fake)
+        if (moleType == Mole.MoleType.Target)
         {
             meshMaterial.color = enabledColor;
         }

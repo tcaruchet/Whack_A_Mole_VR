@@ -322,7 +322,16 @@ public class GameDirector : MonoBehaviour
 
     private void SpawnMole(float lifeTime, bool fakeCoeff)
     {
-        wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, fakeCoeff);
+        Mole.MoleType type = Mole.MoleType.Target;
+        if (fakeCoeff) {
+            if (((int)currentGameTimeLeft) % 2 == 0) {
+                type = Mole.MoleType.DistractorLeft;
+            } else {
+                type = Mole.MoleType.DistractorRight;
+            }
+        }
+
+        wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
     }
 
     private void StartMoleTimer(float setTime = -1)

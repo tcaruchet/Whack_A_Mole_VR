@@ -95,7 +95,7 @@ public class PatternInterface : MonoBehaviour
             case "DISTRACTOR":
                 try
                 {
-                    SetDistractor(action["X"], action["Y"], action["LIFETIME"]);
+                    SetDistractor(action["X"], action["Y"], action["LIFETIME"], action["TYPE"]);
                 }
                 catch(System.Exception e)
                 {
@@ -224,15 +224,16 @@ public class PatternInterface : MonoBehaviour
     {
         int moleId = ((int.Parse(xIndex)) * 100) + (int.Parse(yIndex));
         AddMoleIdList(moleId);
-        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), false);
+        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), Mole.MoleType.Target);
     }
 
     // Spawns a distractor (fake Mole)
-    private void SetDistractor(string xIndex, string yIndex, string lifeTime)
+    private void SetDistractor(string xIndex, string yIndex, string lifeTime, string type)
     {
         int moleId = ((int.Parse(xIndex)) * 100) + (int.Parse(yIndex));
         AddMoleIdList(moleId);
-        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), true);
+        Mole.MoleType moleType = (Mole.MoleType)System.Enum.Parse( typeof(Mole.MoleType), type);
+        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(),  moleType);
     }
 
     // Updates the game difficulty

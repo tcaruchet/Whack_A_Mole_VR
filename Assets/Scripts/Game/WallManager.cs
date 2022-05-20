@@ -271,20 +271,20 @@ public class WallManager : MonoBehaviour
     }
 
     // Activates a random Mole for a given lifeTime and set if is fake or not
-    public void ActivateRandomMole(float lifeTime, float moleExpiringDuration, bool isFake)
+    public void ActivateRandomMole(float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
         if (!active) return;
 
-        GetRandomMole().Enable(lifeTime, moleExpiringDuration, isFake, moleCount);
+        GetRandomMole().Enable(lifeTime, moleExpiringDuration, type, moleCount);
         moleCount++;
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not
-    public void ActivateMole(int moleId, float lifeTime, float moleExpiringDuration, bool isFake)
+    public void ActivateMole(int moleId, float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
         if (!active) return;
         if (!moles.ContainsKey(moleId)) return;
-        moles[moleId].Enable(lifeTime, moleExpiringDuration, isFake, spawnOrder);
+        moles[moleId].Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         moleCount++;
     }
 
