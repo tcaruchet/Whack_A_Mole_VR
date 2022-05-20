@@ -138,7 +138,7 @@ public class LaserMapper : MonoBehaviour
         if (motorCalibration) {
             GameObject controller = null;
             foreach(var con in activeControllers) {
-                if (con.active) {
+                if (con.activeSelf) {
                     controller = con;
                 }
             }
