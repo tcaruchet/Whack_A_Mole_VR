@@ -27,18 +27,21 @@ public class Constraint : MonoBehaviour
             /*ROTATION*/
             // Get current head heading in scene (y-only, to avoid tilting the floor)
             float offsetAngle = steamCamera.rotation.eulerAngles.y;
-            float offsetX = steamCamera.transform.position.x;
-            float offsetZ = steamCamera.transform.position.z;
 
             // Now rotate CameraRig in opposite direction to compensate
             cameraRig.Rotate(0f, -offsetAngle, 0f);
 
-            /*POSITION*/
-            // calculate how much to add or subtract from the height, to arrive at y 1.6
-            float headHeight = steamCamera.transform.localPosition.y;
+            float offsetX = steamCamera.transform.position.x;
+            float offsetZ = steamCamera.transform.position.z;
+             /*POSITION*/
+             // calculate how much to add or subtract from the height, to arrive at y 1.6
+             float headHeight = steamCamera.transform.localPosition.y;
             //float heightChange = desiredHeight - headHeight;
             float xChange = transform.position.x - offsetX;
             float zChange = transform.position.z - offsetZ;
+
+            Debug.Log("transform.position.x: " + transform.position.x.ToString());
+            Debug.Log("offsetX: " + offsetX.ToString());
 
             /*FIT HEIGHT TO MOTORSPACE*/
             // instead of moving the motorspace, we should move players
@@ -50,10 +53,10 @@ public class Constraint : MonoBehaviour
             // B: determine motorspace (bottom) height
             float heightChange = desiredHeight - controllerHeight;
 
-            // C: offset player upwards, so the controller aligns with bottom of the motorspace.
-            
-            transform.position = new Vector3(xChange, heightChange, zChange);
-            Debug.Log("Seat recentered!");
+             // C: offset player upwards, so the controller aligns with bottom of the motorspace.
+
+             transform.position = new Vector3(xChange, heightChange, zChange);
+              Debug.Log("Seat recentered!");
             calibrated = true;
             }
         }
