@@ -310,14 +310,49 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
+    // Helper function to calculate how to modify
+    // controller's local position, to make it 
+    // offset in the right direction.
+    // Normally this would be handled by setting 
+    // its world position, but this causes glitches.
+    // Adapted from:
+    // https://stackoverflow.com/questions/71710139/how-do-i-rotate-a-direction-vector3-upwards-by-an-angle-in-unity
+    Vector3 RotateTowardsUp(Vector3 start, float angle)
+    {
+        // Positive X offsets needs a Vector3.forward.
+        // Negative X offsets needs a Vector3.back.
+        Vector3 direction = Vector3.forward;
+        if (start.x < 0) {
+            direction = Vector3.back;
+        }
+
+        Vector3 axis = Vector3.Cross(start, direction);
+
+        return Quaternion.AngleAxis(angle, axis) * start;
+    }
+
     
     public void SetControllerOffset(float value)
     {
 
         controllerOffset = value;
-        rightControllerContainer.localPosition = new Vector3(controllerOffset*0.1f,0f,0f);
-        leftControllerContainer.localPosition = new Vector3(controllerOffset*0.1f,0f,0f);
-        
+
+        // Before calibration was implemented, controllers
+        // were offset by setting their world position.
+        // However, with calibration, this results in
+        // undefined behavior. A temporary fix was to
+        // use localPosition, but the localPosition is
+        // rarely aligned to world axes after calibration.
+        // This implements a helper function which
+        // reads the parents' rotation and compensates for
+        // it, when sertting the controller's local position.
+        Vector3 xOffset = new Vector3(controllerOffset*0.1f,0f,0f);
+        Transform controllerParent = rightControllerContainer.parent;
+        Vector3 rotatedVector = RotateTowardsUp(xOffset, controllerParent.eulerAngles.y);
+        rightControllerContainer.localPosition = rotatedVector;
+
+        rightControllerContainer.localPosition = rotatedVector;
+        leftControllerContainer.localPosition = rotatedVector;
 
         loggerNotifier.NotifyLogger("Controller Offset Set "+value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
         {
