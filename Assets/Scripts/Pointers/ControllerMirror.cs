@@ -77,9 +77,12 @@ public class ControllerMirror : MonoBehaviour
         newPos = controllerToMirror.transform.position;
         newPos = new Vector3 (newPos.x * -1f, newPos.y, newPos.z);
 
-        // Mirror rotation
-        newRot = controllerToMirror.transform.localRotation;
-        newRot = new Quaternion(newRot.x, newRot.y * -1f, newRot.z * -1f, newRot.w);
+        // mirror the y and z rotational axes, and keep the x axis intact.
+        // We do this by inversing X before we pass it to Quaternion.Inverse()
+        newRot = Quaternion.Euler(new Vector3(-controllerToMirror.transform.eulerAngles.x, controllerToMirror.transform.eulerAngles.y, controllerToMirror.transform.eulerAngles.z));
+        // Multiply the rotation by the base calibration angles before inversion.
+        // This ensures we get the right controller orientation.
+        newRot = Quaternion.Inverse(newRot * Quaternion.Euler(this.transform.root.eulerAngles));
 
         this.transform.position = newPos;
         this.transform.localRotation = newRot;
