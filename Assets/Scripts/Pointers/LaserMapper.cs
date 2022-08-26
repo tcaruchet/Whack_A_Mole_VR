@@ -371,7 +371,7 @@ public class LaserMapper : MonoBehaviour
     }
 
     public void SetMotorSpace(MotorSpaceInfo motorspace) {
-        coroutineQueue.Enqueue(ScaleMotorSpace(motorspace, 1.5f));
+        coroutineQueue.Enqueue(ScaleMotorSpace(motorspace, 0.4f));
 
         multiplier = motorspace.multiplier;
         UpdateMotorSpaceVisualizer(motorspace.mode);
