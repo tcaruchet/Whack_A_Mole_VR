@@ -8,7 +8,7 @@ Basic implementation of the pointer abstract class. Simply changes the color of 
 the Cursor on shoot.
 */
 
-public class BasicPointer : Pointer
+public class HoverPointer : Pointer
 {
     [SerializeField]
     private Color shootColor;
@@ -21,7 +21,7 @@ public class BasicPointer : Pointer
 
     private float shootTimeLeft;
     private float totalShootTime;
-    private float dwellTime = 3f;
+    private float dwellTime = 3.5f;
     private float dwellTimer = 0f;
     private delegate void Del();
 

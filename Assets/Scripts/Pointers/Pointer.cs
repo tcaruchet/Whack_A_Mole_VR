@@ -11,25 +11,25 @@ functions on events to be overriden in its derived classes.
 
 public abstract class Pointer : MonoBehaviour
 {
-    private enum States {Idle, CoolingDown}
-    private enum AimAssistStates {None, Snap, Magnetize}
+    protected enum States {Idle, CoolingDown}
+    protected enum AimAssistStates {None, Snap, Magnetize}
 
     [SerializeField]
     private SteamVR_Input_Sources controller;
 
     [SerializeField]
-    private GameObject laserOrigin;
+    protected GameObject laserOrigin;
 
     [SerializeField]
-    private LaserMapper laserMapper;
+    protected LaserMapper laserMapper;
 
     // Currently serialized. May be controlled by the UI in the future.
 
     [SerializeField]
-    private AimAssistStates aimAssistState;
+    protected AimAssistStates aimAssistState;
 
     [SerializeField]
-    private bool directionSmoothed = false;
+    protected bool directionSmoothed = false;
 
     [SerializeField]
     protected Vector3 laserOffset;
@@ -62,8 +62,8 @@ public abstract class Pointer : MonoBehaviour
 
     private States state = States.Idle;
     private Mole hoveredMole;
-    private bool active = false;
-    private LoggerNotifier loggerNotifier;
+    protected bool active = false;
+    protected LoggerNotifier loggerNotifier;
 
     [SerializeField]
     public SoundManager soundManager;
@@ -81,7 +81,7 @@ public abstract class Pointer : MonoBehaviour
     private Vector3 smoothingVelocity = Vector3.zero;
     private float lastTime = -1 ;
 
-    private int pointerShootOrder = -1;
+    protected int pointerShootOrder = -1;
 
     [System.Serializable]
     public class OnPointerShoot : UnityEvent { }
@@ -156,7 +156,7 @@ public abstract class Pointer : MonoBehaviour
     }
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
-    public void PositionUpdated()
+    public virtual void PositionUpdated()
     {
         if (!active) return;
 
@@ -218,7 +218,7 @@ public abstract class Pointer : MonoBehaviour
     protected virtual void PlayCooldownEnd() {}
 
     // Checks if a Mole is hovered and tells it to play the hovered efect.
-    private void hoverMole(RaycastHit hit)
+    protected virtual void hoverMole(RaycastHit hit)
     {
         Mole mole;
         if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
@@ -245,7 +245,7 @@ public abstract class Pointer : MonoBehaviour
 
     // Shoots a raycast. If Mole is hit, calls its Pop() function. Depending on the hit result, plays the hit/missed shooting animation
     // and raises a "Mole Missed" event.
-    private void Shoot(RaycastHit hit)
+    protected virtual void Shoot(RaycastHit hit)
     {
         Mole mole;
 
