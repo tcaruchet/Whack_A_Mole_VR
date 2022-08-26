@@ -292,6 +292,10 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetMotorRestrictionLower(ParseFloat(tempValue));
         }
+        if (action.TryGetValue("MOTORSPACE", out tempValue))
+        {
+            modifiersManager.SetMotorspace((ModifiersManager.MotorspaceSize)System.Enum.Parse( typeof(ModifiersManager.MotorspaceSize), tempValue));
+        }
     }
 
     private void SetSegment(string Idval, string label) {

@@ -20,6 +20,7 @@ It is also possible to fully hide the chaperone by editing the steamvr.vrsetting
 public class ModifiersManager : MonoBehaviour
 {
     public enum ControllerSetup {Left, Both, Right, Off};
+    public enum MotorspaceSize {Small, Medium, Large};
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
 
@@ -256,6 +257,18 @@ public class ModifiersManager : MonoBehaviour
         });
 
         modifierUpdateEvent.Invoke("MotorRestrictionLower", value.ToString());
+    }
+
+    public void SetMotorspace(ModifiersManager.MotorspaceSize size)
+    {
+        Debug.Log(size);
+        if (size == ModifiersManager.MotorspaceSize.Small) {
+            motorSpaceManager.SetMotorSpaceSmall();
+        } else if (size == ModifiersManager.MotorspaceSize.Medium) {
+            motorSpaceManager.SetMotorSpaceMedium();
+        } else if (size == ModifiersManager.MotorspaceSize.Large) {
+            motorSpaceManager.SetMotorSpaceLarge();
+        }
     }
 
     // Sets a controller position and rotation's mirroring effect. Calls UpdateMirrorEffect to set the mirror.
