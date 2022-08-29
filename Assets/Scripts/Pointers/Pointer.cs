@@ -105,6 +105,9 @@ public abstract class Pointer : MonoBehaviour
         // the UI would have to raise the event.
         persistentEventsHeadersDefaults: new Dictionary<string, string>(){
             {"ControllerSmoothed", "NULL"},
+            {"ControllerHover", "NULL"},
+            {"PointerShootOrder", "NULL"},
+            {"ControllerName", "NULL"},
             {"ControllerAimAssistState", "NULL"},
             {"LastShotControllerRawPointingDirectionX", "NULL"},
             {"LastShotControllerRawPointingDirectionY", "NULL"},
@@ -116,6 +119,9 @@ public abstract class Pointer : MonoBehaviour
 
         loggerNotifier.InitPersistentEventParameters(new Dictionary<string, object>(){
             {"ControllerSmoothed", directionSmoothed},
+            {"ControllerHover", "NULL"},
+            {"PointerShootOrder", "NULL"},
+            {"ControllerName", "NULL"},
             {"ControllerAimAssistState", System.Enum.GetName(typeof(Pointer.AimAssistStates), aimAssistState)}
         });
 

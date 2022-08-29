@@ -66,6 +66,7 @@ public class BasicPointer : Pointer
                             loggerNotifier.NotifyLogger("Pointer Hover Begin", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
                             {
                                 {"ControllerHover", hover},
+                                {"ControllerName", gameObject.name}
                             });
                         }
 
@@ -84,11 +85,15 @@ public class BasicPointer : Pointer
                                 {"LastShotBubbleFilteredPointingDirectionX", rayDirection.x},
                                 {"LastShotBubbleFilteredPointingDirectionY", rayDirection.y},
                                 {"LastShotBubbleFilteredPointingDirectionZ", rayDirection.z},
+                                {"ControllerHover", "NULL"},
+                                {"PointerShootOrder", "NULL"},
+                                {"ControllerName", "NULL"},
                             });
 
                             loggerNotifier.NotifyLogger("Pointer Shoot", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
                             {
-                                {"PointerShootOrder", pointerShootOrder}
+                                {"PointerShootOrder", pointerShootOrder},
+                                {"ControllerName", gameObject.name}
                             });
                             Shoot(hit);
                         }
@@ -119,8 +124,10 @@ public class BasicPointer : Pointer
             loggerNotifier.NotifyLogger("Pointer Hover End", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
             {
                 {"ControllerHover", hover},
+                {"ControllerName", gameObject.name}
             });
             hover = "";
+
         }
     }
 
