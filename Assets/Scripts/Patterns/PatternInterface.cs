@@ -14,6 +14,7 @@ public class PatternInterface : MonoBehaviour
     private GameDirector gameDirector;
     private MotorSpaceManager motorspaceManager;
     private LoggerNotifier loggerNotifier;
+    private PlayerPanel playerPanel;
     private float randVar = 0f;
 
     private static List<int> moleIdList = new List<int>();
@@ -34,6 +35,7 @@ public class PatternInterface : MonoBehaviour
         modifiersManager = FindObjectOfType<ModifiersManager>();
         gameDirector = FindObjectOfType<GameDirector>();
         motorspaceManager = FindObjectOfType<MotorSpaceManager>();
+        playerPanel = FindObjectOfType<PlayerPanel>();
     }
 
     void Start()
@@ -136,6 +138,17 @@ public class PatternInterface : MonoBehaviour
                 }
                 break;
             
+            case "MESSAGE":
+                try
+                {
+                    SetMessage(action["LABEL"], action["TIME"]);
+                }
+                catch(System.Exception e)
+                {
+                    Debug.LogError("Error in SEGMENT: " + e.Message);
+                }
+                break;
+
             case "RANDGEN":
                 try
                 {
@@ -240,6 +253,13 @@ public class PatternInterface : MonoBehaviour
     private void SetDifficulty(string difficulty)
     {
         gameDirector.SetDifficulty(difficulty);
+    }
+
+    // Updates the game difficulty
+    private void SetMessage(string message, string time)
+    {
+        message = message.Replace("_"," ");
+        playerPanel.SetMessage(message, ParseFloat(time));
     }
 
     // Updates one or multiple modifiers

@@ -19,6 +19,9 @@ public class PlayerPanel : MonoBehaviour
     [SerializeField]
     private GameObject gameCountDownContainer;
 
+    private SoundManager soundManager;
+    private LoggerNotifier loggerNotifier;
+
     [SerializeField]
     private Text timeText;
 
@@ -32,6 +35,10 @@ public class PlayerPanel : MonoBehaviour
     private Text countDownText;
     private string countDownTextTemplate;
 
+    [SerializeField]
+    private Text instructionText;
+    private string instructionTextDefault;
+
     private Canvas panelCanvas;
 
 
@@ -39,6 +46,13 @@ public class PlayerPanel : MonoBehaviour
     {
         panelCanvas = gameObject.GetComponentInChildren<Canvas>();
         countDownTextTemplate = countDownText.text;
+        instructionTextDefault = instructionText.text;
+    }
+
+    void Start()
+    {
+        loggerNotifier = new LoggerNotifier();
+        soundManager = FindObjectOfType<SoundManager>();
     }
 
     // Hides/shows the panel
@@ -73,6 +87,7 @@ public class PlayerPanel : MonoBehaviour
         {
             infoContainer.SetActive(true);
             gameCountDownContainer.SetActive(false);
+            SetInstructionText(instructionTextDefault);
         }
     }
 
@@ -102,4 +117,46 @@ public class PlayerPanel : MonoBehaviour
     public void UpdateCountDownInfo(int count) {
         countDownText.text = string.Format(countDownTextTemplate, count.ToString());
     }
+
+    public void SetInstructionText(string text) {
+        instructionText.text = text;
+    }    
+
+    public void SetMessage(string text, float time) {
+        SetInstructionText(text);
+        StartCoroutine(WaitShowMessage(time));
+    }
+
+    private IEnumerator WaitShowMessage(float duration) {
+        float currentCountDownLeft = duration;
+        int currentCountDownLeftRounded = -1;
+        int prevCount = -1;
+        SetEnablePanel(true);
+        SetCountDownContainer(true);
+
+        while (currentCountDownLeft > -0.9) {
+            prevCount = currentCountDownLeftRounded;
+
+            currentCountDownLeft -= Time.deltaTime;
+            currentCountDownLeftRounded = (int) Mathf.Ceil(currentCountDownLeft);
+            
+            if (currentCountDownLeftRounded != prevCount) {
+                var data = new Dictionary<string, object>()
+                {
+                    {"CountDown", currentCountDownLeftRounded}
+                };
+                UpdateCountDownInfo(currentCountDownLeftRounded);
+                soundManager.PlaySound(gameObject, SoundManager.Sound.countdown);
+                loggerNotifier.NotifyLogger("CountDown " + currentCountDownLeftRounded.ToString(), EventLogger.EventType.GameEvent, new Dictionary<string, object>()
+                {
+                    {"GameMessage", instructionText}
+                });
+
+            }
+            yield return null;
+        }
+        SetEnablePanel(false);
+        SetCountDownContainer(false);
+    }
+
 }
