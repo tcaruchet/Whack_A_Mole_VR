@@ -51,7 +51,9 @@ public class PlayerPanel : MonoBehaviour
 
     void Start()
     {
-        loggerNotifier = new LoggerNotifier();
+        loggerNotifier = new LoggerNotifier(persistentEventsHeadersDefaults: new Dictionary<string, string>(){
+            {"GameMessage", "NULL"}
+        });
         soundManager = FindObjectOfType<SoundManager>();
     }
 
@@ -124,10 +126,10 @@ public class PlayerPanel : MonoBehaviour
 
     public void SetMessage(string text, float time) {
         SetInstructionText(text);
-        StartCoroutine(WaitShowMessage(time));
+        StartCoroutine(WaitShowMessage(time, text));
     }
 
-    private IEnumerator WaitShowMessage(float duration) {
+    private IEnumerator WaitShowMessage(float duration, string text) {
         float currentCountDownLeft = duration;
         int currentCountDownLeftRounded = -1;
         int prevCount = -1;
@@ -149,7 +151,7 @@ public class PlayerPanel : MonoBehaviour
                 soundManager.PlaySound(gameObject, SoundManager.Sound.countdown);
                 loggerNotifier.NotifyLogger("CountDown " + currentCountDownLeftRounded.ToString(), EventLogger.EventType.GameEvent, new Dictionary<string, object>()
                 {
-                    {"GameMessage", instructionText}
+                    {"GameMessage", text}
                 });
 
             }
