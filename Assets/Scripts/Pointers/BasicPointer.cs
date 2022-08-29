@@ -24,6 +24,7 @@ public class BasicPointer : Pointer
     private float dwellTime = 3f;
     private float dwellTimer = 0f;
     private delegate void Del();
+    private string hover = "";
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
@@ -60,6 +61,14 @@ public class BasicPointer : Pointer
                     Mole.States moleAnswer = mole.GetState();
                     if (moleAnswer == Mole.States.Enabled)
                     {
+                        if (hover == string.Empty) {
+                            hover =  mole.GetId().ToString();
+                            loggerNotifier.NotifyLogger("Pointer Hover Begin", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
+                            {
+                                {"ControllerHover", hover},
+                            });
+                        }
+
                         dwellTimer = dwellTimer + 0.1f;
                         if (dwellTimer > dwellTime) {
                             pointerShootOrder++;
@@ -84,20 +93,34 @@ public class BasicPointer : Pointer
                             Shoot(hit);
                         }
                     }  else {
+                        CheckHoverEnd();
                         if (dwellTimer > 0f) {
                         dwellTimer = dwellTimer - 0.1f;
                         }
                     }                 
                 } else {
+                    CheckHoverEnd();
                     if (dwellTimer > 0f) {
                         dwellTimer = dwellTimer - 0.1f;
                     }
                 }
-            } else {    
+            } else {
+                    CheckHoverEnd();
                     if (dwellTimer > 0f) {
                         dwellTimer = dwellTimer - 0.1f;
                     }
             }
+        }
+    }
+
+
+    private void CheckHoverEnd() {
+        if (hover != string.Empty) {
+            loggerNotifier.NotifyLogger("Pointer Hover End", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
+            {
+                {"ControllerHover", hover},
+            });
+            hover = "";
         }
     }
 
