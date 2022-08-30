@@ -104,6 +104,7 @@ public class BubbleDisplay : MonoBehaviour
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
             this.transform.position = new Vector3(newPosX + offsetX, newPosY + offsetY, newPosZ + offsetZ);
             if (!render) {
+                OutOfBoundContainer.SetActive(false);
                 StartCoroutine(FadeOutObject(OutOfBoundContainer, 20f));
                 StartCoroutine(OutOfBoundAnimation(false));
                 render = true;
