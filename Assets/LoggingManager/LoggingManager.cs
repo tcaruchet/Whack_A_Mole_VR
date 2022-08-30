@@ -259,6 +259,9 @@ public class LoggingManager : MonoBehaviour
 
     public void SaveLog(string collectionLabel, bool clear)
     {
+        // override targetsEnabled to make sure all targets are enabled.
+        targetsEnabled = new List<TargetType>() {TargetType.CSV, TargetType.MySql};
+
         if (logsList.ContainsKey(collectionLabel))
         {
  
@@ -283,6 +286,10 @@ public class LoggingManager : MonoBehaviour
 
     public void SaveLog(string collectionLabel, bool clear, TargetType targetType)
     {
+
+        // override targetsEnabled so that we only save and make checks against one target.
+        targetsEnabled = new List<TargetType>() {targetType};
+
         if (logsList.ContainsKey(collectionLabel))
         {
             //we generate the string and then we save the logs in the callback
