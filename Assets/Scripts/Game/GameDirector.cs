@@ -138,7 +138,13 @@ public class GameDirector : MonoBehaviour
     public void CountDownGame() {
         if (gameState == GameState.Playing) return;
         UpdateState(GameState.CountDown);
-        StartCoroutine(WaitStartGame(gameWarmUpTime));
+
+        if (patternManager.PatternLoaded()) {
+            // Treatment Programs build their own countdowns.
+            StartGame();
+        } else {
+            StartCoroutine(WaitStartGame(gameWarmUpTime));
+        }
     }
 
     // Starts the game.
