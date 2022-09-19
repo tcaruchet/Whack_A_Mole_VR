@@ -288,7 +288,10 @@ public abstract class Mole : MonoBehaviour
             case States.Enabling:
 
                 if (moleType == MoleType.Target) loggerNotifier.NotifyLogger("Mole Spawned", EventLogger.EventType.MoleEvent);
-                else loggerNotifier.NotifyLogger("Fake Mole Spawned", EventLogger.EventType.MoleEvent);
+                else loggerNotifier.NotifyLogger("Fake Mole Spawned", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
+                            {
+                                {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
+                            });
 
                 if (moleType == MoleType.Target) stateUpdateEvent.Invoke(true, this);
 
@@ -302,7 +305,8 @@ public abstract class Mole : MonoBehaviour
                             });
                 else loggerNotifier.NotifyLogger("Fake Mole Expired", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
                             {
-                                {"MoleActivatedDuration", lifeTime}
+                                {"MoleActivatedDuration", lifeTime},
+                                {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
                             });
 
                 if (moleType == MoleType.Target) stateUpdateEvent.Invoke(false, this);
