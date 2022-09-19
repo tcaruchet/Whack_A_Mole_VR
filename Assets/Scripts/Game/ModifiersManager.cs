@@ -206,7 +206,9 @@ public class ModifiersManager : MonoBehaviour
 
     public void SetMotorRestriction(bool value)
     {
-        if (motorRestriction == value) return;
+        // motor restriction may need to be "refreshed" when controllers change.
+        // therefore, allow calling motorRestriction = True to update.
+        //if (motorRestriction == value) return;
 
         motorRestriction = value;
         

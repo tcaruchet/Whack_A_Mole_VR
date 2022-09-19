@@ -64,17 +64,19 @@ public class MotorSpaceManager : MonoBehaviour
     }
 
     public void SetMotorRestriction(MotorRestriction restriction, float lower, float upper) {
+        var mirrorUpper = 1f - lower;
+        var mirrorLower = 1f - upper;
+
         if (motorspace == ActiveMotorSpace.Right) {
             MotorSpaceRight.SetMotorRestriction(restriction, lower, upper);
         } else if (motorspace == ActiveMotorSpace.Left) {
-            MotorSpaceLeft.SetMotorRestriction(restriction, lower, upper);
+            MotorSpaceLeft.SetMotorRestriction(restriction, mirrorLower, mirrorUpper);
         } else if (motorspace == ActiveMotorSpace.Both) {
             MotorSpaceRight.SetMotorRestriction(restriction, lower, upper);
-            MotorSpaceLeft.SetMotorRestriction(restriction, lower, upper);
+            MotorSpaceLeft.SetMotorRestriction(restriction, mirrorLower, mirrorUpper);
         }
 
-        var mirrorUpper = 1f - lower;
-        var mirrorLower = 1f - upper;
+
 
         if (isMirror) {
             if (motorspace == ActiveMotorSpace.Right) {
@@ -82,7 +84,7 @@ public class MotorSpaceManager : MonoBehaviour
                MotorSpaceMirrorR.SetMotorRestriction(restriction, mirrorLower, mirrorUpper);
             } else if (motorspace == ActiveMotorSpace.Left) {
                 LaserMapper MotorSpaceMirrorL = MotorSpaceMirrorLeft.gameObject.GetComponent<LaserMapper>();
-                MotorSpaceMirrorL.SetMotorRestriction(restriction, mirrorLower, mirrorUpper);
+                MotorSpaceMirrorL.SetMotorRestriction(restriction, lower, upper);
             }
         }
 
