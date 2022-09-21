@@ -259,6 +259,7 @@ public class PatternInterface : MonoBehaviour
     private void SetMessage(string message, string time)
     {
         message = message.Replace("_"," ");
+        message = message.Replace("|","\n");
         playerPanel.SetMessage(message, ParseFloat(time));
     }
 
