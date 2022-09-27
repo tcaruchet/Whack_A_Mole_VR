@@ -155,12 +155,15 @@ public class TherapistUi : MonoBehaviour
             {
                 case "MirrorEffect":
                     modifiersManager.SetMirrorEffect(bool.Parse((string)entry.Value));
+                    modifiersManager.UpdateDefaultModifier("MirrorEffect", bool.Parse((string)entry.Value));
                     break;
                 case "PhysicalMirror":
                     modifiersManager.SetPhysicalMirror(bool.Parse((string)entry.Value));
+                    modifiersManager.UpdateDefaultModifier("PhysicalMirror", bool.Parse((string)entry.Value));
                     break;
                 case "GeometricMirror":
                     modifiersManager.SetGeometricMirror(bool.Parse((string)entry.Value));
+                    modifiersManager.UpdateDefaultModifier("GeometricMirror", bool.Parse((string)entry.Value));
                     break;
                 case "ShowHand":
                     break;
@@ -179,6 +182,7 @@ public class TherapistUi : MonoBehaviour
                             break;
                     }
                     modifiersManager.SetEyePatch(value);
+                    modifiersManager.UpdateDefaultModifier("EyePatch", value);
                     break;
                 case "HideWall":
                     ModifiersManager.HideWall wallValue = ModifiersManager.HideWall.None;
@@ -195,12 +199,15 @@ public class TherapistUi : MonoBehaviour
                             break;
                     }
                     modifiersManager.SetHideWall(wallValue);
+                    modifiersManager.UpdateDefaultModifier("HideWall", wallValue);
                     break;
                 case "ControllerOffset":
                     modifiersManager.SetControllerOffset(float.Parse((string)entry.Value));
+                    modifiersManager.UpdateDefaultModifier("ControllerOffset", float.Parse((string)entry.Value));
                     break;
                 case "PrismOffset":
                     modifiersManager.SetPrismOffset(float.Parse((string)entry.Value));
+                    modifiersManager.UpdateDefaultModifier("PrismOffset", float.Parse((string)entry.Value));
                     break;
                 case "GameSpeed":
                     gameDirector.SetDifficulty((string)entry.Value);

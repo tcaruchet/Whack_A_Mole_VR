@@ -19,6 +19,9 @@ It is also possible to fully hide the chaperone by editing the steamvr.vrsetting
 
 public class ModifiersManager : MonoBehaviour
 {
+
+    public Dictionary<string, object> defaultModifiers;
+
     public enum ControllerSetup {Left, Both, Right, Off};
     public enum MotorspaceSize {Small, Medium, Large};
     public enum EyePatch {Left, None, Right};
@@ -94,7 +97,7 @@ public class ModifiersManager : MonoBehaviour
     [SerializeField]
     private float hideWallLowestEnd = -1.05f;
     private float hideWallAmount = -1f;
-
+    ModifiersManager.MotorspaceSize motorspaceSize = ModifiersManager.MotorspaceSize.Large;
     private EyePatch eyePatch = EyePatch.None;
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
@@ -144,6 +147,51 @@ public class ModifiersManager : MonoBehaviour
             {"HideWallAmount", hideWallAmount},
             {"GeometricMirror", geometricMirrorEffect}
         });
+
+        defaultModifiers = new Dictionary<string, object> () {
+        {"ControllerSetup", this.controllerSetup},
+        {"MotorspaceSize", this.motorspaceSize},
+        {"EyePatch", this.eyePatch},
+        {"HideWall", this.hideWall},
+        {"HideWallAmount", 0f}, // hideWallAmount is a calculated value.
+        {"MirrorEffect", this.mirrorEffect},
+        {"PhysicalMirror", this.physicalMirrorEffect},
+        {"GeometricMirror", this.geometricMirrorEffect},
+        {"RightControllerMain", this.rightControllerMain},
+        {"ControllerOffset", this.controllerOffset},
+        {"PrismOffset", this.prismOffset},
+        {"MotorRestriction", this.motorRestriction},
+        {"MotorRestrictionUpper", this.motorRestrictionUpper},
+        {"MotorRestrictionLower", this.motorRestrictionLower}
+        };
+    }
+
+    void Start() {
+        SetDefaultModifiers();
+    }
+
+    public void UpdateDefaultModifier(string modifier, object val) {
+        defaultModifiers[modifier] = val;
+    }
+
+    public void SetDefaultModifiers() {
+        SetModifiers(defaultModifiers);
+    }
+
+    public void SetModifiers(Dictionary<string, object> state) {
+        SetEyePatch((ModifiersManager.EyePatch) state["EyePatch"]);
+        SetHideWall((ModifiersManager.HideWall) state["HideWall"]);
+        SetMotorRestriction((bool) state["MotorRestriction"]);
+        SetMotorRestrictionUpper((float) state["MotorRestrictionUpper"]);
+        SetMotorRestrictionLower((float) state["MotorRestrictionLower"]);
+        SetMotorspace((ModifiersManager.MotorspaceSize) state["MotorspaceSize"]);
+        SetMirrorEffect((bool) state["MirrorEffect"]);
+        SetPhysicalMirror((bool)state["PhysicalMirrorEffect"]);
+        SetGeometricMirror((bool)state["GeometricMirrorEffect"]);
+        SetControllerOffset((float)state["ControllerOffset"]);
+        SetPrismOffset((float)state["PrismOffset"]);
+        SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
+        SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
     }
 
     // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
