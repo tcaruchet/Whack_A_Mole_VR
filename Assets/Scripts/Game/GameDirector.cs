@@ -75,6 +75,7 @@ public class GameDirector : MonoBehaviour
     private GameState gameState = GameState.Stopped;
     private LoggerNotifier loggerNotifier;
     private PatternManager patternManager;
+    private ModifiersManager modifiersManager;
     private Constraint constraint;
     private SpeedUpdateEvent speedUpdateEvent = new SpeedUpdateEvent();
     public ParticipantChangeEvent participantChanged = new ParticipantChangeEvent();
@@ -106,6 +107,7 @@ public class GameDirector : MonoBehaviour
     void Awake()
     {
         patternManager = FindObjectOfType<PatternManager>();
+        modifiersManager = FindObjectOfType<ModifiersManager>();
         gameDefaultDuration = gameDuration;
         constraint = FindObjectOfType<Constraint>();
     }
@@ -324,6 +326,7 @@ public class GameDirector : MonoBehaviour
         patternManager.StopPattern();
         StopAllCoroutines();
         wallManager.Disable();
+        modifiersManager.SetDefaultModifiers();
     }
 
     private void SpawnMole(float lifeTime, bool fakeCoeff)
