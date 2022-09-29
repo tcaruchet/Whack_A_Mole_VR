@@ -40,6 +40,12 @@ public class DiskMole : Mole
     private Texture distractorRightTexture;
 
     [SerializeField]
+    private Texture goodMoleTexture;
+
+    [SerializeField]
+    private Texture wrongMoleTexture;
+
+    [SerializeField]
     private AudioClip enableSound;
 
     [SerializeField]
@@ -80,7 +86,6 @@ public class DiskMole : Mole
 
     protected override void PlayEnabling()
     {
-        PlaySound(enableSound);
         PlayAnimation("EnableDisable");
 
         if (moleType == Mole.MoleType.Target)
@@ -103,7 +108,14 @@ public class DiskMole : Mole
     protected override void PlayDisabling()
     {
         PlaySound(enableSound);
-        PlayAnimation("EnableDisable");
+        if (moleType == Mole.MoleType.Target)
+        {
+            StartCoroutine(PlayAnim("PopWrongMole"));
+        }
+        else
+        {
+            StartCoroutine(PlayAnim("EnableDisable"));
+        }
         meshMaterial.color = disabledColor;
         meshMaterial.mainTexture =  textureDisabled;
         base.PlayDisabling();
@@ -135,9 +147,16 @@ public class DiskMole : Mole
 
     protected override void PlayPop() 
     {
-        PlayAnimation("PopOscill");
+        if (moleType == Mole.MoleType.Target)
+        {
+            StartCoroutine(PlayAnim("PopCorrectMole"));
+        }
+        else
+        {
+            StartCoroutine(PlayAnim("PopWrongMole"));
+        }
         meshMaterial.color = disabledColor;
-        meshMaterial.mainTexture =  textureDisabled;
+        meshMaterial.mainTexture = textureDisabled;
         PlaySound(popSound);
     }
 
@@ -229,5 +248,11 @@ public class DiskMole : Mole
 
         // When the animation is finished, resets the color to its end value.
         ChangeColor(endColor);
+    }
+
+    private IEnumerator PlayAnim(string animName)
+    {
+        PlayAnimation(animName);
+        yield return null;
     }
 }
