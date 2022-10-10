@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using FadingUtils;
 
 /*
 Class dedicated to the player panel. Updates the displayed information, hides/shows the panel and switches between the 
@@ -18,6 +19,9 @@ public class PlayerPanel : MonoBehaviour
 
     [SerializeField]
     private GameObject gameCountDownContainer;
+
+    [SerializeField]
+    private GameObject instructionContainer;
 
     private SoundManager soundManager;
     private LoggerNotifier loggerNotifier;
@@ -41,6 +45,11 @@ public class PlayerPanel : MonoBehaviour
 
     private Canvas panelCanvas;
 
+    private FadingHelper gamePausedFader;               // Handles gamePauseContainer
+    private FadingHelper gameCountDownFader;            // Handles gameCountDownContainer
+    private FadingHelper infoFader;                     // Handles infoContainer
+    private FadingHelper instructionContainerFader;     // Handles instructionContainer
+    private FadingHelper instructionTxtFader;           // Handles instructionText
 
     void Awake()
     {
@@ -51,6 +60,11 @@ public class PlayerPanel : MonoBehaviour
 
     void Start()
     {
+        gamePausedFader = gamePausedContainer.GetComponent<FadingHelper>();
+        gameCountDownFader = gameCountDownContainer.GetComponent<FadingHelper>();
+        infoFader = infoContainer.GetComponent<FadingHelper>();
+        instructionContainerFader = instructionContainer.GetComponent<FadingHelper>(); 
+
         loggerNotifier = new LoggerNotifier(persistentEventsHeadersDefaults: new Dictionary<string, string>(){
             {"GameMessage", "NULL"}
         });
@@ -69,12 +83,15 @@ public class PlayerPanel : MonoBehaviour
         if (pausedContainer)
         {
             infoContainer.SetActive(false);
-            gamePausedContainer.SetActive(true);
+            FadingUtils.FadingUtils.FadingOutPlusDisabling(infoFader);
+            FadingUtils.FadingUtils.FadingInPlusEnabling(instructionContainerFader);
+            FadingUtils.FadingUtils.FadingInPlusEnabling(gamePausedFader);
         }
         else
         {
+            FadingUtils.FadingUtils.FadingOutPlusDisabling(gamePausedFader);
+            FadingUtils.FadingUtils.FadingInPlusEnabling(infoFader);
             infoContainer.SetActive(true);
-            gamePausedContainer.SetActive(false);
         }
     }
 
@@ -82,13 +99,13 @@ public class PlayerPanel : MonoBehaviour
     public void SetCountDownContainer(bool countDownContainer = true) {
         if (countDownContainer)
         {
-            infoContainer.SetActive(false);
-            gameCountDownContainer.SetActive(true);
+            FadingUtils.FadingUtils.FadingOutPlusDisabling(infoFader);
+            FadingUtils.FadingUtils.FadingInPlusEnabling(gameCountDownFader);
         }
         else
         {
-            infoContainer.SetActive(true);
-            gameCountDownContainer.SetActive(false);
+            FadingUtils.FadingUtils.FadingOutPlusDisabling(gameCountDownFader);
+            FadingUtils.FadingUtils.FadingInPlusEnabling(infoFader);
             SetInstructionText(instructionTextDefault);
         }
     }
