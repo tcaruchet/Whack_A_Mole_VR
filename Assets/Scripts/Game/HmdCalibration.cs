@@ -19,14 +19,13 @@ public class HmdCalibration : MonoBehaviour
     private GameObject controllerGameObject;
 
     [SerializeField]
-    private float ratioSpeed = 3f;
+    private GameObject objToFade;
+
+    private FadingHelper calibrationScreenFader;
 
     bool calibrated = false;
     int timeout = 100;
     int time = 0;
-
-    [SerializeField]
-    private CanvasGroup canvasGroupToFade; // Used to make disappear all elements linked to a canvas
 
     // Start is called before the first frame update
     void Awake()
@@ -34,11 +33,31 @@ public class HmdCalibration : MonoBehaviour
         controllerGameObject.GetComponent<SteamVR_Behaviour_Pose>().onTransformUpdated.AddListener(delegate{PositionUpdated();});
     }
 
+    void Start()
+    {
+        calibrationScreenFader = objToFade.GetComponent<FadingHelper>();
+    }
+
     public void Update() {
         if (!calibrated) {
             if (Input.GetKeyDown(KeyCode.V))
             {
-                CloseInstructionPanel();
+                bool finished = false;
+                Debug.Log("Before Utils Func");
+                finished = FadingUtils.FadingUtils.FadingOutPlusDisablingCB(calibrationScreenFader,2);
+
+                Debug.Log("Before If statement");
+
+                if (finished)
+                {
+                    CloseInstructionPanel();
+                    Debug.Log("Inside If statement");
+                } 
+                
+
+
+                Debug.Log("After If statement");
+
             }
         }
     }
@@ -62,20 +81,9 @@ public class HmdCalibration : MonoBehaviour
     }
 
     //generic function if we need to change something when the instruction panel disappeared
-    private void CloseInstructionPanel(){
-        StartCoroutine(FadeOutCanvasGroup());
-        calibrationUpdate.Invoke();
-        calibrated = true;
-    }
-
-    public IEnumerator FadeOutCanvasGroup()
+    private void CloseInstructionPanel()
     {
-        while (canvasGroupToFade.alpha > 0)
-        {
-            canvasGroupToFade.alpha -= Time.deltaTime * ratioSpeed;
-
-            yield return null;
-        }
-        canvasGroupToFade.transform.gameObject.SetActive(false);
+        calibrationUpdate.Invoke(); 
+        calibrated = true;
     }
 }

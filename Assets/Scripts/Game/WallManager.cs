@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using Boo.Lang;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -108,6 +110,33 @@ public class WallManager : MonoBehaviour
     private float lowestZ = -1f;
     private float highestZ = -1f;
 
+    // Cursor Position
+    [Header("Player Cursor: ")]
+    [SerializeField]
+    private GameObject cursorContainer;
+    private Vector3 cursorPos;
+
+    // Boundaries arraow parameters
+    [Header("Arrow Containers: ")]
+    [SerializeField]
+    private GameObject arrowHorizontal;    
+    [SerializeField]
+    private GameObject arrowVertical;
+
+    private Animation animationPlayerH;
+    private Animation animationPlayerV;
+    private string playingClip = "";
+
+    private bool inHboundary = false;
+    private bool inVboundary=false;
+
+    private bool onScreenH = false;
+    private bool onScreenV = false;
+
+    private FadingHelper fadingHelperH;
+    private FadingHelper fadingHelperV;
+
+
     void Start()
     {
         SetDefaultWall();
@@ -154,6 +183,11 @@ public class WallManager : MonoBehaviour
         wallGenerator = gameObject.GetComponent<WallGenerator>();
         wallCenter = new Vector3(wallSize.x/2f, wallSize.y/2f, 0);
         isInit = true;
+        cursorPos = cursorContainer.transform.position;
+        animationPlayerH = arrowHorizontal.GetComponent<Animation>();
+        animationPlayerV = arrowVertical.GetComponent<Animation>();
+        fadingHelperH = arrowHorizontal.GetComponent<FadingHelper>();
+        fadingHelperV = arrowVertical.GetComponent<FadingHelper>();
     }
 
     // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
@@ -486,6 +520,173 @@ public class WallManager : MonoBehaviour
         {
             Clear();
             Enable();
+        }
+    }
+
+    // For now the update function gets cursor position every frame, 
+    // And arrows appear when you get out of the boundaries of the game
+
+    // cursor position : (x,y) inside rectangle created by points A B C D, else : arrow shown
+
+    // A : Top left corner : (lowestX + lowestX/2, highestY + highestX/2)
+    // B : Top right corner : (highestX + highestX/2, highestY + highestX/2)
+    // C : Bottom right corner : (highestX + highestX/2, lowestY - highestX/2)
+    // D : Bottom left corner : (lowestX + lowestX/2, lowestY - highestX/2)
+
+    // ==> (lowestX + lowestX/2) < cursoPos(x) < (highestX + highestX/2)
+    // ==> (highestY + highestX/2) < cursoPos(y) < (lowestY - highestX/2
+
+    void Update()
+    {
+        cursorMovement();
+        cursorPos = GetCursorPosition(cursorContainer);
+
+        if (cursorPos.x < lowestX + lowestX / 2) // Left boundary
+        {
+            arrowHorizontal.GetComponent<SpriteRenderer>().flipX = true;
+            arrowHorizontal.transform.position = new Vector3(lowestX + lowestX/2, highestY/2, lowestZ);
+            inHboundary = false;
+
+            if (onScreenH == false && inHboundary == false)
+            {
+                fadingHelperH.FadeInGameObject();
+                Debug.Log("B");
+                onScreenH = true;
+            }
+            
+            if (onScreenH == true && inHboundary == false)
+            {
+                StartCoroutine(PlayAnim("ScaleAndPointArrow", animationPlayerH));
+                Debug.Log("A");
+            }
+        }
+        
+        if (cursorPos.x > highestX + highestX / 2) // Right boundary
+        {
+            arrowHorizontal.GetComponent<SpriteRenderer>().flipX = false;
+            arrowHorizontal.transform.position = new Vector3(highestX + highestX/2, highestY/2, lowestZ);
+            inHboundary = false;
+            
+            if (onScreenH == false && inHboundary == false)
+            {
+                StartCoroutine(PlayAnim("AppearingArrow", animationPlayerH));
+                Debug.Log("BB");
+                onScreenH = true;
+            }
+
+            if (onScreenH == true && inHboundary == false)
+            {
+                StartCoroutine(PlayAnim("ScaleAndPointArrow", animationPlayerH));
+                Debug.Log("AA");
+            }
+        }
+        
+        if (cursorPos.y < lowestY - highestX / 2) // Bottom boundary
+        {
+            arrowVertical.GetComponent<SpriteRenderer>().flipX = true; 
+            arrowVertical.transform.position = new Vector3(highestX/2 + lowestX/2, lowestY - highestX/2, lowestZ);
+            inVboundary = false;
+
+            if (onScreenV == false && inVboundary == false)
+            {
+                FadingUtils.FadingUtils.FadingInPlusEnabling(fadingHelperV);
+                Debug.Log("BBB");
+                onScreenV = true;
+            }
+
+            if (onScreenV == true && inVboundary == false)
+            {
+                StartCoroutine(PlayAnim("ScaleAndPointArrow", animationPlayerV));
+                Debug.Log("AAA");
+            }
+        }
+        
+        if (cursorPos.y > highestY + highestX / 2) // Top boundary
+        {
+            arrowVertical.GetComponent<SpriteRenderer>().flipX = false;
+            arrowVertical.transform.position = new Vector3(highestX/2 + lowestX/2, highestY + highestX/2, lowestZ);
+            inVboundary = false;
+
+            if (onScreenV == true && inVboundary == false)
+            {
+                StartCoroutine(PlayAnim("AppearingArrow", animationPlayerV));
+                Debug.Log("BBBB");
+                onScreenV = true;
+            }
+
+            if (onScreenV == false && inVboundary == false)
+            {
+                StartCoroutine(PlayAnim("ScaleAndPointArrow", animationPlayerV));
+                Debug.Log("AAAA");
+            }
+        }
+
+        /*if ((highestY + highestX / 2) > cursorPos.y && cursorPos.y > (lowestY - highestX / 2) // cursor is inside vertical and horizontal boundaries 
+            && (lowestX + lowestX / 2) < cursorPos.x  && cursorPos.x < (highestX + highestX / 2) 
+            && inHboundary == false 
+            && inVboundary == false)
+        {
+            StartCoroutine(PlayAnim("DisappearingArrow", animationPlayerV)); // ??
+            StartCoroutine(PlayAnim("DisappearingArrow", animationPlayerH)); // ??
+            inHboundary = true;
+            inVboundary = true;
+        }*/
+
+        if ((lowestX + lowestX / 2) < cursorPos.x       // inside horizontal boundaries
+            && cursorPos.x < (highestX + highestX / 2) 
+            && inHboundary == false) 
+        {
+            StartCoroutine(PlayAnim("DisappearingArrow", animationPlayerH));
+            onScreenH = false;
+            inHboundary = true;
+        }
+
+        if (((highestY + highestX / 2) > cursorPos.y    // inside vertical boundaries
+            && cursorPos.y > (lowestY - highestX / 2)) 
+            && inVboundary == false) 
+        {
+            StartCoroutine(PlayAnim("DisappearingArrow", animationPlayerV));
+            onScreenV = false;
+            inVboundary = true;
+        }
+
+        resetCursorPos();
+    }
+
+    private Vector3 GetCursorPosition(GameObject gameobj)
+    {
+        return gameobj.transform.position;
+    }
+
+    // Plays an animation clip.
+    private void PlayAnimation(string animationName, Animation animationPlayer)
+    {
+        playingClip = animationName;
+        animationPlayer.Play(animationName);
+    }
+
+    private IEnumerator PlayAnim(string animName, Animation animationPlayer)
+    {
+        PlayAnimation(animName, animationPlayer);
+        yield return null;
+    }
+
+
+    // test functions
+    float speed = 5.0f;
+    
+    // test move cursor
+    private void cursorMovement()
+    {
+        var move = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
+        cursorContainer.transform.position += move * speed * Time.deltaTime;
+    }
+
+    private void resetCursorPos()
+    {
+        if (Input.GetKeyDown(KeyCode.W)) // reset cursor position
+        {
+            cursorContainer.transform.position = new Vector3(lowestX, lowestY, highestZ);
         }
     }
 }

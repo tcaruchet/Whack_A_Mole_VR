@@ -13,11 +13,26 @@ namespace FadingUtils
         {
             float fadeTime = 0;
             fadeHelper.FadeOutGameObject();
+
             while (fadeTime < fadeDelay)
             {
                 fadeTime += Time.deltaTime;
             }
+
             fadeHelper.gameObject.SetActive(false);
+        }
+
+        public static bool FadingOutPlusDisablingCB(FadingHelper fadeHelper, float fadeDelay=0f) // this function if called will make a fade out effect then disable the item
+        {
+            float fadeTime = 0;
+            fadeHelper.FadeOutGameObject();
+
+            while (fadeTime < fadeDelay)
+            {
+                fadeTime += Time.deltaTime;
+            }
+
+            return true;//fadeHelper.gameObject.SetActive(false);
         }
 
         public static void FadingInPlusEnabling(FadingHelper fadeHelper) // this function if called will enable an item then make a fade in effect

@@ -23,6 +23,9 @@ public class PlayerPanel : MonoBehaviour
     [SerializeField]
     private GameObject instructionContainer;
 
+    //[SerializeField]
+    //private GameObject gameEndingContainer;
+
     private SoundManager soundManager;
     private LoggerNotifier loggerNotifier;
 
@@ -50,6 +53,7 @@ public class PlayerPanel : MonoBehaviour
     private FadingHelper infoFader;                     // Handles infoContainer
     private FadingHelper instructionContainerFader;     // Handles instructionContainer
     private FadingHelper instructionTxtFader;           // Handles instructionText
+    //private FadingHelper gameEndingFader;               // Handles instructionText
 
     void Awake()
     {
@@ -64,6 +68,7 @@ public class PlayerPanel : MonoBehaviour
         gameCountDownFader = gameCountDownContainer.GetComponent<FadingHelper>();
         infoFader = infoContainer.GetComponent<FadingHelper>();
         instructionContainerFader = instructionContainer.GetComponent<FadingHelper>(); 
+        //gameEndingFader = gameEndingContainer.GetComponent<FadingHelper>(); 
 
         loggerNotifier = new LoggerNotifier(persistentEventsHeadersDefaults: new Dictionary<string, string>(){
             {"GameMessage", "NULL"}
@@ -97,6 +102,7 @@ public class PlayerPanel : MonoBehaviour
 
     // Switches between the "countdown" panel and the information panel.
     public void SetCountDownContainer(bool countDownContainer = true) {
+
         if (countDownContainer)
         {
             FadingUtils.FadingUtils.FadingOutPlusDisabling(infoFader);

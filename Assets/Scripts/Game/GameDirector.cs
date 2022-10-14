@@ -83,6 +83,11 @@ public class GameDirector : MonoBehaviour
     private int participantId = 0;
     private int testId = 0;
 
+    [SerializeField]
+    private GameObject objToFade;
+
+    private FadingHelper gameEndingFader;
+
     private Dictionary<string, Dictionary<string, float>> difficulties = new Dictionary<string, Dictionary<string, float>>(){
         {"Slow", new Dictionary<string, float>(){
             {"spawnRate", 3.5f},
@@ -135,6 +140,8 @@ public class GameDirector : MonoBehaviour
             {"ParticipantId", 0},
             {"TestId", 0}
         });
+
+        gameEndingFader = objToFade.GetComponent<FadingHelper>();
     }
 
     public void CountDownGame() {
@@ -320,13 +327,16 @@ public class GameDirector : MonoBehaviour
 
     private void FinishGame()
     {
+
         if (gameState == GameState.Stopped) return;
         UpdateState(GameState.Stopped);
         if (gazeRecorder != null) gazeRecorder.StopRecording();
         patternManager.StopPattern();
         StopAllCoroutines();
+        FadingUtils.FadingUtils.FadingInPlusEnabling(gameEndingFader);
         wallManager.Disable();
         modifiersManager.SetDefaultModifiers();
+
     }
 
     private void SpawnMole(float lifeTime, bool fakeCoeff)

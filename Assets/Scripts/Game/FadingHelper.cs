@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
+using System.ComponentModel.Design;
 
 // CALLBACKS ?
 // FADING UTILS ?
@@ -174,9 +175,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "CanvasGroup";
                     cGToFade = objToFade.GetComponent<CanvasGroup>();
                     baseAlpha = cGToFade.alpha;
-                    if (playAutomatically || fadeAction == Effect.FadeIn)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -184,9 +189,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "Image";
                     imgToFade = objToFade.GetComponent<Image>();
                     baseAlpha = imgToFade.color.a;
-                    if (playAutomatically || fadeAction == Effect.FadeIn)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -194,9 +203,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "SpriteRenderer";
                     spriteRendererToFade = objToFade.GetComponent<SpriteRenderer>();
                     baseAlpha = spriteRendererToFade.color.a;
-                    if (playAutomatically || fadeAction == Effect.FadeIn)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -204,9 +217,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "Text";
                     txtToFade = objToFade.GetComponent<Text>();
                     baseAlpha = txtToFade.color.a;
-                    if (playAutomatically || fadeAction == Effect.FadeIn)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -215,9 +232,13 @@ public class FadingHelper : MonoBehaviour
                     meshRendererToFade = objToFade.GetComponent<MeshRenderer>();
                     materialToFade = meshRendererToFade.material;
                     baseAlpha = meshRendererToFade.material.color.a;
-                    if (playAutomatically || fadeAction == Effect.FadeIn)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -253,9 +274,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "CanvasGroup";
                     cGToFade = objToFade.GetComponent<CanvasGroup>();
                     baseAlpha = cGToFade.alpha;
-                    if (playAutomatically)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -263,9 +288,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "Image";
                     imgToFade = objToFade.GetComponent<Image>();
                     baseAlpha = imgToFade.color.a;
-                    if (playAutomatically)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -273,9 +302,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "SpriteRenderer";
                     spriteRendererToFade = objToFade.GetComponent<SpriteRenderer>();
                     baseAlpha = spriteRendererToFade.color.a;
-                    if (playAutomatically)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -283,9 +316,13 @@ public class FadingHelper : MonoBehaviour
                     _componentToUse = "Text";
                     txtToFade = objToFade.GetComponent<Text>();
                     baseAlpha = txtToFade.color.a;
-                    if (playAutomatically)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -294,9 +331,13 @@ public class FadingHelper : MonoBehaviour
                     meshRendererToFade = objToFade.GetComponent<MeshRenderer>();
                     materialToFade = meshRendererToFade.material;
                     baseAlpha = meshRendererToFade.material.color.a;
-                    if (playAutomatically)
+                    if (playAutomatically && (fadeAction == Effect.FadeIn || fadeAction == Effect.Both))
                     {
                         SetAlphaToZero();
+                    }
+                    else if (playAutomatically && fadeAction == Effect.FadeOut)
+                    {
+                        SetAlphaToNormal();
                     }
                     objectIdentified = true;
                     break;
@@ -701,7 +742,7 @@ public class FadingHelper : MonoBehaviour
     // Test functions, here is all the different functions defined above and activable with differents keystrokes
     private void TestInput()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+ /*       if (Input.GetKeyDown(KeyCode.A))
         {
             StartCoroutine(FadeOutObject2D());
             Debug.Log("FadeOutObject2D");
@@ -814,6 +855,6 @@ public class FadingHelper : MonoBehaviour
         {
             Debug.Log("FadeFromAction");
             FadeFromAction();
-        }
+        }*/
     }
 }
