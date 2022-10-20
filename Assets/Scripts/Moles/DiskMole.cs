@@ -164,6 +164,7 @@ public class DiskMole : Mole
     {
         PlayAnimation("EnableDisable");
         meshMaterial.color = disabledColor;
+        meshMaterial.mainTexture = textureDisabled;
     }
 
     // Plays a sound.
