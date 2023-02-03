@@ -156,6 +156,7 @@ public class GameDirector : MonoBehaviour
 
         if (gameState == GameState.Playing) return;
         LoadDifficulty();
+        modifiersManager.LogState();
 
         if(patternManager.PlayPattern())
         {

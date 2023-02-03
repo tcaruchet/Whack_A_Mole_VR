@@ -562,6 +562,50 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
+
+    public void LogState() {
+        loggerNotifier.NotifyLogger("Controller Main Set "+System.Enum.GetName(typeof(ControllerSetup), controllerSetup), EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"ControllerMain", System.Enum.GetName(typeof(ControllerSetup), controllerSetup)}
+        });
+
+        loggerNotifier.NotifyLogger("Prism Offset Set "+prismOffset, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"PrismOffset", prismOffset}
+        });
+        loggerNotifier.NotifyLogger("Controller Offset Set "+controllerOffset, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"ControllerOffset", controllerOffset}
+        });
+        loggerNotifier.NotifyLogger("Geometric Mirror Set " + geometricMirrorEffect.ToString(), EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"GeometricMirror", geometricMirrorEffect.ToString()}
+        });
+        loggerNotifier.NotifyLogger("Motor Restriciton Lower Set to "+ motorRestrictionLower, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+        loggerNotifier.NotifyLogger("Motor Restriciton Upper Set to "+ motorRestrictionUpper, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+        loggerNotifier.NotifyLogger("Motor Restriciton Set "+ motorRestriction, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"MotorRestrictionLower", motorRestrictionLower},
+            {"MotorRestrictionUpper", motorRestrictionUpper}
+        });
+        loggerNotifier.NotifyLogger("Hide Wall Amount: "+ hideWallAmount, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"HideWallAmount", hideWallAmount}
+        });
+        loggerNotifier.NotifyLogger("Hide Wall Effect Set "+ hideWall, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"HideWall", hideWall}
+        });
+    }
+
     // Sets the eye patch. Forces the camera to render a black screen for a short duration and disables an eye while the screen is black.
     // If the image wasn't forced black we would have a frozen image of the game in the disabled eye.
 
