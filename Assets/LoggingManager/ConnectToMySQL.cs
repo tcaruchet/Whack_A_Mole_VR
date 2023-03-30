@@ -223,7 +223,9 @@ public class ConnectToMySQL : MonoBehaviour
 						statusMessage.text = "DB Error: Could not reach the database.";
 						statusMessage.color = errorColor;
 					}
-					connectButton.SetActive(true);
+					if (connectButton != null) {
+						connectButton.SetActive(true);
+					}
 				}
 			}
 			else
