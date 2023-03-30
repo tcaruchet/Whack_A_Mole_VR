@@ -155,8 +155,8 @@ public class ModifiersManager : MonoBehaviour
         {"HideWall", this.hideWall},
         {"HideWallAmount", 0f}, // hideWallAmount is a calculated value.
         {"MirrorEffect", this.mirrorEffect},
-        {"PhysicalMirror", this.physicalMirrorEffect},
-        {"GeometricMirror", this.geometricMirrorEffect},
+        {"PhysicalMirrorEffect", this.physicalMirrorEffect},
+        {"GeometricMirrorEffect", this.geometricMirrorEffect},
         {"RightControllerMain", this.rightControllerMain},
         {"ControllerOffset", this.controllerOffset},
         {"PrismOffset", this.prismOffset},
