@@ -108,12 +108,12 @@ public class BubbleDisplay : MonoBehaviour
             this.transform.position = new Vector3(newPosX + offsetX, newPosY + offsetY, newPosZ + offsetZ);
             if (!render) {
                 OutOfBoundContainer.SetActive(false);
-                StartCoroutine(FadeOutObject(OutOfBoundContainer, 20f));
-                StartCoroutine(OutOfBoundAnimation(false));
+                //StartCoroutine(FadeOutObject(OutOfBoundContainer, 20f));
+                //StartCoroutine(OutOfBoundAnimation(false));
                 render = true;
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
-                laserMapper.ShowMotorspace(false);
+                //laserMapper.ShowMotorspace(false);
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
@@ -131,11 +131,11 @@ public class BubbleDisplay : MonoBehaviour
         } 
         else {
             if (render) {   
-                StartCoroutine(FadeInObject(OutOfBoundContainer, 20f));
-                StartCoroutine(OutOfBoundAnimation(true));
-                laserMapper.ShowMotorspace(true);
+                //StartCoroutine(FadeInObject(OutOfBoundContainer, 20f));
+                //StartCoroutine(OutOfBoundAnimation(true));
+                //laserMapper.ShowMotorspace(true);
                 render = false;
-                bubbleRender.SetActive(false);
+                bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
