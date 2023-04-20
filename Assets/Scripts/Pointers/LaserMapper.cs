@@ -60,6 +60,10 @@ public class LaserMapper : MonoBehaviour
     [SerializeField]
     private float motorSpaceHeight = 1f;
 
+    // padding is used when evaluating whether coordinates are within the motorspace. 
+    [SerializeField]
+    private float padding = 0.02f; 
+
     [SerializeField]
     private bool showMotorspace = false;
 
@@ -280,10 +284,10 @@ public class LaserMapper : MonoBehaviour
     }
 
     public bool CoordinateWithinMotorSpace(Vector3 coordinate) {
-        return  coordinate.x < motorSpaceTopRight.x &&
-                coordinate.x > motorSpaceTopLeft.x && 
-                coordinate.y < motorSpaceTopLeft.y && 
-                coordinate.y > motorSpaceBottomLeft.y;
+        return  coordinate.x < motorSpaceTopRight.x-padding &&
+                coordinate.x > motorSpaceTopLeft.x+padding && 
+                coordinate.y < motorSpaceTopLeft.y-padding && 
+                coordinate.y > motorSpaceBottomLeft.y+padding;
     }
 
     private void CalculateWallSpace(WallInfo w) {
