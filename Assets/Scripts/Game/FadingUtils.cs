@@ -138,6 +138,9 @@ public static class FadingUtils
 
         Component componentToUse = ComponentIdentification(Obj);
         float baseAlpha = GetAlpha(componentToUse); // getting "base" alpha for of the object
+
+        if (baseAlpha == 1f) { yield break; } // already opaque, exit early.
+
         float alpha;
 
         if (setEnable == SetEnable.On) // enabling
@@ -168,12 +171,11 @@ public static class FadingUtils
         float baseAlpha = GetAlpha(componentToUse); // getting "base" alpha for of the object
         float alpha;
 
-        //SetAlpha(componentToUse, Obj, baseAlpha); // Setting alpha to base alpha so we can fade out
+        if (baseAlpha == 0f) { yield break; } // already transparent, exit early.
 
         for (float i = 0;i<fadeTime;i+=Time.deltaTime) // play fade effect
         {
             alpha = 1-math.remap(0, fadeTime, 0f, baseAlpha, i);
-            Debug.Log("fadeTime: " + fadeTime + "alpha " + alpha + "i " + i);
             SetAlpha(componentToUse, alpha); //FadeOutAlpha(i, fadeTime, GetAlpha(componentToUse, Obj)));
             yield return null;
         }
