@@ -108,17 +108,11 @@ public class BubbleDisplay : MonoBehaviour
         newPosY = parentY ? parent.transform.position.y : ownPosition.y;
         newPosZ = parentZ ? parent.transform.position.z : ownPosition.z;
 
-        // Test newPosX and newPosY whether they are within the motorspace.
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
-        Vector3 testX = new Vector3(newPosX, transform.position.y, newPosZ);
-        Vector3 testY = new Vector3(transform.position.x, newPosY, newPosZ);
-        bool Xwithin = laserMapper.CoordinateWithinMotorSpace(testX);
-        bool Ywithin = laserMapper.CoordinateWithinMotorSpace(testY);
-        // update X/Y with either old or new position.
-        newPosX = Xwithin ? newPosX : prevPosX;
-        newPosY = Ywithin ? newPosY : prevPosY;
 
-        this.transform.position = new Vector3(newPosX + offsetX, newPosY + offsetY, newPosZ + offsetZ);
+        Vector3 clipPos = laserMapper.RubberClipToMotorSpace(newPos);
+
+        this.transform.position = new Vector3(clipPos.x + offsetX, clipPos.y + offsetY, clipPos.z + offsetZ);
 
         prevPosX = newPosX;
         prevPosY = newPosY;
