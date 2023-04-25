@@ -93,10 +93,11 @@ public class BubbleDisplay : MonoBehaviour
     {
         ownPosition = transform.position;
 
-        for (int i = 0; i < numberOfObjects; i++)
-        {
-            Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
-        }
+        // Disable OutOfBound Animations onthe motorspace for the time being.
+        //for (int i = 0; i < numberOfObjects; i++)
+        //{
+        //    Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
+        //}
     }
 
     // Update is called once per frame
