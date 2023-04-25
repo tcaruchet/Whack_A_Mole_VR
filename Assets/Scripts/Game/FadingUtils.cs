@@ -85,7 +85,7 @@ public static class FadingUtils
     } // sets alpha value of an object
 
     // FadeUtils principal function call
-    public static void FadeRoutine(MonoBehaviour handler, GameObject Obj, float fadeTime, FadeAction fadeDirection, float fadeDelay = 0f,
+    public static Coroutine FadeRoutine(MonoBehaviour handler, GameObject Obj, float fadeTime, FadeAction fadeDirection, float fadeDelay = 0f,
         SetEnable setEnable = SetEnable.Off) 
     { 
         instance=handler;
@@ -93,13 +93,15 @@ public static class FadingUtils
         switch (fadeDirection)
         {
             case FadeAction.In:
-                instance.StartCoroutine(FadeInColor(Obj, fadeTime, fadeDelay, setEnable));
+                return instance.StartCoroutine(FadeInColor(Obj, fadeTime, fadeDelay, setEnable));
                 break;
 
             case FadeAction.Out:
-                instance.StartCoroutine(FadeOutColor(Obj, fadeTime, fadeDelay, setEnable));
+                return instance.StartCoroutine(FadeOutColor(Obj, fadeTime, fadeDelay, setEnable));
                 break;
         }
+
+        return null;
     }
 
     // Identification function of the object to fade
