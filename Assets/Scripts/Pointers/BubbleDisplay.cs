@@ -4,6 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
+public class EnterMotorSpaceInfo {
+    public Side side; // side from which it entered/exited
+    public bool enter = true; // enter (true), exit (false)
+}
+
+public enum MotorAction {
+    Enter,
+    Inside,
+    Exit,
+    Outside
+}
+
 public class BubbleDisplay : MonoBehaviour
 {
     [SerializeField]
@@ -83,10 +95,10 @@ public class BubbleDisplay : MonoBehaviour
     private Vector3 ownPosition;
 
     [System.Serializable]
-    public class EnterMotorSpaceEvent : UnityEvent<bool> {}
+    public class EnterMotorSpaceEvent : UnityEvent<EnterMotorSpaceInfo> {}
     public EnterMotorSpaceEvent enterMotorStateEvent;
     
-    private bool render = true;
+    private MotorAction action = MotorAction.Outside;
 
     // Start is called before the first frame update
     void Awake()
@@ -111,7 +123,6 @@ public class BubbleDisplay : MonoBehaviour
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
 
         Vector3 clipPos = laserMapper.RubberClipToMotorSpace(newPos);
-
         this.transform.position = new Vector3(clipPos.x + offsetX, clipPos.y + offsetY, clipPos.z + offsetZ);
 
         prevPosX = newPosX;
@@ -119,11 +130,10 @@ public class BubbleDisplay : MonoBehaviour
         prevPosZ = newPosZ;
 
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
-            if (!render) {
+            if (action == MotorAction.Outside) {
+                action = MotorAction.Enter;
+                Debug.Log("Enter");
                 OutOfBoundContainer.SetActive(false);
-                //StartCoroutine(FadeOutObject(OutOfBoundContainer, 20f));
-                //StartCoroutine(OutOfBoundAnimation(false));
-                render = true;
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 //laserMapper.ShowMotorspace(false);
@@ -131,7 +141,10 @@ public class BubbleDisplay : MonoBehaviour
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorActiveColor;
-                enterMotorStateEvent.Invoke(true);
+                enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
+                    side =  laserMapper.NearestSide(newPos), 
+                    enter =  true,
+                });
                 loggingManager.Log("Event", new Dictionary<string, object>()
                 {
                     {"Event", "Pointer Inside MotorSpace"},
@@ -140,21 +153,24 @@ public class BubbleDisplay : MonoBehaviour
                 if (soundManager != null) {
                     soundManager.PlaySound(gameObject, SoundManager.Sound.laserInMotorSpace);
                 }
+                action = MotorAction.Inside;
             }
         } 
         else {
-            if (render) {   
-                //StartCoroutine(FadeInObject(OutOfBoundContainer, 20f));
-                //StartCoroutine(OutOfBoundAnimation(true));
+            if (action == MotorAction.Inside) {   
+                Debug.Log("Exit");
+                action = MotorAction.Exit;
                 //laserMapper.ShowMotorspace(true);
-                render = false;
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorDisabledColor;
-                enterMotorStateEvent.Invoke(false);
+                enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
+                    side = laserMapper.NearestSide(newPos), 
+                    enter =  false,
+                });
                 loggingManager.Log("Event", new Dictionary<string, object>()
                 {
                     {"Event", "Pointer Outside MotorSpace"},
@@ -163,6 +179,7 @@ public class BubbleDisplay : MonoBehaviour
                 if (soundManager != null) {
                     soundManager.PlaySound(gameObject, SoundManager.Sound.laserOutMotorSpace);
                 }
+                action = MotorAction.Outside;
             }
         }
     }

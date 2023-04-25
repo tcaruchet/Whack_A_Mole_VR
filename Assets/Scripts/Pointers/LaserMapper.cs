@@ -23,6 +23,15 @@ public enum MotorCalcMode {
     bottom
 }
 
+public enum Side
+{
+    Left,
+    Top,
+    Right,
+    Bottom,
+    None,
+}
+
 public enum MotorRestriction {
     none,
     restrict
@@ -284,10 +293,12 @@ public class LaserMapper : MonoBehaviour
     }
 
     public bool CoordinateWithinMotorSpace(Vector3 coordinate) {
-        return  coordinate.x < motorSpaceTopRight.x-padding &&
-                coordinate.x > motorSpaceTopLeft.x+padding && 
-                coordinate.y < motorSpaceTopLeft.y-padding && 
-                coordinate.y > motorSpaceBottomLeft.y+padding;
+        float paddingX = (motorSpaceTopRight.x - motorSpaceTopLeft.x) * padding;
+        float paddingY = (motorSpaceTopLeft.y - motorSpaceBottomLeft.y) * padding;
+        return  coordinate.x < motorSpaceTopRight.x-paddingX &&
+                coordinate.x > motorSpaceTopLeft.x+paddingX && 
+                coordinate.y < motorSpaceTopLeft.y-paddingY && 
+                coordinate.y > motorSpaceBottomLeft.y+paddingY;
     }
 
     public Vector3 ClipToMotorSpace(Vector3 coordinate) {
@@ -304,16 +315,32 @@ public class LaserMapper : MonoBehaviour
         float paddingX = (motorSpaceTopRight.x - motorSpaceTopLeft.x) * padding;
         float paddingY = (motorSpaceTopLeft.y - motorSpaceBottomLeft.y) * padding;
         float CoordXDiff = Mathf.Abs((motorSpaceTopRight.x - motorSpaceTopLeft.x) * ((coordinate.x) - (motorSpaceTopRight.x-paddingX)))+1f;
-        float newCoordX = coordinate.x  < motorSpaceTopRight.x-paddingX ? coordinate.x : motorSpaceTopRight.x-paddingX + Mathf.Log(CoordXDiff,2)/(padding*100);
+        float newCoordX = coordinate.x  < motorSpaceTopRight.x-paddingX ? coordinate.x : motorSpaceTopRight.x-paddingX + Mathf.Log(CoordXDiff,5)/(padding*100);
         CoordXDiff = Mathf.Abs((motorSpaceTopRight.x - motorSpaceTopLeft.x) * ((motorSpaceTopLeft.x+paddingX) - (coordinate.x)))+1f;
 
-        newCoordX = coordinate.x > motorSpaceTopLeft.x+paddingX ? newCoordX : motorSpaceTopLeft.x+paddingX - Mathf.Log(CoordXDiff,2)/(padding*100);
+        newCoordX = coordinate.x > motorSpaceTopLeft.x+paddingX ? newCoordX : motorSpaceTopLeft.x+paddingX - Mathf.Log(CoordXDiff,5)/(padding*100);
         float CoordYDiff = Mathf.Abs((motorSpaceTopLeft.y - motorSpaceBottomLeft.y) * ((coordinate.y) - (motorSpaceTopLeft.y-paddingY)))+1f;
-        float newCoordY = coordinate.y < motorSpaceTopLeft.y-paddingY ? coordinate.y : motorSpaceTopLeft.y-paddingY + Mathf.Log(CoordYDiff,2)/(padding*100);
+        float newCoordY = coordinate.y < motorSpaceTopLeft.y-paddingY ? coordinate.y : motorSpaceTopLeft.y-paddingY + Mathf.Log(CoordYDiff,5)/(padding*100);
 
         CoordYDiff = Mathf.Abs((motorSpaceTopLeft.y - motorSpaceBottomLeft.y) * ((coordinate.y) - (motorSpaceBottomLeft.y+paddingY)))+1f;
-        newCoordY = coordinate.y > motorSpaceBottomLeft.y+paddingY ? newCoordY : motorSpaceBottomLeft.y+paddingY - Mathf.Log(CoordYDiff,2)/(padding*100);
+        newCoordY = coordinate.y > motorSpaceBottomLeft.y+paddingY ? newCoordY : motorSpaceBottomLeft.y+paddingY - Mathf.Log(CoordYDiff,5)/(padding*100);
         return new Vector3(newCoordX,newCoordY,coordinate.z);
+    }
+
+    public Side NearestSide(Vector3 coordinate) {
+        float paddingX = (motorSpaceTopRight.x - motorSpaceTopLeft.x) * padding;
+        float paddingY = (motorSpaceTopLeft.y - motorSpaceBottomLeft.y) * padding;
+        float Right = Mathf.Abs(coordinate.x - (motorSpaceTopRight.x-paddingX));
+        float Left = Mathf.Abs(coordinate.x - (motorSpaceTopLeft.x+paddingX));
+        float Top = Mathf.Abs(coordinate.y - (motorSpaceTopLeft.y-paddingY));
+        float Bottom = Mathf.Abs(coordinate.y - (motorSpaceBottomLeft.y+paddingY));
+        
+        Side side = Side.None;
+        side = Right < Left && Right < Top && Right < Bottom ? Side.Right : side;
+        side = Left < Right && Left < Top && Left < Bottom ? Side.Left : side;
+        side = Top < Right && Top < Left && Top < Bottom ? Side.Top : side;
+        side = Bottom < Right && Bottom < Left && Bottom < Top ? Side.Bottom : side;
+        return side;
     }
 
     private void CalculateWallSpace(WallInfo w) {
