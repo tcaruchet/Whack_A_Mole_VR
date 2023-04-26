@@ -25,7 +25,9 @@ public class HUDManager : MonoBehaviour
     private bool active = false;
 
     private float timer = 0.35f;
-    private float breaktime = 0.3f;
+
+    private bool lastEnter = true;
+    private Side lastSide;
 
     private Dictionary<Side,Coroutine> coroutines = new Dictionary<Side,Coroutine>();
 
@@ -43,6 +45,7 @@ public class HUDManager : MonoBehaviour
                 break;
             case GameDirector.GameState.Playing:
                 active = true;
+                if (!lastEnter) { ActivateGradient(lastSide, FadeAction.In); }
                 break;
             case GameDirector.GameState.Paused:
                 active = false;
@@ -62,6 +65,8 @@ public class HUDManager : MonoBehaviour
     }
 
     public void OnMotorSpaceEnter(EnterMotorSpaceInfo m) {
+        lastEnter = m.enter;
+        lastSide = m.side;
         Debug.Log("MotorSpaceEnter " + m.enter + "active " + active);
         if (m.enter && active) {
             Debug.Log("MotorSpaceEnter " + m.side);
