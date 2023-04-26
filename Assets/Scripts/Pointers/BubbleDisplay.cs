@@ -15,7 +15,8 @@ public enum MotorAction {
     Enter,
     Inside,
     Exit,
-    Outside
+    Outside,
+    None,
 }
 
 public class BubbleDisplay : MonoBehaviour
@@ -100,7 +101,7 @@ public class BubbleDisplay : MonoBehaviour
     public class EnterMotorSpaceEvent : UnityEvent<EnterMotorSpaceInfo> {}
     public EnterMotorSpaceEvent enterMotorStateEvent;
     
-    private MotorAction action = MotorAction.Outside;
+    private MotorAction action = MotorAction.None;
 
     // Start is called before the first frame update
     void Awake()
@@ -112,6 +113,16 @@ public class BubbleDisplay : MonoBehaviour
         //{
         //    Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
         //}
+    }
+
+    void Start()
+    {
+        bubbleRender.SetActive(true);
+        laserRender.enabled = showBubble;
+        bubbleOutline.SetActive(showBubble);
+        bubbleSphere.SetActive(showBubble);
+        controllerRender.SetActive(true);
+        motorSpaceRender.color = motorDisabledColor;
     }
 
     // Update is called once per frame
@@ -132,7 +143,7 @@ public class BubbleDisplay : MonoBehaviour
         prevPosZ = newPosZ;
 
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
-            if (action == MotorAction.Outside) {
+            if (action == MotorAction.Outside || action == MotorAction.None) {
                 action = MotorAction.Enter;
                 Debug.Log("Enter");
                 OutOfBoundContainer.SetActive(false);
@@ -161,7 +172,7 @@ public class BubbleDisplay : MonoBehaviour
             }
         } 
         else {
-            if (action == MotorAction.Inside) {   
+            if (action == MotorAction.Inside || action == MotorAction.None) {   
                 Debug.Log("Exit");
                 action = MotorAction.Exit;
                 //laserMapper.ShowMotorspace(true);
