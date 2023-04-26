@@ -7,6 +7,8 @@ using UnityEngine.Events;
 public class EnterMotorSpaceInfo {
     public Side side; // side from which it entered/exited
     public bool enter = true; // enter (true), exit (false)
+    public Vector3 motorLastPos; // motorspace last position
+    public Vector3 wallLastPos; // wall space last position
 }
 
 public enum MotorAction {
@@ -144,6 +146,8 @@ public class BubbleDisplay : MonoBehaviour
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
                     side =  laserMapper.NearestSide(newPos), 
                     enter =  true,
+                    motorLastPos = newPos,
+                    wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
                 loggingManager.Log("Event", new Dictionary<string, object>()
                 {
@@ -170,6 +174,8 @@ public class BubbleDisplay : MonoBehaviour
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
                     side = laserMapper.NearestSide(newPos), 
                     enter =  false,
+                    motorLastPos = newPos,
+                    wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
                 loggingManager.Log("Event", new Dictionary<string, object>()
                 {

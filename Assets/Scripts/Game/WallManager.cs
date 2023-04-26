@@ -11,7 +11,7 @@ public class WallInfo {
     public bool active = false;
     public Dictionary<int, Mole> moles;
     public Vector3 wallSize;
-    public Vector3 wallCenter;
+    public Vector3 wallCenter; // not the center of the wall (?)
     public float highestX = -1f;
     public float highestY = -1f;
     public float lowestX = -1f;
@@ -19,6 +19,13 @@ public class WallInfo {
     public float lowestZ = -1f;
     public float highestZ = -1f;
     public float heightOffset;
+    public Vector3 meshCenter = new Vector3(-1f,-1f,-1f);
+    public float meshBoundsXmax = -1f;
+    public float meshBoundsYmax = -1f;
+    public float meshBoundsZmax = -1f;
+    public float meshBoundsXmin = -1f;
+    public float meshBoundsYmin = -1f;
+    public float meshBoundsZmin = -1f;
 }
 
 [System.Serializable]
@@ -94,6 +101,7 @@ public class WallManager : MonoBehaviour
 
     private WallGenerator wallGenerator;
     private Vector3 wallCenter;
+    private Vector3 wallCenterWorld = Vector3.zero;
     private Dictionary<int, Mole> moles;
     private bool active = false;
     private bool isInit = false;
@@ -110,6 +118,15 @@ public class WallManager : MonoBehaviour
     private float lowestY = -1f;
     private float lowestZ = -1f;
     private float highestZ = -1f;
+
+    // Mesh boundaries
+    Vector3 meshCenter = new Vector3(-1f,-1f,-1f);
+    float meshBoundsXmax = -1f;
+    float meshBoundsYmax = -1f;
+    float meshBoundsZmax = -1f;
+    float meshBoundsXmin = -1f;
+    float meshBoundsYmin = -1f;
+    float meshBoundsZmin = -1f;
 
     public List<Mole> listMole;
 
@@ -198,32 +215,22 @@ public class WallManager : MonoBehaviour
         float boundsZcenter = -1f;
         float boundsZmax = -1f;
         float boundsZmin = -1f;
-        if (mesh != null) {
-            boundsXmax = mesh.bounds.max.x;
-            boundsYmax = mesh.bounds.max.y;
-            boundsZmax = mesh.bounds.max.z;
-            boundsXmin = mesh.bounds.min.x;
-            boundsYmin = mesh.bounds.min.y;
-            boundsZmin = mesh.bounds.min.z;
-            boundsXcenter = mesh.bounds.center.x;
-            boundsYcenter = mesh.bounds.center.y;
-            boundsZcenter = mesh.bounds.center.z;
-        }
+
         loggerNotifier.InitPersistentEventParameters(new Dictionary<string, object>(){
             {"WallRowCount", rowCount},
             {"WallColumnCount", columnCount},
             {"WallSizeX", wallSize.x},
             {"WallSizeY", wallSize.y},
             {"WallSizeZ", wallSize.z},
-            {"WallBoundsXMin", boundsXmin},
-            {"WallBoundsYMin", boundsYmin},
-            {"WallBoundsZMin", boundsZmin},
-            {"WallBoundsXMax", boundsXmax},
-            {"WallBoundsYMax", boundsYmax},
-            {"WallBoundsZMax", boundsZmax},
-            {"WallCenterX", boundsXcenter},
-            {"WallCenterY", boundsYcenter},
-            {"WallCenterZ", boundsZcenter},
+            {"WallBoundsXMin", meshBoundsXmin},
+            {"WallBoundsYMin", meshBoundsYmin},
+            {"WallBoundsZMin", meshBoundsZmin},
+            {"WallBoundsXMax", meshBoundsXmax},
+            {"WallBoundsYMax", meshBoundsYmax},
+            {"WallBoundsZMax", meshBoundsZmax},
+            {"WallCenterX", meshCenter.x},
+            {"WallCenterY", meshCenter.y},
+            {"WallCenterZ", meshCenter.z},
             {"WallCurveRatioX", xCurveRatio},
             {"WallCurveRatioY", yCurveRatio}
         });
@@ -273,6 +280,14 @@ public class WallManager : MonoBehaviour
         wallInfo.lowestY = lowestY;
         wallInfo.lowestZ = lowestZ;
         wallInfo.highestZ = highestZ;
+        wallInfo.meshCenter = meshCenter;
+        wallInfo.meshBoundsXmax = meshBoundsXmax;
+        wallInfo.meshBoundsYmax = meshBoundsYmax;
+        wallInfo.meshBoundsZmax = meshBoundsZmax;
+        wallInfo.meshBoundsXmin = meshBoundsXmin;
+        wallInfo.meshBoundsYmin = meshBoundsYmin;
+        wallInfo.meshBoundsZmin = meshBoundsZmin;
+
         return wallInfo;
     }
 
@@ -456,9 +471,20 @@ public class WallManager : MonoBehaviour
             }
         }
         //stateUpdateEvent.Invoke(true, moles);
+        
+        wallGenerator.GenerateWall();
+        MeshRenderer mesh = GetComponent<MeshRenderer>();
+        if (mesh != null) {
+            meshCenter = mesh.bounds.center;
+            meshBoundsXmax = mesh.bounds.max.x;
+            meshBoundsYmax = mesh.bounds.max.y;
+            meshBoundsZmax = mesh.bounds.max.z;
+            meshBoundsXmin = mesh.bounds.min.x;
+            meshBoundsYmin = mesh.bounds.min.y;
+            meshBoundsZmin = mesh.bounds.min.z;
+        }
         var wallInfo = CreateWallInfo();
         stateUpdateEvent.Invoke(wallInfo);
-        wallGenerator.GenerateWall();
     }
 
     // Updates the wall
