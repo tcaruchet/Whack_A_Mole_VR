@@ -109,6 +109,14 @@ public class DiskMole : Mole
     protected override void PlayDisabling()
     {
         PlaySound(enableSound);
+        PlayAnimation("EnableDisable"); // Don't show any feedback to users when an incorrect moles expires
+        meshMaterial.color=disabledColor;
+        meshMaterial.mainTexture=textureDisabled;
+        base.PlayDisabling();
+    }
+
+    protected override void PlayExpired()
+    {
         if (moleType==Mole.MoleType.Target)
         {
             PlayAnimation("PopWrongMole"); // Show negative feedback to users when a correct moles expires, to make it clear that they missed it
@@ -119,7 +127,6 @@ public class DiskMole : Mole
         }
         meshMaterial.color=disabledColor;
         meshMaterial.mainTexture=textureDisabled;
-        base.PlayDisabling();
     }
 
     protected override void PlayHoverEnter() 
@@ -182,8 +189,12 @@ public class DiskMole : Mole
     // Plays an animation clip.
     private void PlayAnimation(string animationName)
     {
+        // Make sure the mole is in the right state.
+
+
+        // Play the animation
         playingClip = animationName;
-        animationPlayer.Play(animationName);
+        animationPlayer.PlayQueued(animationName);
     }
 
     // Returns the duration of the currently playing animation clip.

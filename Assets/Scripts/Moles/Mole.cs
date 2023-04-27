@@ -232,6 +232,7 @@ public abstract class Mole : MonoBehaviour
 
     protected virtual void PlayEnable() {}
     protected virtual void PlayDisable() {}
+    protected virtual void PlayExpired() {}
     protected virtual void PlayReset() {}
     protected virtual void PlayHoverEnter() {}
     protected virtual void PlayHoverLeave() {}
@@ -240,6 +241,7 @@ public abstract class Mole : MonoBehaviour
     Transition states. Need to be called at the end of its override in the derived class to
     finish the transition.
     */
+
     protected virtual void PlayEnabling() 
     {
         ChangeState(States.Enabled);
@@ -334,6 +336,7 @@ public abstract class Mole : MonoBehaviour
                 PlayDisabling();
                 break;
             case States.Expired:
+                PlayExpired();
                 StartCoroutine(StartExpiringTimer(expiringTime));
                 break;
         }
