@@ -272,6 +272,7 @@ public abstract class Pointer : MonoBehaviour
                 } 
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)
                 {
+                    PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
                     soundManager.PlaySound(gameObject, SoundManager.Sound.redMoleHit);
                 } 
                 else if (moleAnswer == Mole.MolePopAnswer.Disabled)
