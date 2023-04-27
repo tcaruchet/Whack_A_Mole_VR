@@ -25,11 +25,13 @@ public class OutOfBoundsArrow : MonoBehaviour
 
     private WallInfo wallInfo;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    void OnEnable() {
         wallManager.stateUpdateEvent.AddListener(OnWallUpdated);
         OnWallUpdated(wallManager.CreateWallInfo());
+    }
+
+    void OnDisable() {
+        wallManager.stateUpdateEvent.RemoveListener(OnWallUpdated);
     }
 
     // Update is called once per frame
