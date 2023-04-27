@@ -115,18 +115,12 @@ public class DiskMole : Mole
         base.PlayDisabling();
     }
 
-    protected override void PlayExpired()
+    protected override void PlayMissed()
     {
-        if (moleType==Mole.MoleType.Target)
-        {
-            PlayAnimation("PopWrongMole"); // Show negative feedback to users when a correct moles expires, to make it clear that they missed it
-        }
-        else
-        {
-            PlayAnimation("EnableDisable"); // Don't show any feedback to users when an incorrect moles expires
-        }
         meshMaterial.color=disabledColor;
         meshMaterial.mainTexture=textureDisabled;
+        PlayAnimation("PopWrongMole"); // Show negative feedback to users when a correct moles expires, to make it clear that they missed it
+        base.PlayMissed();
     }
 
     protected override void PlayHoverEnter() 

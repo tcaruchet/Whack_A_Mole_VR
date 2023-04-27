@@ -7,6 +7,7 @@ using UnityEngine.Events;
 Mole abstract class. Contains the main behaviour of the mole and calls actions to be played on
 different events (Enable, Disable, Pop...). These actions are to be defined in its derived
 classes.
+Enabl
 Facilitates the creation of moles with different behaviours on specific events 
 (when popped -> change color ? play animation?) 
 */
@@ -14,11 +15,19 @@ Facilitates the creation of moles with different behaviours on specific events
 public abstract class Mole : MonoBehaviour
 {
     public enum MolePopAnswer {Ok, Fake, Expired, Disabled, Paused}
+
     public enum MoleType {Target,DistractorLeft,DistractorRight}
     public bool defaultVisibility = false;
 
     // The states may be reduced to 3 - 4 (by removing Popping, enabling...), however this could reduce the control over the Mole
-    public enum States {Disabled, Enabled, Expired, Popping, Popped, Enabling, Disabling}
+    // Enabling: State before 'Enabled'.
+    // Enabled: Passive state, Mole is active.
+    // Popping: Shot was taken, mole pops. Either results in OK or Fake animations.
+    // Missed: Moles which were not shot before they disabled enters this state.
+    // Disabling: Mole is being turned off.
+    // Expired: All moles have a set expiration time after disabling, to track any shots happening after they leave.
+    // Disabled: Passive state, Mole is no longer active.
+    public enum States {Enabling, Enabled, Popping, Popped, Missed, Disabling, Expired, Disabled}
 
     [SerializeField]
     private float disableCooldown = 3f;
@@ -144,7 +153,12 @@ public abstract class Mole : MonoBehaviour
 
     public void Disable()
     {
-        ChangeState(States.Disabling);
+        Debug.Log(state);
+        if (state == States.Enabled && moleType == MoleType.Target) {
+            ChangeState(States.Missed);
+        } else {
+            ChangeState(States.Disabling);
+        }
     }
 
     public void SetPause(bool pause)
@@ -231,8 +245,7 @@ public abstract class Mole : MonoBehaviour
     }
 
     protected virtual void PlayEnable() {}
-    protected virtual void PlayDisable() {}
-    protected virtual void PlayExpired() {}
+    protected virtual void PlayDisabled() {}
     protected virtual void PlayReset() {}
     protected virtual void PlayHoverEnter() {}
     protected virtual void PlayHoverLeave() {}
@@ -247,8 +260,14 @@ public abstract class Mole : MonoBehaviour
         ChangeState(States.Enabled);
     }
 
+    protected virtual void PlayMissed() 
+    {
+        ChangeState(States.Disabling);
+    }
+
     protected virtual void PlayDisabling() 
     {
+
         ChangeState(States.Expired);
     }
 
@@ -293,7 +312,7 @@ public abstract class Mole : MonoBehaviour
         switch(state)
         {
             case States.Disabled:
-                PlayDisable();
+                PlayDisabled();
                 isOnDisabledCoolDown = true;
                 StartCoroutine(StartDisabledCooldownTimer(disableCooldown));
                 break;
@@ -336,8 +355,15 @@ public abstract class Mole : MonoBehaviour
                 PlayDisabling();
                 break;
             case States.Expired:
-                PlayExpired();
                 StartCoroutine(StartExpiringTimer(expiringTime));
+                break;
+            case States.Missed:
+                loggerNotifier.NotifyLogger("Mole Missed", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
+                                            {
+                                                {"MoleActivatedDuration", lifeTime},
+                                                {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
+                                            });            
+                PlayMissed();
                 break;
         }
     }

@@ -78,7 +78,7 @@ public class BallMole : Mole
         base.PlayDisabling();
     }
 
-    protected override void PlayDisable()
+    protected override void PlayDisabled()
     {
         SwitchShader(false);
         ChangeColor(disabledColor);
