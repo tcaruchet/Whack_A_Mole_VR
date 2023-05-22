@@ -56,6 +56,8 @@ public abstract class Pointer : MonoBehaviour
     protected float shotCooldown;
 
     protected LineRenderer laser;
+
+    protected bool performancefeedback = true;
     
     [SerializeField]
     protected LaserCursor cursor;
@@ -135,6 +137,10 @@ public abstract class Pointer : MonoBehaviour
         } else {
             Disable();
         }
+    }
+
+    public void SetPerformanceFeedback(bool perf) {
+        performancefeedback = perf;
     }
 
     // Enables the pointer
@@ -273,7 +279,11 @@ public abstract class Pointer : MonoBehaviour
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)
                 {
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
-                    soundManager.PlaySound(gameObject, SoundManager.Sound.redMoleHit);
+                    if (performancefeedback) {
+                        soundManager.PlaySound(gameObject, SoundManager.Sound.redMoleHit);
+                    } else {
+                        soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
+                    }
                 } 
                 else if (moleAnswer == Mole.MolePopAnswer.Disabled)
                 {
@@ -283,7 +293,9 @@ public abstract class Pointer : MonoBehaviour
                 return;
             }
             RaiseMoleMissedEvent(hit.point);
-            soundManager.PlaySound(gameObject, SoundManager.Sound.missedMole);
+            if (performancefeedback) {
+                soundManager.PlaySound(gameObject, SoundManager.Sound.missedMole);
+            }
         } 
         else
         {

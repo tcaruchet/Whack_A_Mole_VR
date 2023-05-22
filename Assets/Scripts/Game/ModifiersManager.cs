@@ -267,6 +267,8 @@ public class ModifiersManager : MonoBehaviour
         performanceFeedback = value;
         
         wallManager.SetPerformanceFeedback(performanceFeedback);
+        rightController.SetPerformanceFeedback(performanceFeedback);
+        leftController.SetPerformanceFeedback(performanceFeedback);
 
         // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
         loggerNotifier.NotifyLogger("Performance Feedback Set "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()

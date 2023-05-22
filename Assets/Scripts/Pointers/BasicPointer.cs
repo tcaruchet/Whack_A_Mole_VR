@@ -135,8 +135,14 @@ public class BasicPointer : Pointer
     protected override void PlayShoot(bool correctHit)
     {
         Color newColor;
+
         if (correctHit) newColor = shootColor;
         else newColor = badShootColor;
+
+        if (!performancefeedback) {
+            // don't show badShootColor if performance feedback is disabled.
+            newColor = shootColor;
+        }
 
         StartCoroutine(PlayShootAnimation(.5f, newColor));
     }
