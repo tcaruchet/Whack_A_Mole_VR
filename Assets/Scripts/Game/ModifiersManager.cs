@@ -58,6 +58,9 @@ public class ModifiersManager : MonoBehaviour
     private GameObject mirrorControllerL;
 
     [SerializeField]
+    private WallManager wallManager;
+
+    [SerializeField]
     private MotorSpaceManager motorSpaceManager;
 
     [SerializeField]
@@ -101,6 +104,7 @@ public class ModifiersManager : MonoBehaviour
     private EyePatch eyePatch = EyePatch.None;
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
+    private bool performanceFeedback = true;
     private bool mirrorEffect;
     private bool physicalMirrorEffect;
     private bool geometricMirrorEffect;
@@ -133,7 +137,8 @@ public class ModifiersManager : MonoBehaviour
             {"DualTask", "No Dual Task Defined"},
             {"HideWall", "No Hide Wall Defined"},
             {"HideWallAmount", "No Hide Wall Amount Defined"},
-            {"GeometricMirror", "No GeometricMirror Defined"}
+            {"GeometricMirror", "No GeometricMirror Defined"},
+            {"PerformanceFeedback", "No PerformanceFeedback Defined"}
         });
         // Initialization of the starting values of the parameters.
         loggerNotifier.InitPersistentEventParameters(new Dictionary<string, object>(){
@@ -145,7 +150,8 @@ public class ModifiersManager : MonoBehaviour
             {"DualTask", dualTask},
             {"HideWall", System.Enum.GetName(typeof(ModifiersManager.HideWall), hideWall)},
             {"HideWallAmount", hideWallAmount},
-            {"GeometricMirror", geometricMirrorEffect}
+            {"GeometricMirror", geometricMirrorEffect},
+            {"PerformanceFeedback", performanceFeedback}
         });
 
         defaultModifiers = new Dictionary<string, object> () {
@@ -162,7 +168,8 @@ public class ModifiersManager : MonoBehaviour
         {"PrismOffset", this.prismOffset},
         {"MotorRestriction", this.motorRestriction},
         {"MotorRestrictionUpper", this.motorRestrictionUpper},
-        {"MotorRestrictionLower", this.motorRestrictionLower}
+        {"MotorRestrictionLower", this.motorRestrictionLower},
+        {"PerformanceFeedback", this.performanceFeedback}
         };
     }
 
@@ -192,6 +199,7 @@ public class ModifiersManager : MonoBehaviour
         SetPrismOffset((float)state["PrismOffset"]);
         SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
         SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
+        SetPerformanceFeedback((bool) state["PerformanceFeedback"]);
     }
 
     // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
@@ -250,6 +258,23 @@ public class ModifiersManager : MonoBehaviour
         {
             {"HideWallAmount", hideWallAmount}
         });
+    }
+
+    public void SetPerformanceFeedback(bool value)
+    {
+        if (performanceFeedback == value) return;
+
+        performanceFeedback = value;
+        
+        wallManager.SetPerformanceFeedback(performanceFeedback);
+
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger("Performance Feedback Set "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"PerformanceFeedback", value}
+        });
+
+        modifierUpdateEvent.Invoke("PerformanceFeedback", value.ToString());
     }
 
     public void SetMotorRestriction(bool value)

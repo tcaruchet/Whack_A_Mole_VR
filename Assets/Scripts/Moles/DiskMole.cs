@@ -75,10 +75,10 @@ public class DiskMole : Mole
         base.Start();
     }
 
-    public void EndPlayPop()
-    {
-        base.PlayPop();
-    }
+    //public void EndPlayPop()
+    //{
+    //    base.PlayPop();
+    //}
 
     /*
     Override of the event functions of the base class.
@@ -119,7 +119,9 @@ public class DiskMole : Mole
     {
         meshMaterial.color=disabledColor;
         meshMaterial.mainTexture=textureDisabled;
-        PlayAnimation("PopWrongMole"); // Show negative feedback to users when a correct moles expires, to make it clear that they missed it
+        if (ShouldPerformanceFeedback()) {
+            PlayAnimation("PopWrongMole"); // Show negative feedback to users when a correct moles expires, to make it clear that they missed it
+        }
         base.PlayMissed();
     }
 
@@ -149,17 +151,22 @@ public class DiskMole : Mole
 
     protected override void PlayPop() 
     {
-        if (moleType==Mole.MoleType.Target)
-        {
-            PlayAnimation("PopCorrectMole");  // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
-        }
-        else
-        {
-            PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
+        Debug.Log("PlayPop");
+        Debug.Log(ShouldPerformanceFeedback());
+        if (ShouldPerformanceFeedback()) {
+            if (moleType==Mole.MoleType.Target)
+            {
+                PlayAnimation("PopCorrectMole");  // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
+            }
+            else
+            {
+                PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
+            }
         }
         meshMaterial.color=disabledColor;
         meshMaterial.mainTexture=textureDisabled;
         PlaySound(popSound);
+        base.PlayPop();
     }
 
     protected override void PlayReset()

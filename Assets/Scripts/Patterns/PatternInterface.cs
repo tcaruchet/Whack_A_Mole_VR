@@ -159,6 +159,7 @@ public class PatternInterface : MonoBehaviour
                     Debug.LogError("Error in RANDGEN: " + e.Message);
                 }
                 break;
+                
         }
     }
 
@@ -316,6 +317,10 @@ public class PatternInterface : MonoBehaviour
         if (action.TryGetValue("MOTORSPACE", out tempValue))
         {
             modifiersManager.SetMotorspace((ModifiersManager.MotorspaceSize)System.Enum.Parse( typeof(ModifiersManager.MotorspaceSize), tempValue));
+        }
+        if (action.TryGetValue("PERFORMANCEFEEDBACK", out tempValue))
+        {
+            modifiersManager.SetPerformanceFeedback(bool.Parse(tempValue));
         }
     }
 

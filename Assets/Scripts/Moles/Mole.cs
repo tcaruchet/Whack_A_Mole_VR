@@ -49,6 +49,7 @@ public abstract class Mole : MonoBehaviour
     private LoggerNotifier loggerNotifier;
     private float disabledTimeLeft = 0f;
     private bool isOnDisabledCoolDown = false;
+    private bool performanceFeedback = true;
 
     private void Awake() 
     {
@@ -136,6 +137,11 @@ public abstract class Mole : MonoBehaviour
         return isFake;
     }
 
+    public bool ShouldPerformanceFeedback()
+    {
+        return performanceFeedback;
+    }
+
     public bool CanBeActivated()
     {
         if (isOnDisabledCoolDown) return false;
@@ -164,6 +170,11 @@ public abstract class Mole : MonoBehaviour
     public void SetPause(bool pause)
     {
         isPaused = pause;
+    }
+
+    public void SetPerformanceFeedback(bool perf)
+    {
+        performanceFeedback = perf;
     }
 
     public void Reset()

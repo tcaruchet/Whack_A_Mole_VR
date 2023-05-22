@@ -110,6 +110,7 @@ public class WallManager : MonoBehaviour
     private int moleCount = 0;
     private int spawnOrder = 0;
     private bool wallVisible = true;
+    private bool performanceFeedback = true;
 
     // Wall boundaries
     private float highestX = -1f;
@@ -364,6 +365,16 @@ public class WallManager : MonoBehaviour
         return stateUpdateEvent;
     }
 
+    public void SetPerformanceFeedback(bool perf) {
+
+        performanceFeedback = perf;
+        if (moles.Count > 0) {
+            foreach(Mole mole in moles.Values) {
+                mole.SetPerformanceFeedback(performanceFeedback);
+            }
+        }
+    }
+
     // Returns a random, inactive Mole. Can block the game if no Mole can be found. May need to be put in a coroutine.
     private Mole GetRandomMole()
     {
@@ -438,6 +449,7 @@ public class WallManager : MonoBehaviour
                 int moleId = GetMoleId(x, y);
                 mole.SetId(moleId);
                 mole.SetNormalizedIndex(GetnormalizedIndex(x, y));
+                mole.SetPerformanceFeedback(performanceFeedback);
                 mole.transform.localScale = moleScale;
                 moles.Add(moleId, mole);
 
