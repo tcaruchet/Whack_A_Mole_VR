@@ -151,7 +151,6 @@ public class DiskMole : Mole
 
     protected override void PlayPop() 
     {
-        Debug.Log("PlayPop");
         Debug.Log(ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
@@ -166,7 +165,7 @@ public class DiskMole : Mole
         meshMaterial.color=disabledColor;
         meshMaterial.mainTexture=textureDisabled;
         PlaySound(popSound);
-        base.PlayPop();
+        //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }
 
     protected override void PlayReset()
