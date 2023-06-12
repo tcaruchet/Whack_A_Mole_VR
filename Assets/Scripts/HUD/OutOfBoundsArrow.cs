@@ -12,6 +12,16 @@ public class OutOfBoundsArrow : MonoBehaviour
     [SerializeField]
     private WallManager wallManager;
 
+    public enum ArrowType
+    {
+        PointingCenter,
+        SideAligned
+    }
+
+    [SerializeField]
+    private ArrowType arrowType;
+
+
     private float fadeTime = 0.35f;
 
     private bool active = false;
@@ -37,10 +47,12 @@ public class OutOfBoundsArrow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (showArrow) {
-            transform.right = new Vector3(wallInfo.meshCenter.x,wallInfo.meshCenter.y,arrow.transform.position.z) - arrow.transform.position;
+        if (arrowType == ArrowType.PointingCenter && showArrow)
+        {
+            transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
         }
     }
+
 
     public void Reset() {
         if (coroutine != null) { StopCoroutine(coroutine); }
@@ -69,20 +81,59 @@ public class OutOfBoundsArrow : MonoBehaviour
         }
     }
 
-    public void ShowArrow(Side s) {
+    //public void ShowArrow(Side s) {
+    //    if (coroutine != null) { StopCoroutine(coroutine); }
+    //    arrow.transform.rotation = Quaternion.identity;
+    //    showArrow = true;
+    //    transform.right = new Vector3(wallInfo.meshCenter.x,wallInfo.meshCenter.y,arrow.transform.position.z) - arrow.transform.position;
+    //    // if (s == Side.Left) {
+    //    //     arrow.transform.Rotate(0.0f,0.0f,180.0f);
+    //    // } else if (s == Side.Right) {
+    //    //     arrow.transform.rotation = Quaternion.identity;
+    //    // } else if (s == Side.Top) {
+    //    //     arrow.transform.Rotate(0.0f,0.0f,90.0f);
+    //    // } else if (s == Side.Bottom) {
+    //    //     arrow.transform.Rotate(0.0f,0.0f,270.0f);
+    //    // }
+    //    coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.transform.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
+    //}
+
+    public void ShowArrow(Side s)
+    {
         if (coroutine != null) { StopCoroutine(coroutine); }
         arrow.transform.rotation = Quaternion.identity;
         showArrow = true;
-        transform.right = new Vector3(wallInfo.meshCenter.x,wallInfo.meshCenter.y,arrow.transform.position.z) - arrow.transform.position;
-        // if (s == Side.Left) {
-        //     arrow.transform.Rotate(0.0f,0.0f,180.0f);
-        // } else if (s == Side.Right) {
-        //     arrow.transform.rotation = Quaternion.identity;
-        // } else if (s == Side.Top) {
-        //     arrow.transform.Rotate(0.0f,0.0f,90.0f);
-        // } else if (s == Side.Bottom) {
-        //     arrow.transform.Rotate(0.0f,0.0f,270.0f);
-        // }
-        coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.transform.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
+
+        switch (arrowType)
+        {
+            case ArrowType.PointingCenter:
+                transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
+                coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.transform.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
+
+                break;
+
+            case ArrowType.SideAligned:
+                arrow.transform.rotation = Quaternion.identity;
+                if (s == Side.Left)
+                {
+                    arrow.transform.Rotate(0.0f, 0.0f, 0.0f);  // Pointing right
+                }
+                else if (s == Side.Right)
+                {
+                    arrow.transform.Rotate(0.0f, 0.0f, 180.0f);  // Pointing left
+                }
+                else if (s == Side.Top)
+                {
+                    arrow.transform.Rotate(0.0f, 0.0f, 270.0f);  // Pointing bottom
+                }
+                else if (s == Side.Bottom)
+                {
+                    arrow.transform.Rotate(0.0f, 0.0f, 90.0f);  // Pointing top
+                }
+                break;
+        }
+
     }
+
+
 }
