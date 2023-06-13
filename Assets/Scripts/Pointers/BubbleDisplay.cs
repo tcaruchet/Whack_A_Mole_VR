@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using Assets.Scripts.HUD;
+using static OutOfBoundsArrow;
 
 public class EnterMotorSpaceInfo {
     public Side side; // side from which it entered/exited
@@ -87,6 +89,16 @@ public class BubbleDisplay : MonoBehaviour
     [SerializeField]
     private Color motorDisabledColor;
 
+    [SerializeReference]
+    private OutOfBoundIndicator staticArrowIndicator;
+
+    [SerializeReference]
+    private OutOfBoundIndicator dynamicCenterPointingIndicator;
+
+    private OutOfBoundIndicator outOfBoundIndicatorManager;  // The current active indicator
+
+
+
     private float newPosX;
     private float newPosY;
     private float newPosZ;
@@ -106,13 +118,14 @@ public class BubbleDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+
         ownPosition = transform.position;
 
         // Disable OutOfBound Animations onthe motorspace for the time being.
-        for (int i = 0; i < numberOfObjects; i++)
-        {
-            Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
-        }
+        //for (int i = 0; i < numberOfObjects; i++)
+        //{
+        //    Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
+        //}
     }
 
     void Start()
@@ -123,6 +136,7 @@ public class BubbleDisplay : MonoBehaviour
         bubbleSphere.SetActive(showBubble);
         controllerRender.SetActive(true);
         motorSpaceRender.color = motorDisabledColor;
+        outOfBoundIndicatorManager = staticArrowIndicator;
     }
 
     // Update is called once per frame
@@ -148,15 +162,17 @@ public class BubbleDisplay : MonoBehaviour
             {
                 action = MotorAction.Enter;
                 Debug.Log("Enter");
-                OutOfBoundContainer.SetActive(false);
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
-                StartCoroutine(FadeOutObject(OutOfBoundContainer, 3.0f));
                 StartCoroutine(OutOfBoundAnimation(false));
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorActiveColor;
+
+                // Hide indicator
+                outOfBoundIndicatorManager.HideIndicator();
+
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
                     side = laserMapper.NearestSide(newPos),
@@ -164,7 +180,6 @@ public class BubbleDisplay : MonoBehaviour
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
-                // ...(Le reste de votre code ici)
                 action = MotorAction.Inside;
             }
         }
@@ -174,15 +189,17 @@ public class BubbleDisplay : MonoBehaviour
             {
                 Debug.Log("Exit");
                 action = MotorAction.Exit;
-                StartCoroutine(FadeInObject(OutOfBoundContainer, 3.0f)); // Changed this to FadeInObject
-                StartCoroutine(OutOfBoundAnimation(true));
-                OutOfBoundContainer.SetActive(true); // Make sure the container is active
+
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorDisabledColor;
+
+                // Show indicator
+                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.NearestSide(newPos));
+
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
                     side = laserMapper.NearestSide(newPos),
@@ -190,11 +207,11 @@ public class BubbleDisplay : MonoBehaviour
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
-                // ...(Le reste de votre code ici)
                 action = MotorAction.Outside;
             }
         }
     }
+
 
     public void Show(bool show) {
         showBubble = show;
@@ -250,6 +267,23 @@ public class BubbleDisplay : MonoBehaviour
             yield return null;
         }
     }
+
+    public void ChangeIndicator(ArrowType arrowType)
+    {
+        switch (arrowType)
+        {
+            case ArrowType.SideAligned:
+                outOfBoundIndicatorManager = staticArrowIndicator;
+                break;
+            case ArrowType.PointingCenter:
+                outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
+                break;
+            default:
+                outOfBoundIndicatorManager = staticArrowIndicator;
+                break;
+        }
+    }
+
 
     public IEnumerator FadeOutObject(GameObject gameObjects, float fadeSpeed)
     {
