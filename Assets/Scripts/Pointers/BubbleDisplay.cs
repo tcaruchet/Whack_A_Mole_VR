@@ -136,7 +136,9 @@ public class BubbleDisplay : MonoBehaviour
         bubbleSphere.SetActive(showBubble);
         controllerRender.SetActive(true);
         motorSpaceRender.color = motorDisabledColor;
-        outOfBoundIndicatorManager = staticArrowIndicator;
+
+        //TEMP:CHANGE THIS
+        outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
     }
 
     // Update is called once per frame
@@ -156,15 +158,16 @@ public class BubbleDisplay : MonoBehaviour
         prevPosY = newPosY;
         prevPosZ = newPosZ;
 
+        Side side = laserMapper.NearestSide(newPos);
         if (laserMapper.CoordinateWithinMotorSpace(newPos))
         {
-            if (action == MotorAction.Outside || action == MotorAction.None)
+            if (action == MotorAction.Outside || action == MotorAction.None || action == MotorAction.Exit)
             {
                 action = MotorAction.Enter;
-                Debug.Log("Enter");
+                Debug.Log($"Entered MotorSpace at position {newPos}, side {side}");
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
-                StartCoroutine(OutOfBoundAnimation(false));
+                //StartCoroutine(OutOfBoundAnimation(false));
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
@@ -175,7 +178,7 @@ public class BubbleDisplay : MonoBehaviour
 
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
-                    side = laserMapper.NearestSide(newPos),
+                    side = side,
                     enter = true,
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
@@ -185,9 +188,9 @@ public class BubbleDisplay : MonoBehaviour
         }
         else
         {
-            if (action == MotorAction.Inside || action == MotorAction.None)
+            if (action == MotorAction.Inside || action == MotorAction.None || action == MotorAction.Enter)
             {
-                Debug.Log("Exit");
+                Debug.Log($"Exited MotorSpace at position {newPos}, side {side}");
                 action = MotorAction.Exit;
 
                 bubbleRender.SetActive(true);
@@ -198,11 +201,11 @@ public class BubbleDisplay : MonoBehaviour
                 motorSpaceRender.color = motorDisabledColor;
 
                 // Show indicator
-                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.NearestSide(newPos));
+                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.transform.position, side);
 
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
-                    side = laserMapper.NearestSide(newPos),
+                    side = side,
                     enter = false,
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),

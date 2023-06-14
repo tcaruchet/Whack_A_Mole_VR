@@ -23,8 +23,18 @@ namespace Assets.Scripts.HUD
         [SerializeField]
         private int numberOfObjects;
 
+        // Distance from the center to position the arrows
+        [SerializeField]
+        private float arrowDistance = 1.5f;
+
+        // Reference to the main camera
+        private Camera mainCamera;
+
         private void Awake()
         {
+            // Get a reference to the main camera
+            mainCamera = Camera.main;
+
             // Spawn the arrows and parent them to the container
             for (int i = 0; i < numberOfObjects; i++)
             {
@@ -32,7 +42,7 @@ namespace Assets.Scripts.HUD
             }
         }
 
-        internal override void ShowIndicator(Vector3 position, Side side)
+        internal override void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side)
         {
             // Enable the container (and all its child objects)
             OutOfBoundContainer.SetActive(true);
@@ -42,9 +52,23 @@ namespace Assets.Scripts.HUD
             float angleSection = (Mathf.PI * 2f / numberOfObjects);
             foreach (Transform child in OutOfBoundContainer.transform)
             {
-                float angle = i * angleSection + (3 * Mathf.PI / 4);
-                Vector3 newPos = position + new Vector3(Mathf.Cos(angle) * 1.5f, Mathf.Sin(angle), 0);
+                //Calculate the position to form a circle
+                float angle = i * angleSection;
+                Vector3 newPos = position + new Vector3(Mathf.Cos(angle) * arrowDistance, Mathf.Sin(angle) * arrowDistance, 0);
                 child.position = newPos;
+
+                //// Orient the arrow to face the camera
+                //child.LookAt(child.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+
+                //var currentPos = child.position;
+                //var pointA = new Vector3(currentPos.x, currentPos.y, currentPos.z);
+                //child.position = Vector3.Lerp(pointA, motorSpaceCenter, Mathf.PingPong(Time.time * 0.3f, 0.15f));
+
+                //Change the rotation of the objects to point them all to the center of the MotorSpace
+                var difference = motorSpaceCenter - child.position;
+                float rotationZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
+                child.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ);
+
                 i++;
             }
         }
@@ -55,5 +79,4 @@ namespace Assets.Scripts.HUD
             OutOfBoundContainer.SetActive(false);
         }
     }
-
 }

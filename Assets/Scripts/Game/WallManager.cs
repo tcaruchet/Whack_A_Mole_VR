@@ -540,8 +540,12 @@ public class WallManager : MonoBehaviour
                 //update the list after each iteration
                 var i = Random.Range(0, list.Count);
                 //activate the mole
-                list[i].SetVisibility(true);
-                list.RemoveAt(i);
+                //HACK: 2ND check because list.Count is 0 at the beginning in debug
+                if(list.Count > 0)
+                {
+                    list[i].SetVisibility(true);
+                    list.RemoveAt(i);
+                }
             }
             yield return new WaitForSeconds((10/(100^5)));
         }

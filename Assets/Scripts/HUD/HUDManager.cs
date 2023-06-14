@@ -67,13 +67,13 @@ public class HUDManager : MonoBehaviour
     public void OnMotorSpaceEnter(EnterMotorSpaceInfo m) {
         lastEnter = m.enter;
         lastSide = m.side;
-        Debug.Log("MotorSpaceEnter " + m.enter + "active " + active);
+        Debug.Log("MotorSpaceEnter (HUDManager) " + m.enter + "active " + active);
         if (m.enter && active) {
-            Debug.Log("MotorSpaceEnter " + m.side);
+            Debug.Log("MotorSpaceEnter (HUDManager) " + m.side);
             //ActivateGradient(m.side, FadeAction.Out);
             Reset();
         } else if (!m.enter && active) {
-            Debug.Log("MotorSpaceExit " + m.side);
+            Debug.Log("MotorSpaceExit (HUDManager) " + m.side );
             ActivateGradient(m.side, FadeAction.In);
         }
     }  

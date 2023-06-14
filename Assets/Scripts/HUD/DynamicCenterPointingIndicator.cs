@@ -12,9 +12,11 @@ namespace Assets.Scripts.HUD
         [SerializeField]
         private WallManager wallManager;
 
+        [SerializeField]
         private CanvasGroup arrow;
+
+
         private Coroutine coroutine;
-        private bool showArrow = false;
         private bool active = false;
         private bool lastEnter = true;
         private Side lastSide;
@@ -23,7 +25,9 @@ namespace Assets.Scripts.HUD
 
         private void Awake()
         {
-            arrow = GetComponent<CanvasGroup>();
+            //arrow = GetComponent<CanvasGroup>();
+            arrow.gameObject.SetActive(false); // Ensure the arrow is disabled by default
+            wallInfo = wallManager.CreateWallInfo();
         }
 
         private void OnEnable()
@@ -39,49 +43,47 @@ namespace Assets.Scripts.HUD
 
         private void Update()
         {
-            if (showArrow)
+            if (arrow.gameObject.activeInHierarchy) // Only update rotation if the arrow is active
             {
-                transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
+                arrow.transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
             }
         }
 
-        internal override void ShowIndicator(Vector3 positon, Side side)
+        internal override void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side)
         {
-            if (coroutine != null) { StopCoroutine(coroutine); }
-            arrow.transform.rotation = Quaternion.identity;
-            showArrow = true;
-            transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
-            coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
+            if (!arrow.gameObject.activeInHierarchy) // Only show the indicator if it's not already shown
+            {
+                arrow.gameObject.SetActive(true); // Enable the arrow
+                arrow.transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
+
+                if (coroutine != null)
+                {
+                    StopCoroutine(coroutine);
+                }
+                coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
+            }
         }
 
         internal override void HideIndicator()
         {
-            if (coroutine != null) { StopCoroutine(coroutine); }
-            coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.Out);
-            showArrow = false;
+            if (arrow.gameObject.activeInHierarchy) // Only hide the indicator if it's currently shown
+            {
+                if (coroutine != null)
+                {
+                    StopCoroutine(coroutine);
+                }
+                coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.Out);
+                arrow.gameObject.SetActive(false); // Disable the arrow
+            }
         }
 
         private void OnWallUpdated(WallInfo w)
         {
             wallInfo = w;
             active = wallInfo.active;
-            if (!lastEnter && active) { ShowIndicator(Vector3.zero, lastSide); }
-        }
-
-        public void OnMotorSpaceEnter(EnterMotorSpaceInfo m)
-        {
-            lastEnter = m.enter;
-            lastSide = m.side;
-            Debug.Log("MotorSpaceEnter " + m.enter + "active " + active);
-            if (m.enter && active)
+            if (!lastEnter && active)
             {
-                Debug.Log("MotorSpaceEnter " + m.side);
-                HideIndicator();
-            }
-            else if (!m.enter && active)
-            {
-                Debug.Log("MotorSpaceExit " + m.side);
-                ShowIndicator(Vector3.zero, m.side);
+                ShowIndicator(Vector3.zero, w.wallCenter, lastSide);
             }
             else
             {
@@ -89,6 +91,4 @@ namespace Assets.Scripts.HUD
             }
         }
     }
-
-
 }

@@ -9,7 +9,7 @@ namespace Assets.Scripts.HUD
 {
     internal abstract class OutOfBoundIndicator : MonoBehaviour
     {
-        internal abstract void ShowIndicator(Vector3 position, Side side);
+        internal abstract void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side);
         internal abstract void HideIndicator();
     }
 
