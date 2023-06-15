@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using Assets.Scripts.HUD;
 using static OutOfBoundsArrow;
+using System;
 
 public class EnterMotorSpaceInfo {
     public Side side; // side from which it entered/exited
@@ -19,6 +20,12 @@ public enum MotorAction {
     Exit,
     Outside,
     None,
+}
+
+public enum ArrowType
+{
+    DynamicCenter,
+    StaticPointing
 }
 
 public class BubbleDisplay : MonoBehaviour
@@ -89,6 +96,7 @@ public class BubbleDisplay : MonoBehaviour
     [SerializeField]
     private Color motorDisabledColor;
 
+
     [SerializeReference]
     private OutOfBoundIndicator staticArrowIndicator;
 
@@ -96,6 +104,8 @@ public class BubbleDisplay : MonoBehaviour
     private OutOfBoundIndicator dynamicCenterPointingIndicator;
 
     private OutOfBoundIndicator outOfBoundIndicatorManager;  // The current active indicator
+    public ArrowType CurrentArrowType { get; private set; }
+
 
 
 
@@ -115,17 +125,14 @@ public class BubbleDisplay : MonoBehaviour
     
     private MotorAction action = MotorAction.None;
 
+    
+    private DateTime exitTime;
+    private bool hasExited = false;
+
     // Start is called before the first frame update
     void Awake()
     {
-
         ownPosition = transform.position;
-
-        // Disable OutOfBound Animations onthe motorspace for the time being.
-        //for (int i = 0; i < numberOfObjects; i++)
-        //{
-        //    Instantiate(OutOfBoundPrefab, ownPosition, Quaternion.identity, OutOfBoundContainer.transform);
-        //}
     }
 
     void Start()
@@ -139,6 +146,7 @@ public class BubbleDisplay : MonoBehaviour
 
         //TEMP:CHANGE THIS
         outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
+        CurrentArrowType = ArrowType.DynamicCenter;
     }
 
     // Update is called once per frame
@@ -184,6 +192,9 @@ public class BubbleDisplay : MonoBehaviour
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
                 action = MotorAction.Inside;
+
+                LogReturnTime();
+
             }
         }
         else
@@ -211,6 +222,9 @@ public class BubbleDisplay : MonoBehaviour
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
                 action = MotorAction.Outside;
+
+                exitTime = DateTime.Now;
+                hasExited = true;
             }
         }
     }
@@ -248,78 +262,95 @@ public class BubbleDisplay : MonoBehaviour
         InstantiateInCircle(container, laserMapper.transform.position, howMany, radius);
     }
 
-    private IEnumerator OutOfBoundAnimation(bool isOutOfBound)
-    {
-        while (isOutOfBound)
-        {
-            InstantiateInCircle(OutOfBoundContainer, OutOfBoundContainer.transform.childCount, laserMapper.GetMotorSpace().width + 0.1f);
-
-            foreach (Transform child in OutOfBoundContainer.transform)
-            {
-                var motorSpaceCenter = laserMapper.transform.position;
-
-                var currentPos = child.position;
-                var pointA = new Vector3(currentPos.x, currentPos.y, currentPos.z);
-                child.position = Vector3.Lerp(pointA, motorSpaceCenter, Mathf.PingPong(Time.time * 0.3f, 0.15f));
-
-                //Change the rotation of the objects to point them all to the center of the MotorSpace
-                var difference = motorSpaceCenter - child.position;
-                float rotationZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
-                child.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ);
-            }
-            yield return null;
-        }
-    }
+    
 
     public void ChangeIndicator(ArrowType arrowType)
     {
-        switch (arrowType)
+        outOfBoundIndicatorManager = arrowType switch
         {
-            case ArrowType.SideAligned:
-                outOfBoundIndicatorManager = staticArrowIndicator;
-                break;
-            case ArrowType.PointingCenter:
-                outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
-                break;
-            default:
-                outOfBoundIndicatorManager = staticArrowIndicator;
-                break;
-        }
+            ArrowType.StaticPointing => staticArrowIndicator,
+            ArrowType.DynamicCenter => dynamicCenterPointingIndicator,
+            _ => staticArrowIndicator,
+        };
+        CurrentArrowType = arrowType;
     }
 
-
-    public IEnumerator FadeOutObject(GameObject gameObjects, float fadeSpeed)
+    // Log the time spent outside the MotorSpace and the type of indicator used
+    private void LogReturnTime()
     {
-        foreach (Transform o in gameObjects.transform)
+        // Check if the user has already exited the MotorSpace
+        if (hasExited)
         {
-            while (o.GetComponent<Renderer>().material.color.a > 0)
-            {
-                Color objectColor = o.GetComponent<Renderer>().material.color;
-                float fadeAmount = objectColor.a - (fadeSpeed * Time.deltaTime);
-
-                objectColor = new Color(objectColor.r, objectColor.g, objectColor.b, fadeAmount);
-                o.GetComponent<Renderer>().material.color = objectColor;
-                yield return null;
-            }
+            TimeSpan timeSpentOutside = DateTime.Now - exitTime;
+            // Log the time spent outside
+            Debug.Log($"Time spent outside the MotorSpace: {timeSpentOutside.TotalSeconds} seconds. Indicator type: {outOfBoundIndicatorManager.GetType().Name}");
+            // Reset the exit time and the hasExited flag
+            hasExited = false;
+            //}
+            //else
+            //{
+            //    Debug.Log("Entered MotorSpace for the first time.");
+            //}
         }
-        OutOfBoundContainer.SetActive(false);
-    }
 
-    public IEnumerator FadeInObject(GameObject gameObjects, float fadeSpeed)
-    {
-        OutOfBoundContainer.SetActive(true);
+        //private IEnumerator OutOfBoundAnimation(bool isOutOfBound)
+        //{
+        //    while (isOutOfBound)
+        //    {
+        //        InstantiateInCircle(OutOfBoundContainer, OutOfBoundContainer.transform.childCount, laserMapper.GetMotorSpace().width + 0.1f);
 
-        foreach (Transform o in gameObjects.transform)
-        {
-            while (o.GetComponent<Renderer>().material.color.a < 1)
-            {
-                Color objectColor = o.GetComponent<Renderer>().material.color;
-                float fadeAmount = objectColor.a + (fadeSpeed * Time.deltaTime);
+        //        foreach (Transform child in OutOfBoundContainer.transform)
+        //        {
+        //            var motorSpaceCenter = laserMapper.transform.position;
 
-                objectColor = new Color(objectColor.r, objectColor.g, objectColor.b, fadeAmount);
-                o.GetComponent<Renderer>().material.color = objectColor;
-                yield return null;
-            }
-        }
+        //            var currentPos = child.position;
+        //            var pointA = new Vector3(currentPos.x, currentPos.y, currentPos.z);
+        //            child.position = Vector3.Lerp(pointA, motorSpaceCenter, Mathf.PingPong(Time.time * 0.3f, 0.15f));
+
+        //            //Change the rotation of the objects to point them all to the center of the MotorSpace
+        //            var difference = motorSpaceCenter - child.position;
+        //            float rotationZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
+        //            child.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ);
+        //        }
+        //        yield return null;
+        //    }
+        //}
+
+
+
+        //public IEnumerator FadeOutObject(GameObject gameObjects, float fadeSpeed)
+        //{
+        //    foreach (Transform o in gameObjects.transform)
+        //    {
+        //        while (o.GetComponent<Renderer>().material.color.a > 0)
+        //        {
+        //            Color objectColor = o.GetComponent<Renderer>().material.color;
+        //            float fadeAmount = objectColor.a - (fadeSpeed * Time.deltaTime);
+
+        //            objectColor = new Color(objectColor.r, objectColor.g, objectColor.b, fadeAmount);
+        //            o.GetComponent<Renderer>().material.color = objectColor;
+        //            yield return null;
+        //        }
+        //    }
+        //    OutOfBoundContainer.SetActive(false);
+        //}
+
+        //public IEnumerator FadeInObject(GameObject gameObjects, float fadeSpeed)
+        //{
+        //    OutOfBoundContainer.SetActive(true);
+
+        //    foreach (Transform o in gameObjects.transform)
+        //    {
+        //        while (o.GetComponent<Renderer>().material.color.a < 1)
+        //        {
+        //            Color objectColor = o.GetComponent<Renderer>().material.color;
+        //            float fadeAmount = objectColor.a + (fadeSpeed * Time.deltaTime);
+
+        //            objectColor = new Color(objectColor.r, objectColor.g, objectColor.b, fadeAmount);
+        //            o.GetComponent<Renderer>().material.color = objectColor;
+        //            yield return null;
+        //        }
+        //    }
+        //}
     }
 }

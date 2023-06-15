@@ -12,11 +12,7 @@ public class OutOfBoundsArrow : MonoBehaviour
     //[SerializeField]
     //private WallManager wallManager;
 
-    public enum ArrowType
-    {
-        PointingCenter,
-        SideAligned
-    }
+    
 
     //[SerializeField]
     //private ArrowType arrowType;
