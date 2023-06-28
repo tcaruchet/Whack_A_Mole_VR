@@ -82,6 +82,19 @@ public class GameDirector : MonoBehaviour
     public TestChangeEvent testChanged = new TestChangeEvent();
     private int participantId = 0;
     private int testId = 0;
+    //public BasicPointer basicPointer;
+    // This will hold the time when the mole appears
+    private float moleAppearTime;
+
+    // This will hold the position of the player when the mole appears
+    private Vector3 playerPositionWhenMoleAppears;
+
+    // This will hold the reaction times of the player
+    private List<float> reactionTimes = new List<float>();
+
+    // This will hold the distances between the player and the mole
+    private List<float> distances = new List<float>();
+
 
     private Dictionary<string, Dictionary<string, float>> difficulties = new Dictionary<string, Dictionary<string, float>>(){
         {"Slow", new Dictionary<string, float>(){
@@ -340,7 +353,12 @@ public class GameDirector : MonoBehaviour
                 type = Mole.MoleType.DistractorRight;
             }
         }
+        moleAppearTime = Time.time;
 
+        //find the position of the player when the mole appears
+        //Vector3 mappedPayerPosition = basicPointer.MappedPosition;
+        //Debug.Log("mappedPayerPosition: BBBBBBBBBBBB" + mappedPayerPosition);
+        //playerPositionWhenMoleAppears = playerTransform.position;
         wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
     }
 

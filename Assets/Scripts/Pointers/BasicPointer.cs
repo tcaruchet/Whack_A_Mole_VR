@@ -25,6 +25,8 @@ public class BasicPointer : Pointer
     private float dwellTimer = 0f;
     private delegate void Del();
     private string hover = "";
+    
+    public Vector3 MappedPosition { get; private set;} 
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
@@ -32,9 +34,9 @@ public class BasicPointer : Pointer
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        Vector3 mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
-        Vector3 rayDirection = (mappedPosition - origin).normalized;
+        Vector3 rayDirection = (MappedPosition - origin).normalized;
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))
