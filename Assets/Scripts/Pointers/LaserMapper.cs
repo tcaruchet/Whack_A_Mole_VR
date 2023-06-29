@@ -391,6 +391,18 @@ public class LaserMapper : MonoBehaviour
         UpdateMotorSpaceVisualizer();
     }
 
+    public void SetMotorSpaceOutOfBoundsSignifierStatic()
+    {
+        foreach (var bub in bubbleDisplay)
+            bub.ChangeIndicatorToStatic();
+    }
+
+    public void SetMotorSpaceOutOfBoundsSignifierDynamic()
+    {
+        foreach (var bub in bubbleDisplay)
+            bub.ChangeIndicatorToDynamic();
+    }
+
     public Vector3 ConvertMotorSpaceToWallSpace(Vector3 coord) {
         // We convert our motorspace and our coordinate to be within a range where 0 is lowest.
         // Then we perform the normalization with division.
@@ -492,5 +504,11 @@ public class LaserMapper : MonoBehaviour
                 yield return StartCoroutine(coroutineQueue.Dequeue());
             yield return null;
         }
+    }
+
+    // Get the center position of the wall in world space.
+    public Vector3 GetWallCenter()
+    {
+        return (wallSpaceTopLeft + wallSpaceBottomRight) / 2;
     }
 }

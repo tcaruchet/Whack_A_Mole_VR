@@ -9,7 +9,7 @@ namespace Assets.Scripts.HUD
 {
     using UnityEngine;
 
-    internal class StaticArrowIndicator : OutOfBoundIndicator
+    internal class StaticArrowsIndicator : OutOfBoundIndicator
     {
         // Reference to the arrow prefab
         [SerializeField]
@@ -42,6 +42,12 @@ namespace Assets.Scripts.HUD
             }
         }
 
+        /// <summary>
+        ///     Show the indicator at the given position and orient the arrows to face the motorspace center
+        /// </summary>
+        /// <param name="position">Position where motorspace exiting occurs</param>
+        /// <param name="motorSpaceCenter">Position of the motorspace center</param>
+        /// <param name="side">The side of the motorspace that is being exited</param>
         internal override void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side)
         {
             // Enable the container (and all its child objects)
@@ -52,26 +58,26 @@ namespace Assets.Scripts.HUD
             float angleSection = (Mathf.PI * 2f / numberOfObjects);
             foreach (Transform child in OutOfBoundContainer.transform)
             {
-                //Calculate the position to form a circle
+                // Calculate the position to form a circle
                 float angle = i * angleSection;
                 Vector3 newPos = position + new Vector3(Mathf.Cos(angle) * arrowDistance, Mathf.Sin(angle) * arrowDistance, 0);
                 child.position = newPos;
 
-                //// Orient the arrow to face the camera
-                //child.LookAt(child.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+                // Orient the arrow to face the camera
+                child.rotation = mainCamera.transform.rotation;
 
-                //var currentPos = child.position;
-                //var pointA = new Vector3(currentPos.x, currentPos.y, currentPos.z);
-                //child.position = Vector3.Lerp(pointA, motorSpaceCenter, Mathf.PingPong(Time.time * 0.3f, 0.15f));
-
-                //Change the rotation of the objects to point them all to the center of the MotorSpace
+                // Rotate to point to the center of the MotorSpace
                 var difference = motorSpaceCenter - child.position;
                 float rotationZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
-                child.rotation = Quaternion.Euler(0.0f, 0.0f, rotationZ);
+                child.rotation *= Quaternion.Euler(0.0f, 0.0f, rotationZ - 90); // -90 because we're aligning the tip of the arrow
 
                 i++;
             }
         }
+
+
+
+
 
         internal override void HideIndicator()
         {

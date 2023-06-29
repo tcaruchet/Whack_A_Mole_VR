@@ -54,7 +54,9 @@ namespace Assets.Scripts.HUD
             if (!arrow.gameObject.activeInHierarchy) // Only show the indicator if it's not already shown
             {
                 arrow.gameObject.SetActive(true); // Enable the arrow
-                arrow.transform.right = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z) - arrow.transform.position;
+
+                Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
+                arrow.transform.right = targetPosition - arrow.transform.position;
 
                 if (coroutine != null)
                 {
@@ -63,6 +65,7 @@ namespace Assets.Scripts.HUD
                 coroutine = FadingUtils.FadeRoutine(handler: this, Obj: arrow.gameObject, fadeTime: fadeTime, fadeDirection: FadeAction.In);
             }
         }
+
 
         internal override void HideIndicator()
         {

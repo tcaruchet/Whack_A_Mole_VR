@@ -24,6 +24,7 @@ public class ModifiersManager : MonoBehaviour
 
     public enum ControllerSetup {Left, Both, Right, Off};
     public enum MotorspaceSize {Small, Medium, Large};
+    public enum MotorspaceOutOfBoundsSignifier { DynamicCenter, StaticPointing };
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
 
@@ -101,6 +102,7 @@ public class ModifiersManager : MonoBehaviour
     private float hideWallLowestEnd = -1.05f;
     private float hideWallAmount = -1f;
     ModifiersManager.MotorspaceSize motorspaceSize = ModifiersManager.MotorspaceSize.Large;
+    ModifiersManager.MotorspaceOutOfBoundsSignifier motorspaceOutOfBoundsSignifier = ModifiersManager.MotorspaceOutOfBoundsSignifier.DynamicCenter;
     private EyePatch eyePatch = EyePatch.None;
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
@@ -157,6 +159,7 @@ public class ModifiersManager : MonoBehaviour
         defaultModifiers = new Dictionary<string, object> () {
         {"ControllerSetup", this.controllerSetup},
         {"MotorspaceSize", this.motorspaceSize},
+        {"MotorspaceOutOfBoundsSignifier", this.motorspaceOutOfBoundsSignifier},
         {"EyePatch", this.eyePatch},
         {"HideWall", this.hideWall},
         {"HideWallAmount", 0f}, // hideWallAmount is a calculated value.
@@ -200,6 +203,7 @@ public class ModifiersManager : MonoBehaviour
         SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
         SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
         SetPerformanceFeedback((bool) state["PerformanceFeedback"]);
+        SetMotorspaceOutOfBoundsSignifier((ModifiersManager.MotorspaceOutOfBoundsSignifier)state["MotorspaceOutOfBoundsSignifier"]);
     }
 
     // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
@@ -347,6 +351,16 @@ public class ModifiersManager : MonoBehaviour
             motorSpaceManager.SetMotorSpaceLarge();
         }
     }
+
+    // Set Motorspace Out of Bounds managed by BubbleDisplay
+    public void SetMotorspaceOutOfBoundsSignifier(ModifiersManager.MotorspaceOutOfBoundsSignifier signifier)
+    { 
+        if (signifier == ModifiersManager.MotorspaceOutOfBoundsSignifier.StaticPointing)
+            motorSpaceManager.SetMotorSpaceOutOfBoundsSignifierStatic();
+        else if (signifier == ModifiersManager.MotorspaceOutOfBoundsSignifier.DynamicCenter)
+            motorSpaceManager.SetMotorSpaceOutOfBoundsSignifierDynamic();
+    }
+
 
     // Sets a controller position and rotation's mirroring effect. Calls UpdateMirrorEffect to set the mirror.
     public void SetMirrorEffect(bool value)
