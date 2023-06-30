@@ -213,8 +213,8 @@ public class BubbleDisplay : MonoBehaviour
 
                 // Show indicator
                 //outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.transform.position, side);
-                // use laserMapper.GetWallCenter instead of laserMapper.transform.position
-                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallCenter(), side);
+                // use laserMapper.GetWallMeshCenter instead of laserMapper.transform.position
+                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallMeshCenter(), side);
 
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {

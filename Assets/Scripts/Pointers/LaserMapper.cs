@@ -507,8 +507,8 @@ public class LaserMapper : MonoBehaviour
     }
 
     // Get the center position of the wall in world space.
-    public Vector3 GetWallCenter()
+    public Vector3 GetWallMeshCenter()
     {
-        return (wallSpaceTopLeft + wallSpaceBottomRight) / 2;
+        return wallManager.GetWallCenter();
     }
 }

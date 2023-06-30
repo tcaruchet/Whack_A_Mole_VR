@@ -102,6 +102,8 @@ public class WallManager : MonoBehaviour
     private WallGenerator wallGenerator;
     private Vector3 wallCenter;
     private Vector3 wallCenterWorld = Vector3.zero;
+    public Vector3 wallCenterPoint; // Temp test center of the wall from moles averaging the highest and lowest values for each dimension 
+
     private Dictionary<int, Mole> moles;
     private bool active = false;
     private bool isInit = false;
@@ -252,6 +254,12 @@ public class WallManager : MonoBehaviour
             UpdateWallLogs();
             StartCoroutine(FillWall(listMole));
         }
+
+        wallCenterPoint = new Vector3(
+        (highestX + lowestX) / 2f,
+        (highestY + lowestY) / 2f,
+        (highestZ + lowestZ) / 2f
+        );
     }
 
     public void Disable()
@@ -560,5 +568,10 @@ public class WallManager : MonoBehaviour
             Clear();
             Enable();
         }
+    }
+
+    internal Vector3 GetWallCenter()
+    {
+        return wallCenterPoint;
     }
 }
