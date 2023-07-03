@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Valve.VR;
 
 /*
@@ -26,7 +27,11 @@ public class BasicPointer : Pointer
     private delegate void Del();
     private string hover = "";
     
-    public Vector3 MappedPosition { get; private set;} 
+    public Vector3 MappedPosition { get; private set;}
+    public float moleTimeHit;
+    public delegate void MoleHitDelegate(float time);
+    public event MoleHitDelegate onMoleHit;
+
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
@@ -98,6 +103,7 @@ public class BasicPointer : Pointer
                                 {"ControllerName", gameObject.name}
                             });
                             Shoot(hit);
+                            onMoleHit.Invoke(Time.time);
                         }
                     }  else {
                         CheckHoverEnd();
@@ -138,7 +144,11 @@ public class BasicPointer : Pointer
     {
         Color newColor;
 
-        if (correctHit) newColor = shootColor;
+        if (correctHit)
+        {
+            newColor = shootColor;
+            moleTimeHit = Time.time;
+        }
         else newColor = badShootColor;
 
         if (!performancefeedback) {
