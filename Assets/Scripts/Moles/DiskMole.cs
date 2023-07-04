@@ -62,10 +62,6 @@ public class DiskMole : Mole
     private Coroutine colorAnimation;
     private string playingClip = "";
 
-    public float Distance { get; set; }
-    public float ReactionTime { get; set; }
-    public float Speed { get; set; }
-
     protected override void Start()
     {
         animationPlayer = gameObject.GetComponent<Animation>();

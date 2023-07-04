@@ -51,6 +51,11 @@ public abstract class Mole : MonoBehaviour
     private bool isOnDisabledCoolDown = false;
     private bool performanceFeedback = true;
 
+    public float Distance { get; set; }
+    public float? ReactionTime { get; set; }
+    public float? Speed { get; set; }
+
+
     private void Awake() 
     {
         SetVisibility(defaultVisibility);
