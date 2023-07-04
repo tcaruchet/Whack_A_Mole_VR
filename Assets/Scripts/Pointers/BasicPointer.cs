@@ -28,7 +28,6 @@ public class BasicPointer : Pointer
     private string hover = "";
     
     public Vector3 MappedPosition { get; private set;}
-    public float moleTimeHit;
 
     //public delegate void MoleHitDelegate(Mole hitMole, float time);
     //public event MoleHitDelegate onMoleHit;
@@ -147,7 +146,6 @@ public class BasicPointer : Pointer
         if (correctHit)
         {
             newColor = shootColor;
-            moleTimeHit = Time.time;
         }
         else newColor = badShootColor;
 

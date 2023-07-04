@@ -31,9 +31,6 @@ public class GameDirector : MonoBehaviour
     public enum GameState {CountDown, Paused, Playing, Stopped}
 
     [SerializeField]
-    public BasicPointer basicPointer;
-
-    [SerializeField]
     public SoundManager soundManager;
 
     [SerializeField]
@@ -87,30 +84,8 @@ public class GameDirector : MonoBehaviour
     private int participantId = 0;
     private int testId = 0;
 
-    // This will hold the time when the mole appears
-    private float moleAppearTime;
-
-    // This will hold the position of the player when the mole appears
-    private Vector3 mappedPayerPosition;
-
-    // This will hold the reaction times of the player
-    //private List<float> reactionTimes = new List<float>();
-
-    // This will hold the distances between the player and the mole
-    private List<float> distances = new List<float>();
 
 
-    public class MoleData
-    {
-        public int MoleId { get; set; }
-        public Mole Mole { get; set; }
-        public float Distance { get; set; }
-        public float? ReactionTime { get; set; }
-        public float? Speed { get; set; }
-    }
-
-
-    public Dictionary<int, MoleData> moleDataDict = new Dictionary<int, MoleData>();
 
     private Dictionary<string, Dictionary<string, float>> difficulties = new Dictionary<string, Dictionary<string, float>>(){
         {"Slow", new Dictionary<string, float>(){
@@ -369,44 +344,8 @@ public class GameDirector : MonoBehaviour
                 type = Mole.MoleType.DistractorRight;
             }
         }
-
-        //find the position of the player when the mole appears
-         mappedPayerPosition = basicPointer.MappedPosition;
-        //playerPositionWhenMoleAppears = playerTransform.position;
-         Mole selectedMole = wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
-        Vector3 coordonateOfMole = selectedMole.transform.position;
-        //find the distance between the player and the mole
-        float distance = Vector3.Distance(mappedPayerPosition, coordonateOfMole);
-        MoleData moleData = new MoleData
-        {
-            MoleId = selectedMole.GetInstanceID(),
-            Mole = selectedMole,
-            Distance = distance
-        };
-        moleDataDict[moleData.MoleId] = moleData;
-        distances.Add(distance);
-        basicPointer.onMoleHit.AddListener((hitmole, hittime) => HandleMoleHit(hitmole, hittime));
+         wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
     }
-
-    void HandleMoleHit(Mole hitMole, float hitTime)
-    {
-        float reactionTime = hitTime - moleAppearTime;
-        MoleData moleData;
-        if (moleDataDict.TryGetValue(hitMole.GetInstanceID(), out moleData))
-        {
-            moleData.ReactionTime = reactionTime;
-            moleData.Speed = moleData.Distance / reactionTime;
-            Debug.Log("ID : "+ moleData.MoleId + "Speed: " + moleData.Speed + "reactionTime = " + reactionTime + "Distance" + moleData.Distance);
-
-        }
-        //float speed = distance / reactionTime;
-        //speeds.Add(speed);
-
-        basicPointer.onMoleHit.RemoveListener(HandleMoleHit);
-
-    }
-
-
     private void StartMoleTimer(float setTime = -1)
     {
         if (setTime == -1)
@@ -467,7 +406,6 @@ public class GameDirector : MonoBehaviour
     private void OnSpawnMoleTimeout()
     {
         SpawnMole(difficultySettings["lifeTime"], Random.Range(0f, 1f) <= difficultySettings["fakeCoeff"]);
-        moleAppearTime = Time.time;
         StartMoleTimer();
     }
 

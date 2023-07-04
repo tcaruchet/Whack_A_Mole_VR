@@ -95,6 +95,9 @@ public class WallManager : MonoBehaviour
     [SerializeField]
     private MeshRenderer greyBackground;
 
+    [SerializeField]
+    public BasicPointer basicPointer;
+
     [System.Serializable]
     public class StateUpdateEvent : UnityEvent<WallInfo> { }
     public StateUpdateEvent stateUpdateEvent;
@@ -130,6 +133,21 @@ public class WallManager : MonoBehaviour
     float meshBoundsZmin = -1f;
 
     public List<Mole> listMole;
+
+    // Position and speed logic 
+    private float moleAppearTime;
+    private Vector3 mappedPayerPosition;
+    private List<float> distances = new List<float>();
+    public class MoleData
+    {
+        public int MoleId { get; set; }
+        public Mole Mole { get; set; }
+        public float Distance { get; set; }
+        public float? ReactionTime { get; set; }
+        public float? Speed { get; set; }
+    }
+    public Dictionary<int, MoleData> moleDataDict = new Dictionary<int, MoleData>();
+
 
     void Start()
     {
@@ -293,15 +311,58 @@ public class WallManager : MonoBehaviour
     }
 
     // Activates a random Mole for a given lifeTime and set if is fake or not
-    public Mole ActivateRandomMole(float lifeTime, float moleExpiringDuration, Mole.MoleType type)
+    public void ActivateRandomMole(float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
-        if (!active) return null;
+        if (!active) return;
 
         Mole selectedMole = GetRandomMole();
         selectedMole.Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         moleCount++;
         Debug.Log("NOUUUUVVELLLLLEEEEE MOLLLLEEEEEEE");
-        return selectedMole;
+        //Capturate the Time when the mole appears
+        moleAppearTime = Time.time;
+        Debug.Log("Temps d'apparition de la taupe : capturée valeur : " + moleAppearTime);
+        //find the position of the player when the mole appears
+        mappedPayerPosition = basicPointer.MappedPosition;
+        Debug.Log("Position du joueur : capturée" );
+        //find the position of the mole when it appears
+        Vector3 coordonateOfMole = selectedMole.transform.position;
+        Debug.Log("Position de la taupe : capturée valeur : "+ coordonateOfMole);
+        //find the distance between the player and the mole
+        float distance = Vector3.Distance(mappedPayerPosition, coordonateOfMole);
+        Debug.Log("Distance entre le joueur et la taupe : capturée valeur : " + distance);
+        //add the mole to the dictionnary
+        MoleData moleData = new MoleData
+        {
+            MoleId = selectedMole.GetInstanceID(),
+            Mole = selectedMole,
+            Distance = distance
+        };
+        moleDataDict[moleData.MoleId] = moleData;
+        Debug.Log("Mole ajoutée au dictionnaire");
+        basicPointer.onMoleHit.AddListener((hitmole, hittime) => HandleMoleHit(hitmole, hittime));
+        Debug.Log("Event ajouté");
+    }
+
+    //handle the event when the mole is hit
+    void HandleMoleHit(Mole hitMole, float hitTime)
+    {
+        Debug.Log("ENTRER DANS LA FONCTION HANDLEMOLEHIT");
+        //Calculate the reaction time
+        float reactionTime = hitTime - moleAppearTime;
+        Debug.Log("Reaction time : " + reactionTime);
+        MoleData moleData;
+        if (moleDataDict.TryGetValue(hitMole.GetInstanceID(), out moleData))
+        {
+            moleData.ReactionTime = reactionTime;
+            moleData.Speed = moleData.Distance / reactionTime;
+            Debug.Log("ID : " + moleData.MoleId + "Speed: " + moleData.Speed + "reactionTime = " + reactionTime + "Distance" + moleData.Distance);
+
+        }
+        Debug.Log("moleData edited");
+        basicPointer.onMoleHit.RemoveListener(HandleMoleHit);
+        Debug.Log("Event removed");
+
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not
