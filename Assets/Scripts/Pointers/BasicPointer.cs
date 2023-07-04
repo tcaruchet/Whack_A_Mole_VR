@@ -29,8 +29,9 @@ public class BasicPointer : Pointer
     
     public Vector3 MappedPosition { get; private set;}
     public float moleTimeHit;
-    public delegate void MoleHitDelegate(float time);
-    public event MoleHitDelegate onMoleHit;
+
+    //public delegate void MoleHitDelegate(Mole hitMole, float time);
+    //public event MoleHitDelegate onMoleHit;
 
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
@@ -103,7 +104,6 @@ public class BasicPointer : Pointer
                                 {"ControllerName", gameObject.name}
                             });
                             Shoot(hit);
-                            onMoleHit.Invoke(Time.time);
                         }
                     }  else {
                         CheckHoverEnd();

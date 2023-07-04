@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Valve.VR;
+using static UnityEngine.UI.ContentSizeFitter;
 
 /*
 Abstract class of the VR pointer used to pop moles. Like the Mole class, calls specific empty
@@ -84,6 +85,16 @@ public abstract class Pointer : MonoBehaviour
     private float lastTime = -1;
 
     protected int pointerShootOrder = -1;
+
+    [System.Serializable]
+    public class OnMoleHit : UnityEvent<Mole, float> { }
+    public OnMoleHit onMoleHit;
+
+
+    //public delegate void MoleHitDelegate(Mole hitMole, float time);
+    //public event MoleHitDelegate onMoleHit;
+
+
 
     [System.Serializable]
     public class OnPointerShoot : UnityEvent { }
@@ -279,6 +290,7 @@ public abstract class Pointer : MonoBehaviour
                 if (moleAnswer == Mole.MolePopAnswer.Ok)
                 {
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
+                    onMoleHit.Invoke(mole, Time.time);
                     soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
                 }
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)

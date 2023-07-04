@@ -99,8 +99,18 @@ public class GameDirector : MonoBehaviour
     // This will hold the distances between the player and the mole
     private List<float> distances = new List<float>();
 
-    private List<float> speeds = new List<float>();
 
+    public class MoleData
+    {
+        public int MoleId { get; set; }
+        public Mole Mole { get; set; }
+        public float Distance { get; set; }
+        public float? ReactionTime { get; set; }
+        public float? Speed { get; set; }
+    }
+
+
+    public Dictionary<int, MoleData> moleDataDict = new Dictionary<int, MoleData>();
 
     private Dictionary<string, Dictionary<string, float>> difficulties = new Dictionary<string, Dictionary<string, float>>(){
         {"Slow", new Dictionary<string, float>(){
@@ -367,18 +377,32 @@ public class GameDirector : MonoBehaviour
         Vector3 coordonateOfMole = selectedMole.transform.position;
         //find the distance between the player and the mole
         float distance = Vector3.Distance(mappedPayerPosition, coordonateOfMole);
+        MoleData moleData = new MoleData
+        {
+            MoleId = selectedMole.GetInstanceID(),
+            Mole = selectedMole,
+            Distance = distance
+        };
+        moleDataDict[moleData.MoleId] = moleData;
         distances.Add(distance);
-        basicPointer.onMoleHit += HandleMoleHit;
+        basicPointer.onMoleHit.AddListener((hitmole, hittime) => HandleMoleHit(hitmole, hittime));
     }
 
-    void HandleMoleHit(float hitTime)
-    {   
+    void HandleMoleHit(Mole hitMole, float hitTime)
+    {
         float reactionTime = hitTime - moleAppearTime;
-        float distance = distances.Last();
-        float speed = distance / reactionTime;
-        speeds.Add(speed);
-        Debug.Log("Speed: " + speed + "reactionTime = " + reactionTime + "Distance" + distance);
-        basicPointer.onMoleHit -= HandleMoleHit;
+        MoleData moleData;
+        if (moleDataDict.TryGetValue(hitMole.GetInstanceID(), out moleData))
+        {
+            moleData.ReactionTime = reactionTime;
+            moleData.Speed = moleData.Distance / reactionTime;
+            Debug.Log("ID : "+ moleData.MoleId + "Speed: " + moleData.Speed + "reactionTime = " + reactionTime + "Distance" + moleData.Distance);
+
+        }
+        //float speed = distance / reactionTime;
+        //speeds.Add(speed);
+
+        basicPointer.onMoleHit.RemoveListener(HandleMoleHit);
 
     }
 
