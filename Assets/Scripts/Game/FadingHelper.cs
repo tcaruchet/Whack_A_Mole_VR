@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
 
+
+
 public class FadingHelper : MonoBehaviour
 {
     [Header("Game Object To Fade:")]

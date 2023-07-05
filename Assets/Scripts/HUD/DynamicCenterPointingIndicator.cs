@@ -15,6 +15,9 @@ namespace Assets.Scripts.HUD
         [SerializeField]
         private CanvasGroup arrow;
 
+        [SerializeField]
+        public Color Color; // The color of the arrow //doing nothing with this yet
+
 
         private Coroutine coroutine;
         private bool active = false;
