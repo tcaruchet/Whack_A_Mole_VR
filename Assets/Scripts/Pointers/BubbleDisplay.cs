@@ -147,8 +147,8 @@ public class BubbleDisplay : MonoBehaviour
         motorSpaceRender.color = motorDisabledColor;
 
         //TEMP:CHANGE THIS
-        outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
-        CurrentArrowType = ArrowType.DynamicCenter;
+        outOfBoundIndicatorManager = staticArrowIndicator;
+        CurrentArrowType = ArrowType.StaticPointing;
     }
 
     // Update is called once per frame
