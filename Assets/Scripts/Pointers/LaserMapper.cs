@@ -188,6 +188,11 @@ public class LaserMapper : MonoBehaviour
         }
     }
 
+    public GameObject[] GetActiveControllers()
+    {
+        return activeControllers;
+    }
+
     public void SetMotorRestriction(MotorRestriction restriction, float restrictionLower, float restrictionUpper) {
         upperRestriction = restrictionUpper;
         lowerRestriction = restrictionLower;

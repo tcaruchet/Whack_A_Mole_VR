@@ -6,6 +6,8 @@ using UnityEngine.Events;
 using Assets.Scripts.HUD;
 using static OutOfBoundsArrow;
 using System;
+using System.Linq;
+using Valve.VR;
 
 public class EnterMotorSpaceInfo {
     public Side side; // side from which it entered/exited
@@ -106,7 +108,7 @@ public class BubbleDisplay : MonoBehaviour
     private OutOfBoundIndicator outOfBoundIndicatorManager;  // The current active indicator
     public ArrowType CurrentArrowType { get; private set; }
 
-
+    public Side LastLaserMapperNearestSide { get; private set; }
 
 
     private float newPosX;
@@ -166,13 +168,13 @@ public class BubbleDisplay : MonoBehaviour
         prevPosY = newPosY;
         prevPosZ = newPosZ;
 
-        Side side = laserMapper.NearestSide(newPos);
+        LastLaserMapperNearestSide = laserMapper.NearestSide(newPos);
         if (laserMapper.CoordinateWithinMotorSpace(newPos))
         {
             if (action == MotorAction.Outside || action == MotorAction.None || action == MotorAction.Exit)
             {
                 action = MotorAction.Enter;
-                Debug.Log($"Entered MotorSpace at position {newPos}, side {side}");
+                Debug.Log($"Entered MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 //StartCoroutine(OutOfBoundAnimation(false));
@@ -186,7 +188,7 @@ public class BubbleDisplay : MonoBehaviour
 
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
-                    side = side,
+                    side = LastLaserMapperNearestSide,
                     enter = true,
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
@@ -201,7 +203,7 @@ public class BubbleDisplay : MonoBehaviour
         {
             if (action == MotorAction.Inside || action == MotorAction.None || action == MotorAction.Enter)
             {
-                Debug.Log($"Exited MotorSpace at position {newPos}, side {side}");
+                Debug.Log($"Exited MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");
                 action = MotorAction.Exit;
 
                 bubbleRender.SetActive(true);
@@ -214,11 +216,11 @@ public class BubbleDisplay : MonoBehaviour
                 // Show indicator
                 //outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.transform.position, side);
                 // use laserMapper.GetWallMeshCenter instead of laserMapper.transform.position
-                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallMeshCenter(), side);
+                outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallMeshCenter(), LastLaserMapperNearestSide);
 
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
-                    side = side,
+                    side = LastLaserMapperNearestSide,
                     enter = false,
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
@@ -320,11 +322,22 @@ public class BubbleDisplay : MonoBehaviour
             Debug.Log($"Time spent outside the MotorSpace: {timeSpentOutside.TotalSeconds} seconds. Indicator type: {outOfBoundIndicatorManager.GetType().Name}");
             // Reset the exit time and the hasExited flag
             hasExited = false;
-            //}
-            //else
-            //{
-            //    Debug.Log("Entered MotorSpace for the first time.");
-            //}
+
+            GameObject[] controllers = laserMapper.GetActiveControllers();
+            GameObject controller = controllers.LastOrDefault(c => c.activeSelf);
+            loggingManager.Log("Event", new Dictionary<string, object>()
+            {
+                {"Event", "MotorSpace Exiting Time"},
+                {"EventType", "MotorSpaceEvent"},
+                { "TimeSpentOutsideMotorSpace", timeSpentOutside },
+                { "TimeSpentOutsideMotorSpaceSeconds", timeSpentOutside.TotalSeconds },
+                { "IndicatorType", CurrentArrowType.ToString() },
+                { "Side", LastLaserMapperNearestSide },
+                {"ControllerName", controller.name},
+                {"ControllerOffset", controller.GetComponent<SteamVR_Behaviour_Pose>().inputSource},
+                { "Timestamp", DateTime.Now }
+
+            });
         }
 
 
