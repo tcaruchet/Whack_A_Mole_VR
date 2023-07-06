@@ -138,7 +138,6 @@ public class WallManager : MonoBehaviour
     // Position and speed logic 
     private float moleAppearTime;
     private Vector3 mappedPayerPosition;
-    private List<float> distances = new List<float>();
     public class MoleData
     {
         public int MoleId { get; set; }
@@ -319,21 +318,21 @@ public class WallManager : MonoBehaviour
         Mole selectedMole = GetRandomMole();
         selectedMole.Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         int moleId = selectedMole.GetId();
-        Debug.Log("Mole " + moleId + " activated");
+        //Debug.Log("Mole " + moleId + " activated");
         moleCount++;
-        Debug.Log("New mole");
+        //Debug.Log("New mole");
         //Capturate the Time when the mole appears
         moleAppearTime = Time.time;
-        Debug.Log("Temps d'apparition de la taupe : capturée valeur : " + moleAppearTime);
+        ///Debug.Log("Temps d'apparition de la taupe : capturée valeur : " + moleAppearTime);
         //find the position of the player when the mole appears
         mappedPayerPosition = basicPointer.MappedPosition;
-        Debug.Log("Position du joueur : capturée" );
+        //Debug.Log("Position du joueur : capturée" );
         //find the position of the mole when it appears
         Vector3 coordonateOfMole = selectedMole.transform.position;
-        Debug.Log("Position de la taupe : capturée valeur : "+ coordonateOfMole);
+        //Debug.Log("Position de la taupe : capturée valeur : "+ coordonateOfMole);
         //find the distance between the player and the mole
         float distance = Vector3.Distance(mappedPayerPosition, coordonateOfMole);
-        Debug.Log("Distance entre le joueur et la taupe : capturée valeur : " + distance);
+        //Debug.Log("Distance entre le joueur et la taupe : capturée valeur : " + distance);
         //add the mole to the dictionnary
         MoleData moleData = new MoleData
         {
@@ -342,29 +341,37 @@ public class WallManager : MonoBehaviour
             Distance = distance
         };
         moleDataDict[moleData.MoleId] = moleData;
-        Debug.Log("Mole ajoutée au dictionnaire");
+        //Debug.Log("Mole ajoutée au dictionnaire");
         basicPointer.onMoleHit.AddListener((hitmole, hittime) => HandleMoleHit(hitmole, hittime));
-        Debug.Log("Event ajouté");
+        //Debug.Log("Event ajouté");
     }
 
     //handle the event when the mole is hit
     void HandleMoleHit(Mole hitMole, float hitTime)
     {
-        Debug.Log("ENTRER DANS LA FONCTION HANDLEMOLEHIT");
+        //Debug.Log("ENTRER DANS LA FONCTION HANDLEMOLEHIT");
         //Calculate the reaction time
         float reactionTime = hitTime - moleAppearTime;
-        Debug.Log("Reaction time : " + reactionTime);
+        //Debug.Log("Reaction time : " + reactionTime);
         MoleData moleDataLinkedToShootedMole;
         if (moleDataDict.TryGetValue(hitMole.GetId(), out moleDataLinkedToShootedMole))
         {
             moleDataLinkedToShootedMole.ReactionTime = reactionTime;
             moleDataLinkedToShootedMole.Speed = moleDataLinkedToShootedMole.Distance / reactionTime;
-            Debug.Log("ID : " + moleDataLinkedToShootedMole.MoleId + "Speed: " + moleDataLinkedToShootedMole.Speed + "reactionTime = " + moleDataLinkedToShootedMole.ReactionTime + "Distance" + moleDataLinkedToShootedMole.Distance);
+            //Debug.Log("ID : " + moleDataLinkedToShootedMole.MoleId + "Speed: " + moleDataLinkedToShootedMole.Speed + "reactionTime = " + moleDataLinkedToShootedMole.ReactionTime + "Distance" + moleDataLinkedToShootedMole.Distance);
 
-        }
-        Debug.Log("moleDataLinkedToShootedMole edited with the reactionTime and speed");
+            Mole correspondingMole;
+            if (moles.TryGetValue(moleDataLinkedToShootedMole.MoleId, out correspondingMole))
+            {
+                correspondingMole.Speed = moleDataLinkedToShootedMole.Speed;
+                correspondingMole.ReactionTime = moleDataLinkedToShootedMole.ReactionTime;
+               // Debug.Log("correspondingMole edited with the reactionTime and speed");
+            }
+
+    }
+        //Debug.Log("moleDataLinkedToShootedMole edited with the reactionTime and speed");
         basicPointer.onMoleHit.RemoveListener(HandleMoleHit);
-        Debug.Log("Event removed");
+        //Debug.Log("Event removed");
 
 
 

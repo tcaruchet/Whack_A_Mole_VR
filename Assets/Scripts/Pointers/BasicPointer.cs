@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Game;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -36,6 +37,7 @@ public class BasicPointer : Pointer
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
     {
+        PerformanceManager.Instance.UpdatePointerData(this);
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);

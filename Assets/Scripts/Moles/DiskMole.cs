@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Game;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,8 +74,13 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
 
         base.Start();
+        
     }
 
+    private void Update()
+    {
+        PerformanceManager.Instance.UpdateMoleData(this); 
+    }
     //public void EndPlayPop()
     //{
     //    base.PlayPop();

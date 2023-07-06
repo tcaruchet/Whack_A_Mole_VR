@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Game;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -64,6 +65,7 @@ public abstract class Mole : MonoBehaviour
     protected virtual void Start()
     {
         Reset();
+
 
         // Initialization of the LoggerNotifier. Here we will only raise Event, and we will use a function to pass and update 
         // certain parameters values every time we raise an event (UpdateLogNotifierGeneralValues). We don't set any starting values.
