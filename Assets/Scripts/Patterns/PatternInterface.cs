@@ -322,6 +322,10 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetPerformanceFeedback(bool.Parse(tempValue));
         }
+        if (action.TryGetValue("EMBODIMENT", out tempValue))
+        {
+            modifiersManager.SetEmbodiment((ModifiersManager.Embodiment)System.Enum.Parse(typeof(ModifiersManager.Embodiment), tempValue));
+        }
     }
 
     private void SetSegment(string Idval, string label) {

@@ -23,6 +23,7 @@ public class ModifiersManager : MonoBehaviour
     public Dictionary<string, object> defaultModifiers;
 
     public enum ControllerSetup {Left, Both, Right, Off};
+    public enum Embodiment {Hands, Cursor, Off};
     public enum MotorspaceSize {Small, Medium, Large};
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
@@ -101,6 +102,7 @@ public class ModifiersManager : MonoBehaviour
     private float hideWallLowestEnd = -1.05f;
     private float hideWallAmount = -1f;
     ModifiersManager.MotorspaceSize motorspaceSize = ModifiersManager.MotorspaceSize.Large;
+    private Embodiment embodiment = Embodiment.Hands;
     private EyePatch eyePatch = EyePatch.None;
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
@@ -138,7 +140,8 @@ public class ModifiersManager : MonoBehaviour
             {"HideWall", "No Hide Wall Defined"},
             {"HideWallAmount", "No Hide Wall Amount Defined"},
             {"GeometricMirror", "No GeometricMirror Defined"},
-            {"PerformanceFeedback", "No PerformanceFeedback Defined"}
+            {"PerformanceFeedback", "No PerformanceFeedback Defined"},
+            {"Embodiment", "Undefined"},
         });
         // Initialization of the starting values of the parameters.
         loggerNotifier.InitPersistentEventParameters(new Dictionary<string, object>(){
@@ -151,7 +154,8 @@ public class ModifiersManager : MonoBehaviour
             {"HideWall", System.Enum.GetName(typeof(ModifiersManager.HideWall), hideWall)},
             {"HideWallAmount", hideWallAmount},
             {"GeometricMirror", geometricMirrorEffect},
-            {"PerformanceFeedback", performanceFeedback}
+            {"PerformanceFeedback", performanceFeedback},
+            {"Embodiment", System.Enum.GetName(typeof(ModifiersManager.Embodiment), embodiment)},
         });
 
         defaultModifiers = new Dictionary<string, object> () {
@@ -169,7 +173,8 @@ public class ModifiersManager : MonoBehaviour
         {"MotorRestriction", this.motorRestriction},
         {"MotorRestrictionUpper", this.motorRestrictionUpper},
         {"MotorRestrictionLower", this.motorRestrictionLower},
-        {"PerformanceFeedback", this.performanceFeedback}
+        {"PerformanceFeedback", this.performanceFeedback},
+        {"Embodiment", this.embodiment},
         };
     }
 
@@ -200,6 +205,7 @@ public class ModifiersManager : MonoBehaviour
         SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
         SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
         SetPerformanceFeedback((bool) state["PerformanceFeedback"]);
+        SetEmbodiment((ModifiersManager.Embodiment) state["Embodiment"]);
     }
 
     // Sets an eye patch. Calls WaitForCameraAndUpdate coroutine to set eye patch.
@@ -550,6 +556,23 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
+    // Sets the level of embodiment used by the game. (Show hands (including controller) or just cursor).
+    public void SetEmbodiment(Embodiment value)
+    {
+        if (embodiment == value) return;
+        
+        embodiment = value;
+        // Pass embodiment on to the ControllerModifierManager.
+        controllersList["main"].gameObject.GetComponent<ControllerModifierManager>().SetEmbodiment(embodiment);
+        controllersList["second"].gameObject.GetComponent<ControllerModifierManager>().SetEmbodiment(embodiment);
+
+        loggerNotifier.NotifyLogger("Embodiment Set "+System.Enum.GetName(typeof(Embodiment), embodiment), EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"Embodiment", System.Enum.GetName(typeof(Embodiment), embodiment)}
+        });
+        
+    }
+
     // Enables/disables a given controller
     private void SetControllerEnabled(ControllerSetup controllerType, bool enabled = true)
     {
@@ -630,6 +653,10 @@ public class ModifiersManager : MonoBehaviour
         loggerNotifier.NotifyLogger("Hide Wall Effect Set "+ hideWall, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
         {
             {"HideWall", hideWall}
+        });
+        loggerNotifier.NotifyLogger("Embodiment Set "+ System.Enum.GetName(typeof(Embodiment), embodiment), EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"Embodiment", embodiment}
         });
     }
 

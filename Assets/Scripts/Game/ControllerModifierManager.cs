@@ -11,13 +11,35 @@ public class ControllerModifierManager : MonoBehaviour
     private SteamVR_Input_Sources inputSource;
     private bool isMirroring = false;
     private Pointer controllerPointer;
-
+    private ModifiersManager.Embodiment embodiment = ModifiersManager.Embodiment.Hands;
 
     void Start()
     {
         inputSource = gameObject.GetComponent<SteamVR_Behaviour_Pose>().inputSource;
         controllerPose = gameObject.GetComponent<SteamVR_Behaviour_Pose>().poseAction;
         controllerPointer = gameObject.GetComponent<Pointer>();
+    }
+
+    public void SetEmbodiment(ModifiersManager.Embodiment e) {
+        embodiment = e;
+
+        if (embodiment == ModifiersManager.Embodiment.Hands) {
+            SetControllerVisibility(true);
+        } else {
+            // cursor only.
+            SetControllerVisibility(false);
+        }
+    }
+
+    public void SetControllerVisibility(bool visible) {
+        if (embodiment == ModifiersManager.Embodiment.Cursor) {
+            // if hands embodiment is disabled, force visibility to false.
+            visible = false;
+        }
+
+        var model = this.gameObject.transform.GetChild(0).gameObject;
+        model.SetActive(visible);
+
     }
 
     // Enables mirroring. Disables the controller position update and uses OnPoseUpdate to set a custom mirrored position on  tracked controller position update

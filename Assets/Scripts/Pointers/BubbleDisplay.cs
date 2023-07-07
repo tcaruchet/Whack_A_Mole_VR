@@ -42,8 +42,7 @@ public class BubbleDisplay : MonoBehaviour
     [SerializeField]
     private LineRenderer laserRender;
 
-    [SerializeField]
-    private GameObject controllerRender;
+    private ControllerModifierManager controllerModifierManager;
 
     [SerializeField]
     private GameObject OutOfBoundContainer;
@@ -121,7 +120,8 @@ public class BubbleDisplay : MonoBehaviour
         laserRender.enabled = showBubble;
         bubbleOutline.SetActive(showBubble);
         bubbleSphere.SetActive(showBubble);
-        controllerRender.SetActive(true);
+        controllerModifierManager = parent.GetComponent<ControllerModifierManager>();
+        controllerModifierManager.SetControllerVisibility(true);
         motorSpaceRender.color = motorDisabledColor;
     }
 
@@ -152,7 +152,7 @@ public class BubbleDisplay : MonoBehaviour
                 //laserMapper.ShowMotorspace(false);
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
-                controllerRender.SetActive(true);
+                controllerModifierManager.SetControllerVisibility(true);
                 motorSpaceRender.color = motorActiveColor;
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
                     side =  laserMapper.NearestSide(newPos), 
@@ -180,7 +180,7 @@ public class BubbleDisplay : MonoBehaviour
                 laserRender.enabled = showBubble;
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
-                controllerRender.SetActive(true);
+                controllerModifierManager.SetControllerVisibility(true);
                 motorSpaceRender.color = motorDisabledColor;
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo { 
                     side = laserMapper.NearestSide(newPos), 
