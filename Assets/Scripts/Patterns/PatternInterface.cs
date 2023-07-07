@@ -17,16 +17,47 @@ public class PatternInterface : MonoBehaviour
     private PlayerPanel playerPanel;
     private float randVar = 0f;
 
-    private static List<int> moleIdList = new List<int>();
+    private Dictionary<int, Mole> targetsList = null;
+    private Dictionary<int, Mole> molesList = new Dictionary<int, Mole>();
 
-    public List<int> GetMoleIdList()
+    public Dictionary<int, Mole> GetMolesList()
     {
-        return moleIdList;
+        return molesList;
     }
 
-    public void AddMoleIdList(int value)
+    public void ClearMolesList()
     {
-        moleIdList.Add(value);
+        molesList.Clear();
+    }
+
+    public Dictionary<int, Mole> GetTargetsList()
+    {
+        return targetsList;
+    }
+
+    public void RemoveFromTargetsList(int moleId)
+    {
+        //Debug.Log(targetsList.Count);
+        targetsList.Remove(moleId);
+    }
+
+    public void ResetTargetsList() {
+        targetsList = null;
+    }
+
+    public void AddToTargetsList(int moleId, Mole mole)
+    {
+        if (targetsList == null) {
+            targetsList = new Dictionary<int, Mole>();
+        }
+        targetsList[moleId] = mole;
+        //Debug.Log(targetsList.Count);
+    }
+
+    public void ClearTargetsList()
+    {
+        targetsList.Clear();
+        //Debug.Log(targetsList.Count);
     }
 
     void Awake()
@@ -237,17 +268,18 @@ public class PatternInterface : MonoBehaviour
     private void SetMole(string xIndex, string yIndex, string lifeTime)
     {
         int moleId = ((int.Parse(xIndex)) * 100) + (int.Parse(yIndex));
-        AddMoleIdList(moleId);
-        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), Mole.MoleType.Target);
+        var mole = wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), Mole.MoleType.Target);
+        molesList[moleId] = mole;
+        AddToTargetsList(moleId, mole);
     }
 
     // Spawns a distractor (fake Mole)
     private void SetDistractor(string xIndex, string yIndex, string lifeTime, string type)
     {
         int moleId = ((int.Parse(xIndex)) * 100) + (int.Parse(yIndex));
-        AddMoleIdList(moleId);
         Mole.MoleType moleType = (Mole.MoleType)System.Enum.Parse( typeof(Mole.MoleType), type);
-        wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(),  moleType);
+        var mole = wallManager.ActivateMole(moleId, ParseFloat(lifeTime), gameDirector.GetMoleExpiringDuration(), moleType);
+        molesList[moleId] = mole;
     }
 
     // Updates the game difficulty

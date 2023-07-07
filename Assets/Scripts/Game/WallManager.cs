@@ -302,12 +302,13 @@ public class WallManager : MonoBehaviour
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not
-    public void ActivateMole(int moleId, float lifeTime, float moleExpiringDuration, Mole.MoleType type)
+    public Mole ActivateMole(int moleId, float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
-        if (!active) return;
-        if (!moles.ContainsKey(moleId)) return;
+        if (!active) return null;
+        if (!moles.ContainsKey(moleId)) return null;
         moles[moleId].Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         moleCount++;
+        return moles[moleId];
     }
 
     // Pauses/unpauses the moles

@@ -13,11 +13,9 @@ public class PatternPlayer: MonoBehaviour
     private Dictionary<float, List<Dictionary<string, string>>> pattern = new Dictionary<float, List<Dictionary<string, string>>>();
     private List<float> sortedKeys = new List<float>();
     private List<int> moleIdList = new List<int>();
-    private Dictionary<int, Mole> molesList = new Dictionary<int, Mole>();
     private float waitTimeLeft = 0f;
     private float waitForDuration = -1f;
     private int playIndex = 0;
-    private int tempMoleID = 1;
     private bool isRunning = false;
     private bool isPaused = false;
     private PatternInterface patternInterface;
@@ -33,14 +31,15 @@ public class PatternPlayer: MonoBehaviour
 
     void Update()
     {
-        // Whether we are in a Progression or Time paradigm we always call the TimeParadigm,
-        // because the pattern still needs to act normally if the moles are not hit and play the next step when a mole expires
-        TimeParadigm();
-
         if (patternParser.GetParadigm() == PatternParser.Paradigm.Progression)
         {
             ProgressionParadigm();
         }
+
+        // Whether we are in a Progression or Time paradigm we always call the TimeParadigm,
+        // because the pattern still needs to act normally if the moles are not hit and play the next step when a mole expires
+        TimeParadigm();
+
     }
 
     // Plays the loaded pattern if one is actually loaded.
@@ -105,8 +104,8 @@ public class PatternPlayer: MonoBehaviour
         waitForDuration = -1f;
         playIndex = 0;
         waitTimeLeft = 0f;
-        tempMoleID = 1;
-        molesList.Clear();
+        // Clear any moles remaining in the MolesIdList.
+        patternInterface.ClearMolesList();
     }
 
     // Returns the time to wait before playing the next action when the loaded pattern is playing.
@@ -119,29 +118,18 @@ public class PatternPlayer: MonoBehaviour
     // Plays a step from the pattern and triggers the wait to play the next step (if the current step isn't the last).
     private void PlayStep()
     {
-        // Increase the Spawn Order of the moles at each step
+        // Increase the Spawn Order of the moles at each step, logged for analysis purposes.
         wallManager.SetSpawnOrder(playIndex);
+
+        // Clear any moles remaining in the MolesIdList.
+        patternInterface.ClearMolesList();
 
         foreach (Dictionary<string, string> action in pattern[sortedKeys[playIndex]])
         {
+            // As the pattern interfaces plays the actions,
+            // new moles are added to the MoleIdList by PatternInterface.
+            //Debug.Log(action["FUNCTION"]);
             patternInterface.PlayAction(new Dictionary<string, string>(action));
-            moleIdList = patternInterface.GetMoleIdList();
-        }
-
-        // Create a List of all the moles that are enabled in the Pattern with an Unique ID
-        foreach (var moleCoord in moleIdList)
-        {
-            var moles = wallManager.GetMoles();
-            Mole mole = moles[moleCoord];
-            var spawnOrder = mole.GetSpawnOrder();
-
-            //Add the active moles in the List at each step
-            if (spawnOrder == playIndex)
-            {
-                int moleId = Convert.ToInt32(string.Format("{0}{1}", tempMoleID, moleCoord));
-                molesList.Add(moleId, mole);
-                tempMoleID++;
-            }
         }
 
         if (playIndex < sortedKeys.Count - 1)
@@ -177,45 +165,53 @@ public class PatternPlayer: MonoBehaviour
     //Progression Paradigm : make the next moles appear immediately after all the current moles have been hit
     public void ProgressionParadigm()
     {
-        var moles = wallManager.GetMoles();
+        // Check whether we need to wait.
+        if (waitForDuration == -1f) return;
 
-        foreach (var mole in moles.Values)
-        {
-            var moleState = mole.GetState();
+        // If the targetsList hasnt been initialized yet, return.
+        if (patternInterface.GetTargetsList() == null) return;
 
-            // Check if there is still moles enabled on the Wall
-            if (moleState == Mole.States.Enabled && !mole.IsFake())
-            {
-                return;
+        // If there are still moles to be shot, return.
+        // If there are no more moles left, continue.
+        if (patternInterface.GetTargetsList().Count > 0) {
+            // Clear disabled and popped moles from targetsList
+            foreach (var mole in patternInterface.GetTargetsList().Where(mole => mole.Value.GetState() != Mole.States.Enabled)) {
+                patternInterface.RemoveFromTargetsList(mole.Value.GetId());
             }
+            return;
         }
 
-        // Browse the list of all enabled moles
-        foreach (var mole in molesList.Values)
+        var molesList = patternInterface.GetMolesList();
+
+        // Clear all distractors.
+        foreach (var fake in molesList.Where(fake => fake.Value.IsFake() && fake.Value.GetState() == Mole.States.Enabled)) {
+            fake.Value.Disable();
+        }
+
+        foreach (Dictionary<string, string> action in pattern[sortedKeys[playIndex]])
         {
-            var moleState = mole.GetState();
-            var spawnOrder = mole.GetSpawnOrder();
-
-            if (moleState == Mole.States.Popping || moleState == Mole.States.Disabling)
-            {
-                //Check if there are Distractors moles and destroy them without playing the next step
-                foreach (var fake in molesList.Where(fake => fake.Value.IsFake() && fake.Value.GetState() == Mole.States.Enabled)) {
-                    fake.Value.Disable();
-                }
-
-                // Play the next Step when all moles Enabled moles where hit
-                mole.Disable();
+            // If the next action contains a message, wait until it
+            // dissapears.
+            // Otherwise, if the next action contains a mole, play the next step.
+            // Otherwise, wait.
+            //Debug.Log(action["FUNCTION"]);
+            if (action["FUNCTION"] == "MESSAGE") {
+                waitForDuration = GetWaitTime(playIndex);
+                patternInterface.ResetTargetsList();
+                return;
+            } else if (action["FUNCTION"] == "MOLE") {
                 waitForDuration = -1f;
                 waitTimeLeft = 0f;
-                PlayStep();
+                continue;
             }
-
-            // Check if we are at the last Index of the Pattern and if all the moles have been hit or has expired
-            if ((playIndex == sortedKeys.Count && moleState == Mole.States.Popped) || (playIndex == sortedKeys.Count - 1 && moleState == Mole.States.Expired))
-            {
-                // Stop the Game
-                patternInterface.CallStop();
-            }
+        }
+        PlayStep();
+    
+        // Check if we are at the last Index of the Pattern and if all the moles have been hit or has expired
+        if ((playIndex == sortedKeys.Count) || (playIndex == sortedKeys.Count - 1))
+        {
+            // Stop the Game
+            patternInterface.CallStop();
         }
     }
 }
