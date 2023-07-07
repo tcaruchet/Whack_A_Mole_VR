@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -186,11 +187,6 @@ public class LaserMapper : MonoBehaviour
             motorSpaceWidth = (maxX - minX) / 2;
             motorSpaceHeight = (maxY - minY) / 2;
         }
-    }
-
-    public GameObject[] GetActiveControllers()
-    {
-        return activeControllers;
     }
 
     public void SetMotorRestriction(MotorRestriction restriction, float restrictionLower, float restrictionUpper) {
@@ -510,6 +506,10 @@ public class LaserMapper : MonoBehaviour
             yield return null;
         }
     }
+
+    // Get the current controller that is being used by this laser mapper instance.
+    // Should have just one controller at a time.
+    public GameObject GetCurrentController() => activeControllers.FirstOrDefault();
 
     // Get the center position of the wall in world space.
     public Vector3 GetWallMeshCenter()

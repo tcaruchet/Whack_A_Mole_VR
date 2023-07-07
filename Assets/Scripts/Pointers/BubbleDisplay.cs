@@ -9,14 +9,16 @@ using System;
 using System.Linq;
 using Valve.VR;
 
-public class EnterMotorSpaceInfo {
+public class EnterMotorSpaceInfo
+{
     public Side side; // side from which it entered/exited
     public bool enter = true; // enter (true), exit (false)
     public Vector3 motorLastPos; // motorspace last position
     public Vector3 wallLastPos; // wall space last position
 }
 
-public enum MotorAction {
+public enum MotorAction
+{
     Enter,
     Inside,
     Exit,
@@ -34,7 +36,7 @@ public class BubbleDisplay : MonoBehaviour
 {
     [SerializeField]
     private LoggingManager loggingManager;
-    
+
     [SerializeField]
     public SoundManager soundManager;
     // The parent we will follow in terms of object position.
@@ -109,6 +111,7 @@ public class BubbleDisplay : MonoBehaviour
     public ArrowType CurrentArrowType { get; private set; }
 
     public Side LastLaserMapperNearestSide { get; private set; }
+    public GameObject CurrentController { get; private set; }
 
 
     private float newPosX;
@@ -122,12 +125,12 @@ public class BubbleDisplay : MonoBehaviour
     private Vector3 ownPosition;
 
     [System.Serializable]
-    public class EnterMotorSpaceEvent : UnityEvent<EnterMotorSpaceInfo> {}
+    public class EnterMotorSpaceEvent : UnityEvent<EnterMotorSpaceInfo> { }
     public EnterMotorSpaceEvent enterMotorStateEvent;
-    
+
     private MotorAction action = MotorAction.None;
 
-    
+
     private DateTime exitTime;
     private bool hasExited = false;
 
@@ -146,12 +149,17 @@ public class BubbleDisplay : MonoBehaviour
         controllerRender.SetActive(true);
         motorSpaceRender.color = motorDisabledColor;
 
-        //TEMP:CHANGE THIS
         outOfBoundIndicatorManager = staticArrowIndicator;
         CurrentArrowType = ArrowType.StaticPointing;
+        CurrentController = laserMapper.GetCurrentController();
     }
 
     // Update is called once per frame
+    /// <summary>
+    /// This function is called every frame to update the object's position and handle its actions based on whether it is within or outside the MotorSpace.
+    /// Actions Enter and Exit are only called once, while Inside and Outside are called every frame. So with this, we can track the object's position and actions 
+    /// and we know exactly when it enters and exits the MotorSpace and when it is inside or outside.
+    /// </summary>
     void Update()
     {
         // Update our world position to be equivalent to the parent, for the axis chosen.
@@ -159,8 +167,8 @@ public class BubbleDisplay : MonoBehaviour
         newPosY = parentY ? parent.transform.position.y : ownPosition.y;
         newPosZ = parentZ ? parent.transform.position.z : ownPosition.z;
 
+        // This code takes in the position of the laser pointer and sets the position of the object to that position.
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
-
         Vector3 clipPos = laserMapper.RubberClipToMotorSpace(newPos);
         this.transform.position = new Vector3(clipPos.x + offsetX, clipPos.y + offsetY, clipPos.z + offsetZ);
 
@@ -169,23 +177,26 @@ public class BubbleDisplay : MonoBehaviour
         prevPosZ = newPosZ;
 
         LastLaserMapperNearestSide = laserMapper.NearestSide(newPos);
-        if (laserMapper.CoordinateWithinMotorSpace(newPos))
+        if (laserMapper.CoordinateWithinMotorSpace(newPos))  // Check if the coordinate is within the range of the motors
         {
-            if (action == MotorAction.Outside || action == MotorAction.None || action == MotorAction.Exit)
+            // If the object was previously outside or had no action, execute the following block.
+            if (action == MotorAction.Outside || action == MotorAction.None)
             {
-                action = MotorAction.Enter;
-                Debug.Log($"Entered MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");
+                action = MotorAction.Enter;  // Set the action status to 'Enter'.
+                Debug.Log($"Entered MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");  // Log the entry position and nearest side.
+
+                // Activating the renderers and setting color for visual feedback in the scene.
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
-                //StartCoroutine(OutOfBoundAnimation(false));
                 bubbleOutline.SetActive(showBubble);
                 bubbleSphere.SetActive(showBubble);
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorActiveColor;
 
-                // Hide indicator
+                // Hide the out-of-bound indicator.
                 outOfBoundIndicatorManager.HideIndicator();
 
+                // Invoke the event for entering the MotorSpace with all relevant information.
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
                     side = LastLaserMapperNearestSide,
@@ -193,19 +204,39 @@ public class BubbleDisplay : MonoBehaviour
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
+
+                // Log the event for entering the MotorSpace.
+                loggingManager.Log("Event", new Dictionary<string, object>()
+                {
+                    {"Event", "Pointer Inside MotorSpace"},
+                    {"EventType", "MotorSpaceEvent"},
+                    {"Side", LastLaserMapperNearestSide.ToString()},
+                    {"ControllerName", CurrentController.name},
+                    {"ControllerOffset", CurrentController.GetComponent<SteamVR_Behaviour_Pose>().inputSource},
+                });
+
+                // If a sound manager exists, play the 'laserInMotorSpace' sound.
+                if (soundManager != null)
+                {
+                    soundManager.PlaySound(gameObject, SoundManager.Sound.laserInMotorSpace);
+                }
+
+                // Now, as the object has entered the MotorSpace, set the action status to 'Inside'.
                 action = MotorAction.Inside;
 
+                // Log the return time to the MotorSpace.
                 LogReturnTime();
-
             }
         }
-        else
+        else // If the coordinate is outside the range of the motors
         {
-            if (action == MotorAction.Inside || action == MotorAction.None || action == MotorAction.Enter)
+            if (action == MotorAction.Inside || action == MotorAction.None)
             {
-                Debug.Log($"Exited MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");
-                action = MotorAction.Exit;
+                // If the object was previously inside the MotorSpace or had no action, execute the following block.
+                Debug.Log($"Exited MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");  // Log the exit position and nearest side.
+                action = MotorAction.Exit;  // Set the action status to 'Exit'.
 
+                // Activating the renderers and setting color for visual feedback in the scene.
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
                 bubbleOutline.SetActive(showBubble);
@@ -213,11 +244,10 @@ public class BubbleDisplay : MonoBehaviour
                 controllerRender.SetActive(true);
                 motorSpaceRender.color = motorDisabledColor;
 
-                // Show indicator
-                //outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.transform.position, side);
-                // use laserMapper.GetWallMeshCenter instead of laserMapper.transform.position
+                // Show the out-of-bound indicator.
                 outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallMeshCenter(), LastLaserMapperNearestSide);
 
+                // Invoke the event for exiting the MotorSpace with all relevant information.
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
                 {
                     side = LastLaserMapperNearestSide,
@@ -225,20 +255,42 @@ public class BubbleDisplay : MonoBehaviour
                     motorLastPos = newPos,
                     wallLastPos = laserMapper.ConvertMotorSpaceToWallSpace(newPos),
                 });
+
+                // Log the event for exiting the MotorSpace.
+                loggingManager.Log("Event", new Dictionary<string, object>()
+                    {
+                        {"Event", "Pointer Outside MotorSpace"},
+                        {"EventType", "MotorSpaceEvent"},
+                        {"Side", LastLaserMapperNearestSide.ToString()},
+                        {"ControllerName", CurrentController.name},
+                        {"ControllerOffset", CurrentController.GetComponent<SteamVR_Behaviour_Pose>().inputSource},
+                    });
+
+                // If a sound manager exists, play the 'laserOutMotorSpace' sound.
+                if (soundManager != null)
+                {
+                    soundManager.PlaySound(gameObject, SoundManager.Sound.laserOutMotorSpace);
+                }
+
+                // Now, as the object has exited the MotorSpace, set the action status to 'Outside'.
                 action = MotorAction.Outside;
 
+                // Log the exit time.
                 exitTime = DateTime.Now;
-                hasExited = true;
+                hasExited = true;  // Flag to indicate that the object has exited the MotorSpace.
             }
+
         }
     }
 
 
-    public void Show(bool show) {
+    public void Show(bool show)
+    {
         showBubble = show;
     }
 
-    public void UpdateOwnPosition(Vector3 newPosition) {
+    public void UpdateOwnPosition(Vector3 newPosition)
+    {
         ownPosition = newPosition;
     }
 
@@ -255,17 +307,6 @@ public class BubbleDisplay : MonoBehaviour
             i++;
         }
     }
-
-    public void InstantiateInCircle(GameObject container, Vector3 location, int howMany, float radius)
-    {
-        InstantiateInCircle(container, location, howMany, radius, location.z);
-    }
-
-    public void InstantiateInCircle(GameObject container, int howMany, float radius)
-    {
-        InstantiateInCircle(container, laserMapper.transform.position, howMany, radius);
-    }
-
 
 
     public void ChangeIndicator(ArrowType arrowType)
@@ -323,21 +364,23 @@ public class BubbleDisplay : MonoBehaviour
             // Reset the exit time and the hasExited flag
             hasExited = false;
 
-            GameObject[] controllers = laserMapper.GetActiveControllers();
-            GameObject controller = controllers.LastOrDefault(c => c.activeSelf);
-            loggingManager.Log("Event", new Dictionary<string, object>()
-            {
-                {"Event", "MotorSpace Exiting Time"},
-                {"EventType", "MotorSpaceEvent"},
-                { "TimeSpentOutsideMotorSpace", timeSpentOutside },
-                { "TimeSpentOutsideMotorSpaceSeconds", timeSpentOutside.TotalSeconds },
-                { "IndicatorType", CurrentArrowType.ToString() },
-                { "Side", LastLaserMapperNearestSide },
-                {"ControllerName", controller.name},
-                {"ControllerOffset", controller.GetComponent<SteamVR_Behaviour_Pose>().inputSource},
-                { "Timestamp", DateTime.Now }
+            //No longer used for logging
 
-            });
+            //GameObject[] controllers = laserMapper.GetActiveControllers();
+            //GameObject controller = controllers.LastOrDefault(c => c.activeSelf);
+            //loggingManager.Log("Event", new Dictionary<string, object>()
+            //{
+            //    {"Event", "MotorSpace Exiting Time"},
+            //    {"EventType", "MotorSpaceEvent"},
+            //    { "TimeSpentOutsideMotorSpace", timeSpentOutside },
+            //    { "TimeSpentOutsideMotorSpaceSeconds", timeSpentOutside.TotalSeconds },
+            //    { "IndicatorType", CurrentArrowType.ToString() },
+            //    { "Side", LastLaserMapperNearestSide },
+            //    {"ControllerName", controller.name},
+            //    {"ControllerOffset", controller.GetComponent<SteamVR_Behaviour_Pose>().inputSource},
+            //    { "Timestamp", DateTime.Now }
+
+            //});
         }
 
 
