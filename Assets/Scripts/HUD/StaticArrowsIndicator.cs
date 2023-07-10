@@ -70,6 +70,15 @@ namespace Assets.Scripts.HUD
             }
         }
 
+        /// <summary>
+        /// Stops any previous fade or animation routine and starts new fade in and animation routine.
+        /// The OutOfBoundContainer object is faded in over a specified amount of time, and the arrows are animated in a circular pattern around the OutOfBoundContainer.
+        /// The motor space is also shown in the scene.
+        /// </summary>
+        /// <param name="position">The position of the target.</param>
+        /// <param name="motorSpaceCenter">The center of the motor space.</param>
+        /// <param name="side">The side of the wall that the target is on.</param>
+        /// <remarks>This method is called by the <see cref="BubbleDisplay"/> when the user exiting the NotorSpace.</remarks>
         internal override void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side)
         {
             // Stop any previous fade or animation routine
@@ -99,6 +108,19 @@ namespace Assets.Scripts.HUD
         }
 
 
+    /// <summary>
+    /// This method is used to animate the arrows that indicate when a user's input is out of bounds.
+    /// The method uses a while loop to continuously instantiate arrows in a circular pattern around the OutOfBoundContainer object.
+    /// The InstantiateInCircle method is called to create the arrows and position them around the OutOfBoundContainer.
+    /// The method takes three parameters: the OutOfBoundContainer object, the number of children in the container, and the width of the motor space plus 0.1f.
+    /// The foreach loop is then used to iterate through each child in the OutOfBoundContainer and perform the animation.
+    /// The current position of the child is stored in a variable called currentPos, and a new Vector3 object is created using the x, y, and z values of the current position.
+    /// The child's position is then set to a new position that is calculated using Vector3.Lerp, which interpolates between the current position and the motor space center position.
+    /// The difference between the motor space center and the child's position is then calculated, and the rotationZ variable is set to the angle between the two points in degrees.
+    /// Finally, the child's rotation is set to a new Quaternion object that is created using the Euler angles (0.0f, 0.0f, rotationZ).
+    /// </summary>
+    /// <param name="isOutOfBound">A boolean value that indicates whether the user's input is out of bounds.</param>
+    /// <returns>An IEnumerator object that can be used to animate the arrows.</returns>
         private IEnumerator OutOfBoundAnimation(bool isOutOfBound)
         {
             while (isOutOfBound)

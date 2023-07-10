@@ -52,11 +52,18 @@ namespace Assets.Scripts.HUD
             }
         }
 
+        /// <summary>Displays an arrow that points towards a target position. The arrow is positioned so that it points towards the target, and it fades in over a specified amount of time.</summary>
+        /// <param name="position">The position of the target.</param>
+        /// <param name="motorSpaceCenter">The center of the motor space.</param>
+        /// <param name="side">The side of the wall that the target is on.</param>
+        /// <remarks>This method is called by the <see cref="BubbleDisplay"/> when the user exiting the NotorSpace.</remarks>
         internal override void ShowIndicator(Vector3 position, Vector3 motorSpaceCenter, Side side)
         {
             if (!arrow.gameObject.activeInHierarchy) // Only show the indicator if it's not already shown
             {
                 arrow.gameObject.SetActive(true); // Enable the arrow
+
+                arrow.transform.rotation = Quaternion.identity; // Reset the rotation
 
                 Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
                 arrow.transform.right = targetPosition - arrow.transform.position;
