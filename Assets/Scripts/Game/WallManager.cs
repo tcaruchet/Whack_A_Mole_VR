@@ -314,67 +314,13 @@ public class WallManager : MonoBehaviour
     public void ActivateRandomMole(float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
         if (!active) return;
-
         Mole selectedMole = GetRandomMole();
+        Debug.Log("LIFETIME"+lifeTime);
+        Debug.Log("MOLE EXPIRING DURATION"+moleExpiringDuration);
+
         selectedMole.Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
-        int moleId = selectedMole.GetId();
-        //Debug.Log("Mole " + moleId + " activated");
-        moleCount++;
-        //Debug.Log("New mole");
-        //Capturate the Time when the mole appears
-        moleAppearTime = Time.time;
-        ///Debug.Log("Temps d'apparition de la taupe : capturée valeur : " + moleAppearTime);
-        //find the position of the player when the mole appears
-        mappedPayerPosition = basicPointer.MappedPosition;
-        //Debug.Log("Position du joueur : capturée" );
-        //find the position of the mole when it appears
-        Vector3 coordonateOfMole = selectedMole.transform.position;
-        //Debug.Log("Position de la taupe : capturée valeur : "+ coordonateOfMole);
-        //find the distance between the player and the mole
-        float distance = Vector3.Distance(mappedPayerPosition, coordonateOfMole);
-        //Debug.Log("Distance entre le joueur et la taupe : capturée valeur : " + distance);
-        //add the mole to the dictionnary
-        MoleData moleData = new MoleData
-        {
-            MoleId = moleId,
-            Mole = selectedMole,
-            Distance = distance
-        };
-        moleDataDict[moleData.MoleId] = moleData;
-        //Debug.Log("Mole ajoutée au dictionnaire");
-        basicPointer.onMoleHit.AddListener((hitmole, hittime) => HandleMoleHit(hitmole, hittime));
-        //Debug.Log("Event ajouté");
-    }
 
-    //handle the event when the mole is hit
-    void HandleMoleHit(Mole hitMole, float hitTime)
-    {
-        //Debug.Log("ENTRER DANS LA FONCTION HANDLEMOLEHIT");
-        //Calculate the reaction time
-        float reactionTime = hitTime - moleAppearTime;
-        //Debug.Log("Reaction time : " + reactionTime);
-        MoleData moleDataLinkedToShootedMole;
-        if (moleDataDict.TryGetValue(hitMole.GetId(), out moleDataLinkedToShootedMole))
-        {
-            moleDataLinkedToShootedMole.ReactionTime = reactionTime;
-            moleDataLinkedToShootedMole.Speed = moleDataLinkedToShootedMole.Distance / reactionTime;
-            //Debug.Log("ID : " + moleDataLinkedToShootedMole.MoleId + "Speed: " + moleDataLinkedToShootedMole.Speed + "reactionTime = " + moleDataLinkedToShootedMole.ReactionTime + "Distance" + moleDataLinkedToShootedMole.Distance);
-
-            Mole correspondingMole;
-            if (moles.TryGetValue(moleDataLinkedToShootedMole.MoleId, out correspondingMole))
-            {
-                correspondingMole.Speed = moleDataLinkedToShootedMole.Speed;
-                correspondingMole.ReactionTime = moleDataLinkedToShootedMole.ReactionTime;
-               // Debug.Log("correspondingMole edited with the reactionTime and speed");
-            }
-
-    }
-        //Debug.Log("moleDataLinkedToShootedMole edited with the reactionTime and speed");
-        basicPointer.onMoleHit.RemoveListener(HandleMoleHit);
-        //Debug.Log("Event removed");
-
-
-
+       
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not

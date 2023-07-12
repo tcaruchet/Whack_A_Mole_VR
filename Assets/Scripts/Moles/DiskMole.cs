@@ -17,6 +17,15 @@ public class DiskMole : Mole
     private Color enabledColor;
 
     [SerializeField]
+    private Color popFast;
+
+    [SerializeField]
+    private Color popMedium;
+
+    [SerializeField]
+    private Color popSlow;
+
+    [SerializeField]
     private Color fakeEnabledColor;
 
     [SerializeField]
@@ -160,17 +169,35 @@ public class DiskMole : Mole
         Debug.Log(ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
-            {  
-                
-                PlayAnimation("PopCorrectMole");  // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
+            {
+                float feedback = PerformanceManager.Instance.GetFeedback();
+                Debug.Log("FEEDBACK : " + feedback);
+                if (feedback < 0.4f) // Si la vitesse est en dessous de la moyenne
+                {
+                    PlayTransitionColor(0.5f, popSlow, disabledColor);
+                    Debug.Log("VITESSE EN DESSOUS DE LA MOYENNE aka le slow");                  
+                }
+                else if (feedback >= 0.4f && feedback <= 0.6f) // Si la vitesse est proche de la moyenne
+                {
+                    Debug.Log("VITESSE PROCHE DE LA MOYENNE aka le medium");
+                    PlayTransitionColor(0.5f, popMedium, disabledColor);
+                }
+                else // Si la vitesse est bien au-dessus de la moyenne
+                {
+                    Debug.Log("VITESSE AU DESSUS DE LA MOYENNE aka le fast");
+                    PlayTransitionColor(0.5f, popFast, disabledColor);
+
+                }
+                meshMaterial.mainTexture = textureDisabled;
+
+
             }
             else
             {
                 PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
             }
         }
-        meshMaterial.color=disabledColor;
-        meshMaterial.mainTexture=textureDisabled;
+        // meshMaterial.color=disabledColor;
         PlaySound(popSound);
         //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }

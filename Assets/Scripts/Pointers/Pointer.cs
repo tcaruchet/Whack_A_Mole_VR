@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Game;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -285,11 +286,12 @@ public abstract class Pointer : MonoBehaviour
         {
             if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
             {
+                float feedback = PerformanceManager.Instance.GetFeedback();
                 Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point);
 
                 if (moleAnswer == Mole.MolePopAnswer.Ok)
                 {
-                    onMoleHit.Invoke(mole, Time.time);
+                    //onMoleHit.Invoke(mole, Time.time);
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
                     soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
                 }

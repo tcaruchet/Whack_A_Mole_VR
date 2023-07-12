@@ -193,13 +193,12 @@ public abstract class Mole : MonoBehaviour
         PlayReset();
     }
 
-    // Pops the Mole. Returns an answer correspondind to its poping state.
     public MolePopAnswer Pop(Vector3 hitPoint)
     {
         if (isPaused) return MolePopAnswer.Paused;
         if (state != States.Enabled && state != States.Enabling && state != States.Expired) return MolePopAnswer.Disabled;
 
-        Vector3 localHitPoint = Quaternion.AngleAxis(-transform.rotation.y,Vector3.up) * (hitPoint - transform.position);
+        Vector3 localHitPoint = Quaternion.AngleAxis(-transform.rotation.y, Vector3.up) * (hitPoint - transform.position);
 
         if (state == States.Expired)
         {
@@ -212,7 +211,7 @@ public abstract class Mole : MonoBehaviour
             return MolePopAnswer.Expired;
         }
 
-        if (moleType == MoleType.Target) 
+        if (moleType == MoleType.Target)
         {
             loggerNotifier.NotifyLogger("Mole Hit", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
             {
@@ -224,7 +223,7 @@ public abstract class Mole : MonoBehaviour
             ChangeState(States.Popping);
             return MolePopAnswer.Ok;
         }
-        else 
+        else
         {
             loggerNotifier.NotifyLogger("Fake Mole Hit", EventLogger.EventType.MoleEvent, new Dictionary<string, object>()
             {
@@ -302,7 +301,7 @@ public abstract class Mole : MonoBehaviour
         }
         LeaveState(state);
         state = newState;
-        EnterState(state);
+        EnterState(state); //donner le feedback
     }
 
     // Does certain actions when leaving a state.

@@ -46,7 +46,6 @@ namespace Assets.Scripts.Game
         private void ResetShoot()
         {
             // Réinitialisez le timer lorsque l'utilisateur tire
-            Debug.Log("timeSinceLastShot : " + timeSinceLastShot + "speed : " + speed + "LastDistance : " + lastDistance);
             timeSinceLastShot = 0f;
             speed = 0f;
             lastDistance = 0f;
@@ -90,15 +89,13 @@ namespace Assets.Scripts.Game
                   lastPosition = position;
             }
             float distance = Vector3.Distance(position, lastPosition);
-            ///speed = Vector3.Distance(position, lastPosition) / Time.deltaTime;
             lastPosition = position;
             lastDistance = lastDistance + distance;
             speed = lastDistance / timeSinceLastShot;
-           // Debug.Log("Speed J'espère c'est bon jpp: " + speed);
 
         }
 
-        public float Getfeedback()
+        public float GetFeedback()
         {
             return feedback;
         }
@@ -107,41 +104,17 @@ namespace Assets.Scripts.Game
         {
             if (averageSpeed == 0f)
             {
-                // Si c'est le premier tir, on définit la vitesse moyenne à la vitesse actuelle
-                Debug.Log("Premier tir");
                 averageSpeed = speed;
                 feedback = 1f;
-                nbShoot++;
             }
             else
             {
-                // Définir le feedback en fonction de la vitesse actuelle par rapport à la vitesse moyenne
-                float speedDifference = speed - averageSpeed;
-                Debug.Log("Speed : " + speed + "AverageSpeed : " + averageSpeed);
-                Debug.Log("SpeedDifference : " + speedDifference);
-                /*  if (speedDifference < 0) // Si la vitesse est en dessous de la moyenne
-                  {
-                     Debug.Log("VITESSE EN DESSOUS DE LA MOYENNE");
-                      feedback = 0f;
-                  }
-                  else if (speedDifference >= 0 && speedDifference <= 0.8f) // Si la vitesse est proche de la moyenne
-                  {
-                      Debug.Log("VITESSE proche DE LA MOYENNE");
-                      feedback = 0.5f; 
-                  }
-                  else // Si la vitesse est bien au-dessus de la moyenne
-                  {
-                      Debug.Log("VITESSE AU DESSUS DE LA MOYENNE aka le fast");
-                      feedback = 1f;
-                  }*/
-                 speedDifference = speed / averageSpeed;
-
-                // Utiliser une fonction sigmoïde pour obtenir un feedback entre 0 et 1
-                feedback = 1 / (1 + Mathf.Exp(-speedDifference));
-                Debug.Log("Feedbaaaaaaaaaaaaaaaaaaaaaaaaaack : " + feedback);
                 averageSpeed = (averageSpeed * nbShoot + speed) / (nbShoot + 1);
+                float difference = speed - averageSpeed;
+                feedback = 1 / (1 + Mathf.Exp(-2*difference));
+                Debug.Log("Feedback : " + feedback);
             }
-            
+            nbShoot++;
             ResetShoot();
         }
     }
