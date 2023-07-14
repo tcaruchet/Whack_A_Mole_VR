@@ -103,6 +103,10 @@ public class WallManager : MonoBehaviour
     public class StateUpdateEvent : UnityEvent<WallInfo> { }
     public StateUpdateEvent stateUpdateEvent;
 
+    [System.Serializable]
+    public class OnMoleActivated : UnityEvent { }
+    public OnMoleActivated onMoleActivated;
+
     private WallGenerator wallGenerator;
     private Vector3 wallCenter;
     private Vector3 wallCenterWorld = Vector3.zero;
@@ -315,12 +319,12 @@ public class WallManager : MonoBehaviour
     {
         if (!active) return;
         Mole selectedMole = GetRandomMole();
-        Debug.Log("LIFETIME"+lifeTime);
-        Debug.Log("MOLE EXPIRING DURATION"+moleExpiringDuration);
-
         selectedMole.Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
-
-       
+        if( type == Mole.MoleType.Target)
+        {
+            onMoleActivated.Invoke();
+        }
+        
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not

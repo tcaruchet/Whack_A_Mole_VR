@@ -145,7 +145,6 @@ public class BubbleDisplay : MonoBehaviour
         if (laserMapper.CoordinateWithinMotorSpace(newPos)) {
             if (action == MotorAction.Outside || action == MotorAction.None) {
                 action = MotorAction.Enter;
-                Debug.Log("Enter");
                 OutOfBoundContainer.SetActive(false);
                 bubbleRender.SetActive(true);
                 laserRender.enabled = showBubble;
@@ -173,7 +172,6 @@ public class BubbleDisplay : MonoBehaviour
         } 
         else {
             if (action == MotorAction.Inside || action == MotorAction.None) {   
-                Debug.Log("Exit");
                 action = MotorAction.Exit;
                 //laserMapper.ShowMotorspace(true);
                 bubbleRender.SetActive(true);

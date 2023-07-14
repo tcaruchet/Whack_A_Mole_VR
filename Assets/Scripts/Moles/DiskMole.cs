@@ -166,18 +166,17 @@ public class DiskMole : Mole
 
     protected override void PlayPop() 
     {
-        Debug.Log(ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
                 float feedback = PerformanceManager.Instance.GetFeedback();
                 Debug.Log("FEEDBACK : " + feedback);
-                if (feedback < 0.4f) // Si la vitesse est en dessous de la moyenne
+                if (feedback < 0.3f) // Si la vitesse est en dessous de la moyenne
                 {
                     PlayTransitionColor(0.5f, popSlow, disabledColor);
                     Debug.Log("VITESSE EN DESSOUS DE LA MOYENNE aka le slow");                  
                 }
-                else if (feedback >= 0.4f && feedback <= 0.6f) // Si la vitesse est proche de la moyenne
+                else if (feedback >= 0.3f && feedback <= 0.6f) // Si la vitesse est proche de la moyenne
                 {
                     Debug.Log("VITESSE PROCHE DE LA MOYENNE aka le medium");
                     PlayTransitionColor(0.5f, popMedium, disabledColor);

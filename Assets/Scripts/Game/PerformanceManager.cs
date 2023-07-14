@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Timers;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,6 +18,7 @@ namespace Assets.Scripts.Game
         private WallManager wallData;
         private PatternPlayer patternData;
         private float timeSinceLastShot = 0f;
+        private bool isTimerRunning = false;
         private Vector3 lastPosition = Vector3.zero;
         private float speed = 0f;
         private float lastDistance = 0f;
@@ -39,7 +41,11 @@ namespace Assets.Scripts.Game
 
         private void Update()
         {
-            timeSinceLastShot += Time.deltaTime;
+            if (isTimerRunning)
+            {
+                timeSinceLastShot += Time.deltaTime;
+            }
+
             CalculateSpeed();
         }
 
@@ -53,7 +59,18 @@ namespace Assets.Scripts.Game
 
         public void OnPointerShoot()
         {
+            // Arrêter le timer
+            isTimerRunning = false;
             CalculateFeedback();
+        }
+
+        public void onMoleActivated()
+        {
+            // Démarrer le timer
+            isTimerRunning = true;
+            timeSinceLastShot = 0f;
+            lastDistance= 0f;
+            Debug.Log("Timer startedMOLE POP");
         }
 
 
@@ -88,11 +105,15 @@ namespace Assets.Scripts.Game
             {
                   lastPosition = position;
             }
-            float distance = Vector3.Distance(position, lastPosition);
-            lastPosition = position;
-            lastDistance = lastDistance + distance;
-            speed = lastDistance / timeSinceLastShot;
-
+            if (isTimerRunning)
+            {
+                float distance = Vector3.Distance(position, lastPosition);
+                lastPosition = position;
+                lastDistance = lastDistance + distance;
+                Debug.Log("Distance : " + lastDistance);
+                Debug.Log("Time POUR LE CALCULE : " + timeSinceLastShot);
+                speed = lastDistance / timeSinceLastShot;
+            }
         }
 
         public float GetFeedback()
@@ -107,10 +128,18 @@ namespace Assets.Scripts.Game
                 averageSpeed = speed;
                 feedback = 1f;
             }
+            else if (nbShoot < 5)
+            {
+                averageSpeed = (averageSpeed * nbShoot + speed) / (nbShoot + 1);
+                feedback = 1f;
+            }
             else
             {
                 averageSpeed = (averageSpeed * nbShoot + speed) / (nbShoot + 1);
                 float difference = speed - averageSpeed;
+                Debug.Log("Speed : " + speed);
+                Debug.Log("Average Speed : " + averageSpeed);
+                Debug.Log("Difference : " + difference);
                 feedback = 1 / (1 + Mathf.Exp(-2*difference));
                 Debug.Log("Feedback : " + feedback);
             }
