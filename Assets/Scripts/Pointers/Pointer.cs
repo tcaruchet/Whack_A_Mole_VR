@@ -280,7 +280,6 @@ public abstract class Pointer : MonoBehaviour
 
         state = States.CoolingDown;
         StartCoroutine(WaitForCooldown());
-
         onPointerShoot.Invoke();
         if (hit.collider)
         {

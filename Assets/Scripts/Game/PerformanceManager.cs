@@ -25,6 +25,8 @@ namespace Assets.Scripts.Game
         private float feedback = 0f;
         private float averageSpeed = 0f;
         private int nbShoot = 0;
+        private float fastestSpeed = 0f;
+        private float slowestSpeed = 0f;
         public static PerformanceManager Instance { get; private set; }
         private void Awake()
         {
@@ -70,7 +72,6 @@ namespace Assets.Scripts.Game
             isTimerRunning = true;
             timeSinceLastShot = 0f;
             lastDistance= 0f;
-            Debug.Log("Timer startedMOLE POP");
         }
 
 
@@ -110,8 +111,6 @@ namespace Assets.Scripts.Game
                 float distance = Vector3.Distance(position, lastPosition);
                 lastPosition = position;
                 lastDistance = lastDistance + distance;
-                Debug.Log("Distance : " + lastDistance);
-                Debug.Log("Time POUR LE CALCULE : " + timeSinceLastShot);
                 speed = lastDistance / timeSinceLastShot;
             }
         }
@@ -123,28 +122,29 @@ namespace Assets.Scripts.Game
 
         public void CalculateFeedback()
         {
-            if (averageSpeed == 0f)
+            // Mettre à jour les vitesses les plus rapides et les plus lentes
+            if (speed > fastestSpeed)
             {
-                averageSpeed = speed;
-                feedback = 1f;
+                fastestSpeed = speed;
             }
-            else if (nbShoot < 5)
+            if (speed < slowestSpeed)
             {
-                averageSpeed = (averageSpeed * nbShoot + speed) / (nbShoot + 1);
-                feedback = 1f;
+                slowestSpeed = speed;
+            }
+
+            // Calculer le feedback en fonction de la proximité de la vitesse actuelle avec les vitesses les plus rapides et les plus lentes
+            float range = fastestSpeed - slowestSpeed;
+            if (range == 0)
+            {
+                feedback = 1; // Si toutes les vitesses sont les mêmes, le feedback est de 1
             }
             else
             {
-                averageSpeed = (averageSpeed * nbShoot + speed) / (nbShoot + 1);
-                float difference = speed - averageSpeed;
-                Debug.Log("Speed : " + speed);
-                Debug.Log("Average Speed : " + averageSpeed);
-                Debug.Log("Difference : " + difference);
-                feedback = 1 / (1 + Mathf.Exp(-2*difference));
-                Debug.Log("Feedback : " + feedback);
+                feedback = (speed - slowestSpeed) / range;
+
             }
-            nbShoot++;
-            ResetShoot();
+
+        ResetShoot();
         }
     }
 }

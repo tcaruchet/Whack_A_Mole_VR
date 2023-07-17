@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Game;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using UnityEngine;
 
 /*
@@ -18,9 +19,6 @@ public class DiskMole : Mole
 
     [SerializeField]
     private Color popFast;
-
-    [SerializeField]
-    private Color popMedium;
 
     [SerializeField]
     private Color popSlow;
@@ -105,9 +103,9 @@ public class DiskMole : Mole
         PlayAnimation("EnableDisable");
 
         if (moleType == Mole.MoleType.Target)
-        {
-            meshMaterial.color = enabledColor;
-            meshMaterial.mainTexture =  textureEnabled;
+        {         
+              meshMaterial.color = enabledColor;
+              meshMaterial.mainTexture = textureEnabled;
         }
         else if (moleType == Mole.MoleType.DistractorLeft)
         {
@@ -166,30 +164,14 @@ public class DiskMole : Mole
 
     protected override void PlayPop() 
     {
+        Debug.Log("SouldPerformanceFeedback : " + ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
                 float feedback = PerformanceManager.Instance.GetFeedback();
-                Debug.Log("FEEDBACK : " + feedback);
-                if (feedback < 0.3f) // Si la vitesse est en dessous de la moyenne
-                {
-                    PlayTransitionColor(0.5f, popSlow, disabledColor);
-                    Debug.Log("VITESSE EN DESSOUS DE LA MOYENNE aka le slow");                  
-                }
-                else if (feedback >= 0.3f && feedback <= 0.6f) // Si la vitesse est proche de la moyenne
-                {
-                    Debug.Log("VITESSE PROCHE DE LA MOYENNE aka le medium");
-                    PlayTransitionColor(0.5f, popMedium, disabledColor);
-                }
-                else // Si la vitesse est bien au-dessus de la moyenne
-                {
-                    Debug.Log("VITESSE AU DESSUS DE LA MOYENNE aka le fast");
-                    PlayTransitionColor(0.5f, popFast, disabledColor);
-
-                }
+                Color colorFeedback = Color.Lerp(popFast, popSlow, feedback);
+                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.2f, 0.3f));
                 meshMaterial.mainTexture = textureDisabled;
-
-
             }
             else
             {
@@ -207,6 +189,30 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
         meshMaterial.mainTexture = textureDisabled;
     }
+    IEnumerator ChangeColorOverTime(Color colorStart, Color colorFeedback, Color colorEnd, float duration, float waitTime)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorStart, colorFeedback, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Hold the end color for 0.5 seconds
+        yield return new WaitForSeconds(waitTime);
+
+        // Then transition back to the start color
+        elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorFeedback, colorEnd, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        ChangeColor(colorEnd);
+    }
+
 
     // Plays a sound.
     private void PlaySound(AudioClip audioClip)

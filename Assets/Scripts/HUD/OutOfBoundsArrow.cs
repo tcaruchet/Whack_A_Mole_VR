@@ -57,12 +57,9 @@ public class OutOfBoundsArrow : MonoBehaviour
     public void OnMotorSpaceEnter(EnterMotorSpaceInfo m) {
         lastEnter = m.enter;
         lastSide = m.side;
-        Debug.Log("MotorSpaceEnter " + m.enter + "active " + active);
         if (m.enter && active) {
-            Debug.Log("MotorSpaceEnter " + m.side);
             Reset();
         } else if (!m.enter && active) {
-            Debug.Log("MotorSpaceExit " + m.side);
             ShowArrow(m.side);
         } else {
             Reset();

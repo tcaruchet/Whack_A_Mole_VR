@@ -334,6 +334,10 @@ public class WallManager : MonoBehaviour
         if (!moles.ContainsKey(moleId)) return;
         moles[moleId].Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         moleCount++;
+        if (type == Mole.MoleType.Target)
+        {
+            onMoleActivated.Invoke();
+        }
     }
 
     // Pauses/unpauses the moles
