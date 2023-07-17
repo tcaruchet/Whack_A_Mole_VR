@@ -46,7 +46,7 @@ namespace Assets.Scripts.HUD
 
         private void Update()
         {
-            if (arrow.gameObject.active) // Only update rotation if the arrow is active
+            if (arrow.gameObject.activeInHierarchy) // Only update rotation if the arrow is active
             {
                 Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
                 arrow.transform.right = targetPosition - arrow.transform.position;
