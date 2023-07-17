@@ -149,8 +149,10 @@ public class BubbleDisplay : MonoBehaviour
         controllerRender.SetActive(true);
         motorSpaceRender.color = motorDisabledColor;
 
-        outOfBoundIndicatorManager = staticArrowIndicator;
-        CurrentArrowType = ArrowType.StaticPointing;
+        //outOfBoundIndicatorManager = staticArrowIndicator;
+        //CurrentArrowType = ArrowType.StaticPointing;
+        outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
+        CurrentArrowType = ArrowType.DynamicCenter;
         CurrentController = laserMapper.GetCurrentController();
     }
 
