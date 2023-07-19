@@ -176,6 +176,8 @@ public class DiskMole : Mole
             else
             {
                 PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
+                meshMaterial.color = disabledColor;
+                meshMaterial.mainTexture = textureDisabled;
             }
         }
         PlaySound(popSound);

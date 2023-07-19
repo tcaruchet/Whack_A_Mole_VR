@@ -80,7 +80,6 @@ namespace Assets.Scripts.Game
         {
             // Now you have access to all public variables and methods of the BasicPointer instance
             pointerData = pointer;
-            // pointerData.onPointerShoot.AddListener(CalculateFeedback);
             
         }
 
