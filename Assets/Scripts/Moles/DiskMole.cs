@@ -169,7 +169,7 @@ public class DiskMole : Mole
             if (moleType==Mole.MoleType.Target)
             {
                 float feedback = PerformanceManager.Instance.GetFeedback();
-                Color colorFeedback = Color.Lerp(popFast, popSlow, feedback);
+                Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
                 StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.2f, 0.3f));
                 meshMaterial.mainTexture = textureDisabled;
             }
