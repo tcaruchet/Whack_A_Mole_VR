@@ -178,7 +178,6 @@ public class DiskMole : Mole
                 PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
             }
         }
-        // meshMaterial.color=disabledColor;
         PlaySound(popSound);
         //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }
