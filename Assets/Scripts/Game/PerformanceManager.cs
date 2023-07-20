@@ -44,7 +44,6 @@ namespace Assets.Scripts.Game
 
         private void ResetShoot()
         {
-            // Réinitialisez le timer lorsque l'utilisateur tire
             timeSinceLastShot = 0f;
             speed = 0f;
             lastDistance = 0f;
@@ -52,14 +51,12 @@ namespace Assets.Scripts.Game
 
         public void OnPointerShoot()
         {
-            // Arrêter le timer
             isTimerRunning = false;
             CalculateFeedback();
         }
 
         public void onMoleActivated()
         {
-            // Démarrer le timer
             isTimerRunning = true;
             timeSinceLastShot = 0f;
             lastDistance= 0f;
@@ -112,7 +109,6 @@ namespace Assets.Scripts.Game
 
         public void CalculateFeedback()
         {
-            // Mettre à jour les vitesses les plus rapides et les plus lentes
             if (speed > fastestSpeed)
             {
                 fastestSpeed = speed;
@@ -122,11 +118,10 @@ namespace Assets.Scripts.Game
                 slowestSpeed = speed;
             }
 
-            // Calculer le feedback en fonction de la proximité de la vitesse actuelle avec les vitesses les plus rapides et les plus lentes
             float range = fastestSpeed - slowestSpeed;
             if (range == 0)
             {
-                feedback = 1; // Si toutes les vitesses sont les mêmes, le feedback est de 1
+                feedback = 1; 
             }
             else
             {
