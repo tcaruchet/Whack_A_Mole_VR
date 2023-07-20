@@ -57,6 +57,9 @@ public abstract class Pointer : MonoBehaviour
     [SerializeField]
     protected float shotCooldown;
 
+    [SerializeReference]
+    public PerformanceManager performanceManager;
+
     protected LineRenderer laser;
 
     protected bool performancefeedback = true;
@@ -277,7 +280,7 @@ public abstract class Pointer : MonoBehaviour
     protected virtual void Shoot(RaycastHit hit)
     {
         Mole mole;
-
+        Debug.Log("Shooooooooooooooooooooooooooooooot");
         state = States.CoolingDown;
         StartCoroutine(WaitForCooldown());
         onPointerShoot.Invoke();
@@ -285,8 +288,8 @@ public abstract class Pointer : MonoBehaviour
         {
             if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
             {
-                float feedback = PerformanceManager.Instance.GetFeedback();
-                Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point);
+                float feedback = performanceManager.GetFeedback();
+                Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point, feedback);
 
                 if (moleAnswer == Mole.MolePopAnswer.Ok)
                 {
@@ -466,7 +469,7 @@ public abstract class Pointer : MonoBehaviour
 
     //     // Smoothing init
 
-    //     
+    //
     // }
 
     // Waits the CoolDown duration.

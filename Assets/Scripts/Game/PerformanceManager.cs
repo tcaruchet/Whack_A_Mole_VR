@@ -28,18 +28,8 @@ namespace Assets.Scripts.Game
         private int nbShoot = 0;
         private float fastestSpeed = 0f;
         private float slowestSpeed = 0f;
-        public static PerformanceManager Instance { get; private set; }
         private void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-                
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
         }
 
         private void Update()
@@ -80,13 +70,13 @@ namespace Assets.Scripts.Game
         {
             // Now you have access to all public variables and methods of the BasicPointer instance
             pointerData = pointer;
-            
+
         }
 
         public void UpdateMoleData(DiskMole mole)
         {
-            moleData = mole;
-        } 
+           
+        }
 
         public void UpdateWallData(WallManager wall)
         {

@@ -9,8 +9,8 @@ Mole abstract class. Contains the main behaviour of the mole and calls actions t
 different events (Enable, Disable, Pop...). These actions are to be defined in its derived
 classes.
 Enabl
-Facilitates the creation of moles with different behaviours on specific events 
-(when popped -> change color ? play animation?) 
+Facilitates the creation of moles with different behaviours on specific events
+(when popped -> change color ? play animation?)
 */
 
 public abstract class Mole : MonoBehaviour
@@ -57,7 +57,7 @@ public abstract class Mole : MonoBehaviour
     public float? Speed { get; set; }
 
 
-    private void Awake() 
+    private void Awake()
     {
         SetVisibility(defaultVisibility);
     }
@@ -67,7 +67,7 @@ public abstract class Mole : MonoBehaviour
         Reset();
 
 
-        // Initialization of the LoggerNotifier. Here we will only raise Event, and we will use a function to pass and update 
+        // Initialization of the LoggerNotifier. Here we will only raise Event, and we will use a function to pass and update
         // certain parameters values every time we raise an event (UpdateLogNotifierGeneralValues). We don't set any starting values.
         loggerNotifier = new LoggerNotifier(UpdateLogNotifierGeneralValues, new Dictionary<string, string>(){
             {"MolePositionWorldX", "NULL"},
@@ -192,7 +192,7 @@ public abstract class Mole : MonoBehaviour
         PlayReset();
     }
 
-    public MolePopAnswer Pop(Vector3 hitPoint)
+    public MolePopAnswer Pop(Vector3 hitPoint, float feedback = 0f)
     {
         if (isPaused) return MolePopAnswer.Paused;
         if (state != States.Enabled && state != States.Enabling && state != States.Expired) return MolePopAnswer.Disabled;
@@ -219,7 +219,7 @@ public abstract class Mole : MonoBehaviour
                 {"MoleSurfaceHitLocationY", localHitPoint.y}
             });
 
-            ChangeState(States.Popping);
+            ChangeState(States.Popping, feedback);
             return MolePopAnswer.Ok;
         }
         else
@@ -232,7 +232,7 @@ public abstract class Mole : MonoBehaviour
                 {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
             });
 
-            ChangeState(States.Popping);
+            ChangeState(States.Popping, feedback);
             return MolePopAnswer.Fake;
         }
     }
@@ -271,28 +271,33 @@ public abstract class Mole : MonoBehaviour
     finish the transition.
     */
 
-    protected virtual void PlayEnabling() 
+    protected virtual void PlayEnabling()
     {
         ChangeState(States.Enabled);
     }
 
-    protected virtual void PlayMissed() 
+    protected virtual void PlayMissed()
     {
         ChangeState(States.Disabling);
     }
 
-    protected virtual void PlayDisabling() 
+    protected virtual void PlayDisabling()
     {
 
         ChangeState(States.Expired);
     }
 
-    protected virtual void PlayPop() 
+    protected virtual void PlayPop(float feedback)
     {
         ChangeState(States.Popped);
     }
-     
-    private void ChangeState(States newState)
+
+    protected virtual void PlayPop()
+    {
+        ChangeState(States.Popped);
+    }
+
+    private void ChangeState(States newState, float feedback = 0f)
     {
         if (newState == state)
         {
@@ -300,7 +305,7 @@ public abstract class Mole : MonoBehaviour
         }
         LeaveState(state);
         state = newState;
-        EnterState(state); //donner le feedback
+        EnterState(state, feedback); //donner le feedback
     }
 
     // Does certain actions when leaving a state.
@@ -323,7 +328,7 @@ public abstract class Mole : MonoBehaviour
     }
 
     // Does certain actions when entering a state.
-    private void EnterState(States state)
+    private void EnterState(States state, float feedback)
     {
         switch(state)
         {
@@ -336,7 +341,7 @@ public abstract class Mole : MonoBehaviour
                 PlayEnable();
                 break;
             case States.Popping:
-                PlayPop();
+                PlayPop(feedback);
                 break;
             case States.Enabling:
 
@@ -378,7 +383,7 @@ public abstract class Mole : MonoBehaviour
                                             {
                                                 {"MoleActivatedDuration", lifeTime},
                                                 {"MoleType", System.Enum.GetName(typeof(MoleType), moleType)}
-                                            });            
+                                            });
                 PlayMissed();
                 break;
         }
@@ -416,7 +421,7 @@ public abstract class Mole : MonoBehaviour
             yield return null;
         }
 
-        EnterState(States.Disabled);
+        EnterState(States.Disabled, 0);
     }
 
     private IEnumerator StartDisabledCooldownTimer(float duration)

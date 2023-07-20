@@ -81,12 +81,11 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
 
         base.Start();
-        
+
     }
 
     private void Update()
     {
-        PerformanceManager.Instance.UpdateMoleData(this); 
     }
     //public void EndPlayPop()
     //{
@@ -103,7 +102,7 @@ public class DiskMole : Mole
         PlayAnimation("EnableDisable");
 
         if (moleType == Mole.MoleType.Target)
-        {         
+        {
               meshMaterial.color = enabledColor;
               meshMaterial.mainTexture = textureEnabled;
         }
@@ -138,7 +137,7 @@ public class DiskMole : Mole
         base.PlayMissed();
     }
 
-    protected override void PlayHoverEnter() 
+    protected override void PlayHoverEnter()
     {
         if (moleType == Mole.MoleType.Target)
         {
@@ -150,7 +149,7 @@ public class DiskMole : Mole
         }
     }
 
-    protected override void PlayHoverLeave() 
+    protected override void PlayHoverLeave()
     {
         if (moleType == Mole.MoleType.Target)
         {
@@ -162,13 +161,12 @@ public class DiskMole : Mole
         }
     }
 
-    protected override void PlayPop() 
+    protected override void PlayPop(float feedback)
     {
         Debug.Log("SouldPerformanceFeedback : " + ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
-                float feedback = PerformanceManager.Instance.GetFeedback();
                 Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
                 StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.2f, 0.3f));
                 meshMaterial.mainTexture = textureDisabled;
@@ -272,7 +270,7 @@ public class DiskMole : Mole
     }
 
     // Ease function, Quart ratio.
-    private float EaseQuartOut (float k) 
+    private float EaseQuartOut (float k)
     {
         return 1f - ((k -= 1f)*k*k*k);
     }

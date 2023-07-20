@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using Valve.VR;
 
 /*
-Basic implementation of the pointer abstract class. Simply changes the color of the laser and 
+Basic implementation of the pointer abstract class. Simply changes the color of the laser and
 the Cursor on shoot.
 */
 
@@ -20,14 +20,13 @@ public class BasicPointer : Pointer
 
     [SerializeField]
     private float laserExtraWidthShootAnimation = .05f;
-
     private float shootTimeLeft;
     private float totalShootTime;
     private float dwellTime = 3f;
     private float dwellTimer = 0f;
     private delegate void Del();
     private string hover = "";
-    
+
     public Vector3 MappedPosition { get; private set;}
 
     //public delegate void MoleHitDelegate(Mole hitMole, float time);
@@ -37,7 +36,7 @@ public class BasicPointer : Pointer
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
     {
-        PerformanceManager.Instance.UpdatePointerData(this);
+        performanceManager.UpdatePointerData(this);
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
@@ -56,7 +55,7 @@ public class BasicPointer : Pointer
         }
         else
         {
-            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength; 
+            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength;
             laser.SetPosition(1, rayPosition);
             cursor.SetPosition(rayPosition);
             //UpdateLaser(false, rayDirection: laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength);
@@ -111,7 +110,7 @@ public class BasicPointer : Pointer
                         if (dwellTimer > 0f) {
                         dwellTimer = dwellTimer - 0.1f;
                         }
-                    }                 
+                    }
                 } else {
                     CheckHoverEnd();
                     if (dwellTimer > 0f) {
@@ -140,7 +139,7 @@ public class BasicPointer : Pointer
         }
     }
 
-    // Implementation of the behavior of the Pointer on shoot. 
+    // Implementation of the behavior of the Pointer on shoot.
     protected override void PlayShoot(bool correctHit)
     {
         Color newColor;
@@ -160,7 +159,7 @@ public class BasicPointer : Pointer
     }
 
     // Ease function, Quart ratio.
-    private float EaseQuartOut (float k) 
+    private float EaseQuartOut (float k)
     {
         return 1f - ((k -= 1f)*k*k*k);
     }
@@ -201,7 +200,7 @@ public class BasicPointer : Pointer
             yield return null;
         }
 
-        // When the animation is finished, resets the laser and Cursor to their default values. 
+        // When the animation is finished, resets the laser and Cursor to their default values.
         laser.startWidth = laserWidth;
         laser.endWidth = laserWidth;
         laser.startColor = startLaserColor;
