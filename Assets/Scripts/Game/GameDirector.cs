@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -82,6 +83,9 @@ public class GameDirector : MonoBehaviour
     public TestChangeEvent testChanged = new TestChangeEvent();
     private int participantId = 0;
     private int testId = 0;
+
+
+
 
     private Dictionary<string, Dictionary<string, float>> difficulties = new Dictionary<string, Dictionary<string, float>>(){
         {"Slow", new Dictionary<string, float>(){
@@ -340,10 +344,8 @@ public class GameDirector : MonoBehaviour
                 type = Mole.MoleType.DistractorRight;
             }
         }
-
-        wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
+         wallManager.ActivateRandomMole(lifeTime, moleExpiringDuration, type);
     }
-
     private void StartMoleTimer(float setTime = -1)
     {
         if (setTime == -1)

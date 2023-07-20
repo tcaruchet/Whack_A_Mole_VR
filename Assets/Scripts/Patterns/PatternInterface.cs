@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Globalization;
+using static WallManager;
 
 /*
 Class doing the interface between the PatternPlayer and the different classes of the game it needs to interact with.

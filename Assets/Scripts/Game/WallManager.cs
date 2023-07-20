@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Purchasing;
 
 /*
 Spawns, references and activates the moles. Is the only component to directly interact with the moles.
@@ -95,9 +96,16 @@ public class WallManager : MonoBehaviour
     [SerializeField]
     private MeshRenderer greyBackground;
 
+    [SerializeField]
+    public BasicPointer basicPointer;
+
     [System.Serializable]
     public class StateUpdateEvent : UnityEvent<WallInfo> { }
     public StateUpdateEvent stateUpdateEvent;
+
+    [System.Serializable]
+    public class OnMoleActivated : UnityEvent { }
+    public OnMoleActivated onMoleActivated;
 
     private WallGenerator wallGenerator;
     private Vector3 wallCenter;
@@ -132,6 +140,20 @@ public class WallManager : MonoBehaviour
     float meshBoundsZmin = -1f;
 
     public List<Mole> listMole;
+
+    // Position and speed logic 
+    private float moleAppearTime;
+    private Vector3 mappedPayerPosition;
+    public class MoleData
+    {
+        public int MoleId { get; set; }
+        public Mole Mole { get; set; }
+        public float Distance { get; set; }
+        public float? ReactionTime { get; set; }
+        public float? Speed { get; set; }
+    }
+    public Dictionary<int, MoleData> moleDataDict = new Dictionary<int, MoleData>();
+
 
     void Start()
     {
@@ -304,9 +326,13 @@ public class WallManager : MonoBehaviour
     public void ActivateRandomMole(float lifeTime, float moleExpiringDuration, Mole.MoleType type)
     {
         if (!active) return;
-
-        GetRandomMole().Enable(lifeTime, moleExpiringDuration, type, moleCount);
-        moleCount++;
+        Mole selectedMole = GetRandomMole();
+        selectedMole.Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
+        if( type == Mole.MoleType.Target)
+        {
+            onMoleActivated.Invoke();
+        }
+        
     }
 
     // Activates a specific Mole for a given lifeTime and set if is fake or not
@@ -316,6 +342,10 @@ public class WallManager : MonoBehaviour
         if (!moles.ContainsKey(moleId)) return;
         moles[moleId].Enable(lifeTime, moleExpiringDuration, type, spawnOrder);
         moleCount++;
+        if (type == Mole.MoleType.Target)
+        {
+            onMoleActivated.Invoke();
+        }
     }
 
     // Pauses/unpauses the moles
