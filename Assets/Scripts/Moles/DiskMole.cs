@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Game;
+using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using UnityEngine;
 
 /*
@@ -14,6 +16,12 @@ public class DiskMole : Mole
 
     [SerializeField]
     private Color enabledColor;
+
+    [SerializeField]
+    private Color popFast;
+
+    [SerializeField]
+    private Color popSlow;
 
     [SerializeField]
     private Color fakeEnabledColor;
@@ -73,8 +81,12 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
 
         base.Start();
+
     }
 
+    private void Update()
+    {
+    }
     //public void EndPlayPop()
     //{
     //    base.PlayPop();
@@ -91,8 +103,8 @@ public class DiskMole : Mole
 
         if (moleType == Mole.MoleType.Target)
         {
-            meshMaterial.color = enabledColor;
-            meshMaterial.mainTexture =  textureEnabled;
+              meshMaterial.color = enabledColor;
+              meshMaterial.mainTexture = textureEnabled;
         }
         else if (moleType == Mole.MoleType.DistractorLeft)
         {
@@ -125,7 +137,7 @@ public class DiskMole : Mole
         base.PlayMissed();
     }
 
-    protected override void PlayHoverEnter() 
+    protected override void PlayHoverEnter()
     {
         if (moleType == Mole.MoleType.Target)
         {
@@ -137,7 +149,7 @@ public class DiskMole : Mole
         }
     }
 
-    protected override void PlayHoverLeave() 
+    protected override void PlayHoverLeave()
     {
         if (moleType == Mole.MoleType.Target)
         {
@@ -149,21 +161,23 @@ public class DiskMole : Mole
         }
     }
 
-    protected override void PlayPop() 
+    protected override void PlayPop(float feedback)
     {
-        Debug.Log(ShouldPerformanceFeedback());
+        Debug.Log("SouldPerformanceFeedback : " + ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
-                PlayAnimation("PopCorrectMole");  // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
+                Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
+                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.2f, 0.3f));
+                meshMaterial.mainTexture = textureDisabled;
             }
             else
             {
                 PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
+                meshMaterial.color = disabledColor;
+                meshMaterial.mainTexture = textureDisabled;
             }
         }
-        meshMaterial.color=disabledColor;
-        meshMaterial.mainTexture=textureDisabled;
         PlaySound(popSound);
         //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }
@@ -174,6 +188,30 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
         meshMaterial.mainTexture = textureDisabled;
     }
+    IEnumerator ChangeColorOverTime(Color colorStart, Color colorFeedback, Color colorEnd, float duration, float waitTime)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorStart, colorFeedback, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Hold the end color for 0.5 seconds
+        yield return new WaitForSeconds(waitTime);
+
+        // Then transition back to the start color
+        elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorFeedback, colorEnd, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        ChangeColor(colorEnd);
+    }
+
 
     // Plays a sound.
     private void PlaySound(AudioClip audioClip)
@@ -232,7 +270,7 @@ public class DiskMole : Mole
     }
 
     // Ease function, Quart ratio.
-    private float EaseQuartOut (float k) 
+    private float EaseQuartOut (float k)
     {
         return 1f - ((k -= 1f)*k*k*k);
     }
