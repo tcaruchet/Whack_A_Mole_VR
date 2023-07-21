@@ -280,7 +280,7 @@ public abstract class Pointer : MonoBehaviour
     protected virtual void Shoot(RaycastHit hit)
     {
         Mole mole;
-        Debug.Log("Shooooooooooooooooooooooooooooooot");
+        // Debug.Log("Shooooooooooooooooooooooooooooooot");
         state = States.CoolingDown;
         StartCoroutine(WaitForCooldown());
         onPointerShoot.Invoke();

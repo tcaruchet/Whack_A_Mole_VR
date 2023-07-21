@@ -50,7 +50,7 @@ namespace Assets.Scripts.HUD
             {
                 Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
                 arrow.transform.right = targetPosition - arrow.transform.position;
-                Debug.Log("Wall center position UPDATE: " + wallInfo.meshCenter);
+                // Debug.Log("Wall center position UPDATE: " + wallInfo.meshCenter);
             }
         }
 
