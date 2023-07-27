@@ -295,7 +295,7 @@ public abstract class Pointer : MonoBehaviour
                 {
                     //onMoleHit.Invoke(mole, Time.time);
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
-                    soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
+                    soundManager.PlaySoundWithPitch(gameObject, SoundManager.Sound.greenMoleHit, feedback);
                 }
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)
                 {

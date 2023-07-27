@@ -454,8 +454,8 @@ MonoBehaviour:
   disableCooldown: 3
   disabledColor: {r: 0.8235294, g: 0.8235294, b: 0.8235294, a: 1}
   enabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921569, a: 1}
-  popFast: {r: 0.5613208, g: 1, b: 0.6720049, a: 1}
-  popSlow: {r: 0.9245283, g: 0.08551528, b: 0, a: 1}
+  popFast: {r: 1, g: 1, b: 1, a: 1}
+  popSlow: {r: 0.43137255, g: 0.87058824, b: 0.18039216, a: 1}
   fakeEnabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921567, a: 1}
   hoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}
   fakeHoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}

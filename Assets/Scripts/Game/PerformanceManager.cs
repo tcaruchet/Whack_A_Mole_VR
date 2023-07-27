@@ -26,8 +26,7 @@ namespace Assets.Scripts.Game
         private float feedback = 0f;
         private float averageSpeed = 0f;
         private int nbShoot = 0;
-        private float fastestSpeed = 0f;
-        private float slowestSpeed = 0f;
+        private Queue<float> lastSpeeds = new Queue<float>();
         private void Awake()
         {
         }
@@ -104,28 +103,50 @@ namespace Assets.Scripts.Game
 
         public float GetFeedback()
         {
+            //Debug.Log("Feedback : " + feedback + " nbShoot " + nbShoot);
             return feedback;
         }
 
         public void CalculateFeedback()
         {
-            if (speed > fastestSpeed)
-            {
-                fastestSpeed = speed;
-            }
-            if (speed < slowestSpeed)
-            {
-                slowestSpeed = speed;
-            }
+            float minDistance = 0.3f;
+            lastSpeeds.Enqueue(speed);
 
-            float range = fastestSpeed - slowestSpeed;
-            if (range == 0)
+            if (lastSpeeds.Count > 20)
             {
-                feedback = 1; 
+                lastSpeeds.Dequeue();
+            }
+            if (nbShoot < 5)
+            {
+                feedback = 1;
+                averageSpeed = speed;
+                nbShoot++;
+            }
+            else if (lastDistance <= minDistance)
+            {
+                feedback = 1;
             }
             else
             {
-                feedback = (speed - slowestSpeed) / range;
+                averageSpeed = lastSpeeds.Average();
+                //Debug.Log("Average speed : " + averageSpeed + " nbShoot " + nbShoot + " lastDistance : " + lastDistance + "timeSinceLastShot : " + timeSinceLastShot);
+                nbShoot++;
+                float thresholdUp = 1.50f * averageSpeed;
+                float thresholdDown = 0.50f * averageSpeed;
+
+                if (speed <= thresholdDown)
+                {
+                    feedback = 0;
+                }
+                else if (speed >= thresholdUp)
+                {
+                    feedback = 1;
+                }
+                else
+                {
+                    //Debug.Log(" In the scale : " + speed + " thresholdUp : " + thresholdUp + "thresholDown : " + thresholdDown + " nbShoot " + nbShoot);
+                    feedback = (speed - thresholdDown) / (thresholdUp - thresholdDown);
+                }
 
             }
 

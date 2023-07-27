@@ -185,7 +185,7 @@ public class BubbleDisplay : MonoBehaviour
             if (action == MotorAction.Outside || action == MotorAction.None)
             {
                 action = MotorAction.Enter;  // Set the action status to 'Enter'.
-                Debug.Log($"Entered MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");  // Log the entry position and nearest side.
+
 
                 // Activating the renderers and setting color for visual feedback in the scene.
                 bubbleRender.SetActive(true);
@@ -235,7 +235,7 @@ public class BubbleDisplay : MonoBehaviour
             if (action == MotorAction.Inside || action == MotorAction.None)
             {
                 // If the object was previously inside the MotorSpace or had no action, execute the following block.
-                Debug.Log($"Exited MotorSpace at position {newPos}, side {LastLaserMapperNearestSide}");  // Log the exit position and nearest side.
+
                 action = MotorAction.Exit;  // Set the action status to 'Exit'.
 
                 // Activating the renderers and setting color for visual feedback in the scene.
@@ -362,7 +362,7 @@ public class BubbleDisplay : MonoBehaviour
         {
             TimeSpan timeSpentOutside = DateTime.Now - exitTime;
             // Log the time spent outside
-            Debug.Log($"Time spent outside the MotorSpace: {timeSpentOutside.TotalSeconds} seconds. Indicator type: {outOfBoundIndicatorManager.GetType().Name}");
+          
             // Reset the exit time and the hasExited flag
             hasExited = false;
 

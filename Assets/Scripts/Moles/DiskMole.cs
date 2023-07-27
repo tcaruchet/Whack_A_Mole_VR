@@ -163,12 +163,13 @@ public class DiskMole : Mole
 
     protected override void PlayPop(float feedback)
     {
-        Debug.Log("SouldPerformanceFeedback : " + ShouldPerformanceFeedback());
+        //Debug.Log("SouldPerformanceFeedback : " + ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
+                PlayAnimation("PopCorrectMole");
                 Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
-                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.2f, 0.3f));
+                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.1f, 0.15f));
                 meshMaterial.mainTexture = textureDisabled;
             }
             else
@@ -179,7 +180,6 @@ public class DiskMole : Mole
             }
         }
         PlaySound(popSound);
-        //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }
 
     protected override void PlayReset()
@@ -198,14 +198,24 @@ public class DiskMole : Mole
             yield return null;
         }
 
-        // Hold the end color for 0.5 seconds
+        // Hold the end color for 0.1 seconds
         yield return new WaitForSeconds(waitTime);
 
         // Then transition back to the start color
         elapsedTime = 0;
         while (elapsedTime < duration)
         {
-            meshMaterial.color = Color.Lerp(colorFeedback, colorEnd, (elapsedTime / duration));
+            meshMaterial.color = Color.Lerp(colorFeedback, colorStart, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        // Then transition to the end color
+        elapsedTime = 0;
+        while (elapsedTime < 0.8f)
+        {
+            meshMaterial.color = Color.Lerp(colorStart, colorEnd, (elapsedTime / 0.8f));
             elapsedTime += Time.deltaTime;
             yield return null;
         }

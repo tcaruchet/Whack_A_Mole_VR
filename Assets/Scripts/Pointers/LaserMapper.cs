@@ -474,8 +474,6 @@ public class LaserMapper : MonoBehaviour
         if (motorspace.mode == MotorCalcMode.center) {
             destinationPosition = motorspace.pos;
         } else if (motorspace.mode == MotorCalcMode.bottom) {
-            Debug.Log("motorspaceHeight:" + motorSpaceHeight);
-            Debug.Log("motorspace Y:" + motorspace.pos.y);
             destinationPosition = new Vector3(motorspace.pos.x, motorspace.pos.y + motorspace.height, motorspace.pos.z);
         }
 
