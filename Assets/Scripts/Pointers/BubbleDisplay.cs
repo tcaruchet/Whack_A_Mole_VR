@@ -29,6 +29,7 @@ public enum MotorAction
 public enum ArrowType
 {
     DynamicCenter,
+    DynamicCenterReversed,
     StaticPointing
 }
 
@@ -47,7 +48,7 @@ public class BubbleDisplay : MonoBehaviour
     private GameObject bubbleRender;
 
     [SerializeField]
-    private GameObject bubbleSphere;
+    public GameObject bubbleSphere;
 
     [SerializeField]
     private GameObject bubbleOutline;
@@ -107,6 +108,9 @@ public class BubbleDisplay : MonoBehaviour
     [SerializeReference]
     private OutOfBoundIndicator dynamicCenterPointingIndicator;
 
+    [SerializeReference]
+    private OutOfBoundIndicator dynamicCenterReversedPointingIndicator;
+
     private OutOfBoundIndicator outOfBoundIndicatorManager;  // The current active indicator
     public ArrowType CurrentArrowType { get; private set; }
 
@@ -127,6 +131,12 @@ public class BubbleDisplay : MonoBehaviour
     [System.Serializable]
     public class EnterMotorSpaceEvent : UnityEvent<EnterMotorSpaceInfo> { }
     public EnterMotorSpaceEvent enterMotorStateEvent;
+
+    [System.Serializable]
+    public class PointerPositionChangedEvent : UnityEvent<Vector3> { }
+
+    public PointerPositionChangedEvent onPointerPositionChanged;
+
 
     private MotorAction action = MotorAction.None;
 
@@ -153,6 +163,8 @@ public class BubbleDisplay : MonoBehaviour
         //CurrentArrowType = ArrowType.StaticPointing;
         outOfBoundIndicatorManager = dynamicCenterPointingIndicator;
         CurrentArrowType = ArrowType.DynamicCenter;
+        //outOfBoundIndicatorManager = dynamicCenterReversedPointingIndicator;
+        //CurrentArrowType = ArrowType.DynamicCenterReversed;
         CurrentController = laserMapper.GetCurrentController();
     }
 
@@ -171,6 +183,7 @@ public class BubbleDisplay : MonoBehaviour
 
         // This code takes in the position of the laser pointer and sets the position of the object to that position.
         Vector3 newPos = new Vector3(newPosX, newPosY, newPosZ);
+        onPointerPositionChanged?.Invoke(newPos);
         Vector3 clipPos = laserMapper.RubberClipToMotorSpace(newPos);
         this.transform.position = new Vector3(clipPos.x + offsetX, clipPos.y + offsetY, clipPos.z + offsetZ);
 
@@ -323,6 +336,7 @@ public class BubbleDisplay : MonoBehaviour
         {
             ArrowType.StaticPointing => staticArrowIndicator,
             ArrowType.DynamicCenter => dynamicCenterPointingIndicator,
+            ArrowType.DynamicCenterReversed => dynamicCenterReversedPointingIndicator,
             _ => staticArrowIndicator,
         };
         CurrentArrowType = arrowType;
@@ -351,6 +365,11 @@ public class BubbleDisplay : MonoBehaviour
     }
 
 
+    internal void ChangeIndicatorToDynamicReversed()
+    {
+        ChangeIndicator(ArrowType.DynamicCenterReversed);
+        Debug.Log("Changed Out Of Bounds indicator to dynamic reversed");
+    }
 
 
 
@@ -387,4 +406,5 @@ public class BubbleDisplay : MonoBehaviour
 
 
     }
+
 }

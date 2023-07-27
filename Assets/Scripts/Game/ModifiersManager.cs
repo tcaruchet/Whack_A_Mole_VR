@@ -24,7 +24,7 @@ public class ModifiersManager : MonoBehaviour
 
     public enum ControllerSetup {Left, Both, Right, Off};
     public enum MotorspaceSize {Small, Medium, Large};
-    public enum MotorspaceOutOfBoundsSignifier { DynamicCenter, StaticPointing };
+    public enum MotorspaceOutOfBoundsSignifier { DynamicCenter, StaticPointing, DynamicCenterReversed };
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
 
@@ -359,6 +359,8 @@ public class ModifiersManager : MonoBehaviour
             motorSpaceManager.SetMotorSpaceOutOfBoundsSignifierStatic();
         else if (signifier == ModifiersManager.MotorspaceOutOfBoundsSignifier.DynamicCenter)
             motorSpaceManager.SetMotorSpaceOutOfBoundsSignifierDynamic();
+        else if (signifier == ModifiersManager.MotorspaceOutOfBoundsSignifier.DynamicCenterReversed)
+            motorSpaceManager.SetMotorSpaceOutOfBoundsSignifierDynamicReversed();
     }
 
 

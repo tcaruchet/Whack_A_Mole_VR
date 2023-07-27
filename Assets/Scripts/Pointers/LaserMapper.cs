@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -404,6 +405,12 @@ public class LaserMapper : MonoBehaviour
             bub.ChangeIndicatorToDynamic();
     }
 
+    internal void SetMotorSpaceOutOfBoundsSignifierDynamicReversed()
+    {
+        foreach (var bub in bubbleDisplay)
+            bub.ChangeIndicatorToDynamicReversed();
+    }
+
     public Vector3 ConvertMotorSpaceToWallSpace(Vector3 coord) {
         // We convert our motorspace and our coordinate to be within a range where 0 is lowest.
         // Then we perform the normalization with division.
@@ -516,4 +523,6 @@ public class LaserMapper : MonoBehaviour
     {
         return wallManager.GetWallCenter();
     }
+
+    
 }

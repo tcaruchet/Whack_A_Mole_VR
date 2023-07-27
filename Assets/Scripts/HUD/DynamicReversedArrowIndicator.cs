@@ -7,10 +7,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.HUD
 {
-    internal class DynamicArrowIndicator : OutOfBoundIndicator
+    internal class DynamicReversedArrowIndicator : OutOfBoundIndicator
     {
         [SerializeField]
         private WallManager wallManager;
+
+        [SerializeField]
+        private BasicPointer controller;
 
         [SerializeField]
         private CanvasGroup arrow;
@@ -39,6 +42,7 @@ namespace Assets.Scripts.HUD
             OnWallUpdated(wallManager.CreateWallInfo());
         }
 
+        
         private void OnDisable()
         {
             wallManager.stateUpdateEvent.RemoveListener(OnWallUpdated);
@@ -48,11 +52,25 @@ namespace Assets.Scripts.HUD
         {
             if (arrow.gameObject.activeInHierarchy) // Only update rotation if the arrow is active
             {
-                Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
-                arrow.transform.right = targetPosition - arrow.transform.position;
-                // Debug.Log("Wall center position UPDATE: " + wallInfo.meshCenter);
+                // Update arrow position to the center of the wall
+                arrow.transform.position = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
+                Vector3 controllerPosition = controller.MappedPosition; // The position of the pointer when the method is called
+                Vector3 targetPosition = new Vector3(controllerPosition.x, controllerPosition.y, arrow.transform.position.z);
+
+                // Calculate direction from arrow to target position
+                Vector3 direction = (targetPosition - arrow.transform.position).normalized;
+
+                // Calculate angle in degrees
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+                // Apply the rotation to the child GameObject
+                arrow.transform.Find("RotationOffset").transform.eulerAngles = new Vector3(0, 0, angle - 90);
+
             }
         }
+
+
+
 
         /// <summary>Displays an arrow that points towards a target position. The arrow is positioned so that it points towards the target, and it fades in over a specified amount of time.</summary>
         /// <param name="position">The position of the target.</param>
@@ -65,15 +83,15 @@ namespace Assets.Scripts.HUD
             {
                 arrow.gameObject.SetActive(true); // Enable the arrow
 
-                //arrow.transform.position = new Vector3(position.x, position.y, arrow.transform.position.z); // Reset the position
-                Debug.DrawLine(arrow.transform.position, motorSpaceCenter, Color.red, 5f);
-
                 arrow.transform.rotation = Quaternion.identity; // Reset the rotation
+                
+                Debug.Log("SHOW INDICATOR Wall center position: " + wallInfo.meshCenter);
+                
+                //reset position
+                arrow.transform.position = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
+                Vector3 pointerPosition = position; // The position of the pointer when the method is called
+                arrow.transform.right = pointerPosition - arrow.transform.position;
 
-                Vector3 targetPosition = new Vector3(wallInfo.meshCenter.x, wallInfo.meshCenter.y, arrow.transform.position.z);
-                arrow.transform.right = targetPosition - arrow.transform.position;
-
-                Debug.Log("Wall center position: " + wallInfo.meshCenter);
 
                 if (coroutine != null)
                 {
