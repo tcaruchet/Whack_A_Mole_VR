@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -192,6 +193,26 @@ public class MotorSpaceManager : MonoBehaviour
         }
     }
 
+    internal void SetPerformanceOperationFeedback(bool v)
+    {
+        if (!v)
+        {
+            MotorSpaceRight.SetPerformanceOperationFeedback(false);
+            MotorSpaceLeft.SetPerformanceOperationFeedback(false);
+        } else
+        {
+            if (motorspace == ActiveMotorSpace.Right)
+                MotorSpaceRight.SetPerformanceOperationFeedback(true);
+            else if (motorspace == ActiveMotorSpace.Left)
+                MotorSpaceLeft.SetPerformanceOperationFeedback(true);
+            else if (motorspace == ActiveMotorSpace.Both)
+            {
+                MotorSpaceRight.SetPerformanceOperationFeedback(true);
+                MotorSpaceLeft.SetPerformanceOperationFeedback(true);
+            }
+        }
+    }
+
     public void SetMotorSpace(MotorSpaceInfo m) {
         bool mRState = MotorSpaceRight.gameObject.activeSelf;
         bool mLState = MotorSpaceLeft.gameObject.activeSelf;
@@ -229,4 +250,6 @@ public class MotorSpaceManager : MonoBehaviour
         }
         
     }
+
+    
 }

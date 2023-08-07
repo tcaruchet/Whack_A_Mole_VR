@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using UnityEngine.Events;
+using System;
 
 [System.Serializable]
 public class ModifierUpdateEvent : UnityEvent<string, string> {}
@@ -26,6 +27,7 @@ public class ModifiersManager : MonoBehaviour
     public enum Embodiment {Hands, Cursor, Off};
     public enum MotorspaceSize {Small, Medium, Large};
     public enum MotorspaceOutOfBoundsSignifier { DynamicCenter, StaticPointing, DynamicCenterReversed };
+    public enum PerformanceFeedback { None, Operation, Action, Task, All};
     public enum EyePatch {Left, None, Right};
     public enum HideWall {Left, None, Right};
 
@@ -108,7 +110,7 @@ public class ModifiersManager : MonoBehaviour
     private EyePatch eyePatch = EyePatch.None;
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
-    private bool performanceFeedback = true;
+    private ModifiersManager.PerformanceFeedback performanceFeedback = PerformanceFeedback.All;
     private bool mirrorEffect;
     private bool physicalMirrorEffect;
     private bool geometricMirrorEffect;
@@ -206,7 +208,7 @@ public class ModifiersManager : MonoBehaviour
         SetPrismOffset((float)state["PrismOffset"]);
         SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
         SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
-        SetPerformanceFeedback((bool) state["PerformanceFeedback"]);
+        SetPerformanceFeedback((ModifiersManager.PerformanceFeedback) state["PerformanceFeedback"]);
         SetEmbodiment((ModifiersManager.Embodiment) state["Embodiment"]);
         SetMotorspaceOutOfBoundsSignifier((ModifiersManager.MotorspaceOutOfBoundsSignifier)state["MotorspaceOutOfBoundsSignifier"]);
     }
@@ -269,25 +271,7 @@ public class ModifiersManager : MonoBehaviour
         });
     }
 
-    public void SetPerformanceFeedback(bool value)
-    {
-        if (performanceFeedback == value) return;
-
-        performanceFeedback = value;
-        
-        wallManager.SetPerformanceFeedback(performanceFeedback);
-        rightController.SetPerformanceFeedback(performanceFeedback);
-        leftController.SetPerformanceFeedback(performanceFeedback);
-
-        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
-        loggerNotifier.NotifyLogger("Performance Feedback Set "+ value, EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
-        {
-            {"PerformanceFeedback", value}
-        });
-
-        modifierUpdateEvent.Invoke("PerformanceFeedback", value.ToString());
-    }
-
+    
     public void SetMotorRestriction(bool value)
     {
         // motor restriction may need to be "refreshed" when controllers change.
@@ -571,6 +555,52 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
+    internal void SetPerformanceFeedback(PerformanceFeedback value)
+    {
+        bool actionFeedback = false;
+        bool operationFeedback = false;
+        bool taskFeedback = false;
+
+        switch (value)
+        {
+            case PerformanceFeedback.Operation:
+                operationFeedback = true;
+                break;
+            case PerformanceFeedback.Action:
+                actionFeedback = true;
+                break;
+            case PerformanceFeedback.Task:
+                taskFeedback = true;
+                break;
+            case PerformanceFeedback.All:
+                actionFeedback = operationFeedback = taskFeedback = true;
+                break;
+        }
+
+        // Apply values to all modifiers
+        wallManager.SetPerformanceFeedback(actionFeedback);
+        rightController.SetPerformanceActionFeedback(actionFeedback);
+        leftController.SetPerformanceActionFeedback(actionFeedback);
+
+        motorSpaceManager.SetPerformanceOperationFeedback(operationFeedback);
+
+        // Task changes
+
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger($"Performance Feedback Set {Enum.GetName(typeof(PerformanceFeedback), value)}", EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"PerformanceFeedback", Enum.GetName(typeof(PerformanceFeedback), value)}
+        });
+        
+        modifierUpdateEvent.Invoke($"PerformanceFeedback", Enum.GetName(typeof(PerformanceFeedback), value));
+
+        this.performanceFeedback = value;
+
+        
+    }
+
+
+
     // Sets the level of embodiment used by the game. (Show hands (including controller) or just cursor).
     public void SetEmbodiment(Embodiment value)
     {
@@ -714,4 +744,6 @@ public class ModifiersManager : MonoBehaviour
 
         modifierUpdateEvent.Invoke("EyePatch", System.Enum.GetName(typeof(ModifiersManager.EyePatch), value));
     }
+
+    
 }

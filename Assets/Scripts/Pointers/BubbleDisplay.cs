@@ -111,6 +111,9 @@ public class BubbleDisplay : MonoBehaviour
     private OutOfBoundIndicator outOfBoundIndicatorManager;  // The current active indicator
     public ArrowType CurrentArrowType { get; private set; }
 
+    [SerializeReference]
+    public PointerTrailHandler pointerTrailHandler;
+
     public Side LastLaserMapperNearestSide { get; private set; }
     public GameObject CurrentController { get; private set; }
 
@@ -356,5 +359,10 @@ public class BubbleDisplay : MonoBehaviour
     {
         ChangeIndicator(ArrowType.DynamicCenterReversed);
         Debug.Log("Changed Out Of Bounds indicator to dynamic reversed");
+    }
+
+    internal void SetPerformanceOperationFeedback(bool v)
+    {
+        pointerTrailHandler.SetConfigVisibility(v);
     }
 }

@@ -411,6 +411,13 @@ public class LaserMapper : MonoBehaviour
             bub.ChangeIndicatorToDynamicReversed();
     }
 
+    internal void SetPerformanceOperationFeedback(bool v)
+    {
+        foreach (var bub in bubbleDisplay)
+            bub.SetPerformanceOperationFeedback(v);
+    }
+
+
     public Vector3 ConvertMotorSpaceToWallSpace(Vector3 coord) {
         // We convert our motorspace and our coordinate to be within a range where 0 is lowest.
         // Then we perform the normalization with division.

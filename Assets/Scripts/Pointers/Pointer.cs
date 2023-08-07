@@ -146,7 +146,7 @@ public abstract class Pointer : MonoBehaviour
         }
     }
 
-    public void SetPerformanceFeedback(bool perf)
+    public void SetPerformanceActionFeedback(bool perf)
     {
         performancefeedback = perf;
     }

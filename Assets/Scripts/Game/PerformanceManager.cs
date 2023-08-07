@@ -19,13 +19,16 @@ public class PerformanceManager : MonoBehaviour
     private PatternPlayer patternData;
     private float timeSinceLastShot = 0f;
     private bool isTimerRunning = false;
-    private Vector3 lastPosition = Vector3.zero;
     private float speed = 0f;
+    private float instantSpeed = 0f;
+    private Vector3 lastPosition = Vector3.zero;
+    private Vector3 lastPositionSpeed = Vector3.zero;
     private float lastDistance = 0f;
     private float feedback = 0f;
     private float averageSpeed = 0f;
     private int nbShoot = 0;
     private Queue<float> lastSpeeds = new Queue<float>();
+
     private void Awake()
     {
     }
@@ -38,6 +41,7 @@ public class PerformanceManager : MonoBehaviour
         }
 
         CalculateSpeed();
+        CalculateInstantSpeed();
     }
 
     private void ResetShoot()
@@ -99,6 +103,38 @@ public class PerformanceManager : MonoBehaviour
             speed = lastDistance / timeSinceLastShot;
         }
     }
+
+    public void CalculateInstantSpeed()
+    {
+        Vector3 position = pointerData.MappedPosition;
+        if (lastPositionSpeed == Vector3.zero)
+        {
+            lastPositionSpeed = position;
+        }
+        if (lastPositionSpeed != Vector3.zero)
+        {
+            Debug.Log("lastPosition: " + lastPositionSpeed);
+            float distance = Vector3.Distance(position, lastPositionSpeed);
+            instantSpeed = distance / Time.deltaTime;
+        }
+        else
+        {
+            Debug.Log("FESSE " + lastPositionSpeed);
+        }
+        lastPositionSpeed = position;
+    }
+
+
+    public float GetSpeed()
+    {
+        return speed;
+    }
+
+    public float GetInstantSpeed()
+    {
+        return instantSpeed;
+    }
+
 
     public float GetFeedback()
     {
