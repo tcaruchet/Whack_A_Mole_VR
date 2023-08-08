@@ -114,13 +114,8 @@ public class PerformanceManager : MonoBehaviour
         }
         if (lastPositionSpeed != Vector3.zero)
         {
-            Debug.Log("lastPosition: " + lastPositionSpeed);
             float distance = Vector3.Distance(position, lastPositionSpeed);
             instantSpeed = distance / Time.deltaTime;
-        }
-        else
-        {
-            Debug.Log("FESSE " + lastPositionSpeed);
         }
         lastPositionSpeed = position;
     }

@@ -36,38 +36,50 @@ public class PointerTrailHandler : MonoBehaviour
     private bool configVisibility = true;
     private bool lastRuntimeVisibilityState;
 
+    private void OnEnable()
+    {
+        InitializeComponents();
+    }
+
+    private void InitializeComponents()
+    {
+        if (!trailRenderer)
+        {
+            trailRenderer = GetComponent<TrailRenderer>();
+            if (trailRenderer == null)
+                Debug.LogError("Missing TrailRenderer component!");
+        }
+
+        if (!spriteRenderer)
+        {
+            spriteRenderer = GetComponentInParent<SpriteRenderer>();
+            if (spriteRenderer == null)
+                Debug.LogError("Missing SpriteRenderer component in parent!");
+        }
+
+        trailRenderer.endColor = new Color(trailColor.r, trailColor.g, trailColor.b, 0f);
+    }
+
+
 
     private void Awake()
     {
-        trailRenderer = GetComponent<TrailRenderer>();
-        spriteRenderer = GetComponentInParent<SpriteRenderer>();
-        if (trailRenderer == null)
-            Debug.LogError("Missing TrailRenderer component!");
-        if (spriteRenderer == null)
-            Debug.LogError("Missing SpriteRenderer component in parent!");
-        if (performanceManager == null)
-            Debug.LogError("Performance Manager not assigned in inspector!");
-   
-
-        trailRenderer.endColor = new Color(trailColor.r, trailColor.g, trailColor.b, 0f);
         if (isVisible)
         {
             soundManager.PlaySoundLooped(gameObject, trailSound);
             soundManager.ChangeVolume(trailSound, 0f);  // Set initial volume to 0
         }
-
     }
 
     private void Update()
     {
+        if (!trailRenderer || !spriteRenderer)
+            return;
+
         speed = performanceManager.GetInstantSpeed();
 
-        Debug.Log("Speed: " + speed);
-
         UpdateRuntimeVisibility();
-
-        // Si la visibilité finale est vraie, alors mettre à jour les propriétés de la traînée
-        // en: If the final visibility is true, then update the trail properties
+        // If the final visibility is true, then update the trail properties
         if (IsTrulyVisible())
         {
             UpdateTrailProperties();
@@ -137,7 +149,7 @@ public class PointerTrailHandler : MonoBehaviour
     }
 
 
-    
+
 
 
 
@@ -191,19 +203,10 @@ public class PointerTrailHandler : MonoBehaviour
     // Used to update the visibility of the trail based on the final visibility state
     private void UpdateVisibility()
     {
+        if (!trailRenderer)
+            return;
+
         bool finalVisibility = IsTrulyVisible();
-
         trailRenderer.enabled = finalVisibility;
-
-        //if (!finalVisibility)
-        //{
-        //    soundManager.StopSound(trailSound);
-        //}
-        //else
-        //{
-        //    soundManager.PlaySoundLooped(gameObject, trailSound);
-        //}
     }
-
-
 }
