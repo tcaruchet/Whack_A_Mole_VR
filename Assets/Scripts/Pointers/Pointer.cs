@@ -105,6 +105,9 @@ public abstract class Pointer : MonoBehaviour
     protected int pointerShootOrder = -1;
     private ControllerName controllerName;
 
+    Vector3 pos;
+    Vector3 mappedPos;
+
     [System.Serializable]
     public class OnPointerShoot : UnityEvent<ShootData> { }
     public OnPointerShoot onPointerShoot;
@@ -205,21 +208,23 @@ public abstract class Pointer : MonoBehaviour
         active = false;
     }
 
-    // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
-    public virtual void PositionUpdated()
-    {
-        if (!active) return;
-
-        Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        Vector3 mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
-        Vector3 origin = laserOrigin.transform.position;
-        Vector3 rayDirection = (mappedPosition - origin).normalized;
-
+    public void Update() {
         onPointerMove.Invoke(new MoveData {
             controllerPos = pos,
             cursorPos = mappedPosition,
             name = controllerName
         });
+    }
+
+    // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
+    public virtual void PositionUpdated()
+    {
+        if (!active) return;
+
+        pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
+        mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        Vector3 origin = laserOrigin.transform.position;
+        Vector3 rayDirection = (mappedPosition - origin).normalized;
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))
