@@ -113,7 +113,7 @@ public class WallManager : MonoBehaviour
     private Vector3 wallCenterWorld = Vector3.zero;
     public Vector3 wallCenterPoint; // Temp test center of the wall from moles averaging the highest and lowest values for each dimension 
 
-    private Dictionary<int, Mole> moles;
+    private Dictionary<int, Mole> moles = new Dictionary<int, Mole>();
     private bool active = false;
     private bool isInit = false;
     private float updateCooldownDuration = .1f;

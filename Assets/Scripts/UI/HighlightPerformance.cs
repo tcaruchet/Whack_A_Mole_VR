@@ -30,13 +30,19 @@ public class HighlightPerformance : MonoBehaviour
 
     public void ShowResults() {
         progressBar.Reset();
-        Queue<float> taskSpeeds = performanceManager.GetTaskFeedbacks();
+        List<PerfData> perfData = new List<PerfData>();
+        perfData.Add(performanceManager.GetPerfData(ControllerName.Right));
+        perfData.Add(performanceManager.GetPerfData(ControllerName.Left));
 
-        if (taskSpeeds.Count > 0) {
-            foreach (float speed in taskSpeeds) {
-                progressBar.AddElement(speed, true);
+        foreach (var data in perfData) {
+            var judges = data.lastJudges;
+            if (judges.Count > 0) {
+                foreach (float judge in judges) {
+                    progressBar.AddElement(judge, true);
+                }
+                progressBar.Show();
             }
-            progressBar.Show();
         }
+        performanceManager.ResetPerfHistory();
     }
 }

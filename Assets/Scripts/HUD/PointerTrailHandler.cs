@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class PointerTrailHandler : MonoBehaviour
 {
+
+    [SerializeField]
+    private Pointer controllerParent;
+
+    private ControllerName controllerName;
+
     [SerializeField]
     private PerformanceManager performanceManager;
     [SerializeField]
@@ -38,6 +44,7 @@ public class PointerTrailHandler : MonoBehaviour
 
     private void OnEnable()
     {
+        controllerName = controllerParent.GetControllerName();
         InitializeComponents();
     }
 
@@ -76,7 +83,7 @@ public class PointerTrailHandler : MonoBehaviour
         if (!trailRenderer || !spriteRenderer)
             return;
 
-        speed = performanceManager.GetInstantSpeed();
+        speed = performanceManager.GetInstantJudgement(controllerName);
 
         UpdateRuntimeVisibility();
         // If the final visibility is true, then update the trail properties

@@ -4,11 +4,27 @@ using UnityEngine;
 using Valve.VR;
 using UnityEngine.Events;
 
+public class MoveData {
+    public Vector3 controllerPos = Vector3.zero;
+    public Vector3 cursorPos = Vector3.zero;
+    public ControllerName name;
+}
+
+public class ShootData {
+    public Vector3 position = Vector3.zero;
+    public RaycastHit hit;
+    public ControllerName name;
+}
+
+public enum ControllerName {
+    Left,
+    Right
+}
+
 /*
 Abstract class of the VR pointer used to pop moles. Like the Mole class, calls specific empty
 functions on events to be overriden in its derived classes.
 */
-
 public abstract class Pointer : MonoBehaviour
 {
     protected enum States { Idle, CoolingDown }
@@ -87,15 +103,25 @@ public abstract class Pointer : MonoBehaviour
     private float lastTime = -1;
 
     protected int pointerShootOrder = -1;
+    private ControllerName controllerName;
 
     [System.Serializable]
-    public class OnPointerShoot : UnityEvent { }
+    public class OnPointerShoot : UnityEvent<ShootData> { }
     public OnPointerShoot onPointerShoot;
+
+    [System.Serializable]
+    public class OnPointerMove : UnityEvent<MoveData> { }
+    public OnPointerMove onPointerMove;
 
     // On Awake, gets the cursor object if there is one. Also connects the PositionUpdated function to the VR update event.
     void Awake()
     {
         gameObject.GetComponent<SteamVR_Behaviour_Pose>().onTransformUpdated.AddListener(delegate { PositionUpdated(); });
+        if (gameObject.name == "Controller (right)") {
+            controllerName = ControllerName.Right;
+        } else if (gameObject.name == "Controller (left)") {
+            controllerName = ControllerName.Left;
+        }
     }
 
     // On start, inits the logger notifier.
@@ -132,6 +158,10 @@ public abstract class Pointer : MonoBehaviour
 
         previousDirection = laserOrigin.transform.forward;
         laser = laserOrigin.GetComponent<LineRenderer>();
+    }
+
+    public ControllerName GetControllerName() {
+        return controllerName;
     }
 
     public void SetPointerEnable(bool active)
@@ -184,6 +214,12 @@ public abstract class Pointer : MonoBehaviour
         Vector3 mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
         Vector3 rayDirection = (mappedPosition - origin).normalized;
+
+        onPointerMove.Invoke(new MoveData {
+            controllerPos = pos,
+            cursorPos = mappedPosition,
+            name = controllerName
+        });
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))
@@ -272,12 +308,16 @@ public abstract class Pointer : MonoBehaviour
         state = States.CoolingDown;
         StartCoroutine(WaitForCooldown());
 
-        onPointerShoot.Invoke();
+        onPointerShoot.Invoke(new ShootData {
+            hit = hit,
+            name = controllerName
+        });    
+
         if (hit.collider)
         {
             if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
             {
-                float feedback = performanceManager.GetFeedback();
+                float feedback = performanceManager.GetActionJudgement(controllerName);
                 Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point, feedback);
 
                 if (moleAnswer == Mole.MolePopAnswer.Ok)
