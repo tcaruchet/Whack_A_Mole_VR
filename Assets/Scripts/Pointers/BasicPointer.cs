@@ -36,9 +36,16 @@ public class BasicPointer : Pointer
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        Vector3 MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
         Vector3 rayDirection = (MappedPosition - origin).normalized;
+
+        onPointerMove.Invoke(new MoveData
+        {
+            controllerPos = pos,
+            cursorPos = MappedPosition,
+            name = controllerName
+        });
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))

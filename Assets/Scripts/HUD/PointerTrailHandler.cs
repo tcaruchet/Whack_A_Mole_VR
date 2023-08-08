@@ -7,8 +7,6 @@ public class PointerTrailHandler : MonoBehaviour
     [SerializeField]
     private Pointer controllerParent;
 
-    private ControllerName controllerName;
-
     [SerializeField]
     private PerformanceManager performanceManager;
     [SerializeField]
@@ -44,7 +42,6 @@ public class PointerTrailHandler : MonoBehaviour
 
     private void OnEnable()
     {
-        controllerName = controllerParent.GetControllerName();
         InitializeComponents();
     }
 
@@ -83,11 +80,12 @@ public class PointerTrailHandler : MonoBehaviour
         if (!trailRenderer || !spriteRenderer)
             return;
 
+        ControllerName controllerName = controllerParent.GetControllerName();
         speed = performanceManager.GetInstantJudgement(controllerName);
 
         UpdateRuntimeVisibility();
         // If the final visibility is true, then update the trail properties
-        if (IsTrulyVisible())
+        if (IsTrulyVisible() && speed > 0)
         {
             UpdateTrailProperties();
         }
@@ -103,57 +101,35 @@ public class PointerTrailHandler : MonoBehaviour
     {
         if (trailRenderer != null)
         {
-            float targetDiameter = spriteRenderer.bounds.size.x; // assuming the sprite is a circle
+            float normalizedSpeed = speed;
 
-            float normalizedSpeed;
-            if (speed < 11)
-            {
-                // Normalize speed in the range 0 to 11 to the range 0 to 0.5
-                normalizedSpeed = Mathf.Lerp(0f, 0.5f, speed / 11);
-            }
-            else
-            {
-                // Normalize speed in the range 11 to 19 to the range 0.5 to 1
-                // Clamp to make sure speed does not exceed 19
-                normalizedSpeed = Mathf.Lerp(0.5f, 1f, (Mathf.Clamp(speed, 11f, 19f) - 11) / (19 - 11));
-            }
+            float targetDiameter = spriteRenderer.bounds.size.x;
 
-            if (speed <= 0)
-            {
-                // If speed is zero, set a default small trail
-                float defaultWidth = targetDiameter / 10;
-                float defaultOpacity = 0.5f;
+            soundManager.ChangeVolume(trailSound, (speed > 0.1f) ? Mathf.Lerp(0.6f, 1, speed) : 0f);
 
-                trailRenderer.time = defaultWidth;
-                trailRenderer.startWidth = defaultWidth;
-                trailRenderer.endWidth = 0f;
-                trailRenderer.startColor = new Color(trailColor.r, trailColor.g, trailColor.b, defaultOpacity);
-                trailRenderer.endColor = new Color(trailColor.r, trailColor.g, trailColor.b, 0f);
-                soundManager.ChangeVolume(trailSound, 0f);
-            }
-            else
-            {
-                float targetVolume = (speed < 1f) ? 0f : Mathf.Lerp(0f, 1f, normalizedSpeed);  // Adjust volume based on speed. This will mute the sound for speeds < 1, and adjust between 0 and 1 for speeds between 1 and max.
-                soundManager.ChangeVolume(trailSound, targetVolume);
+            float targetPitch = Mathf.Lerp(minTargetPitch, maxTargetPitch, normalizedSpeed);
+            currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * 1f);
+            soundManager.ChangePitch(trailSound, currentPitch);
 
-                float targetPitch = Mathf.Lerp(minTargetPitch, maxTargetPitch, normalizedSpeed);
-                // Change the pitch of the sound based on the speed, smoothly transition to the target pitch over time
-                currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * 1f); // the second parameter controls the speed of transition, adjust as needed
-                soundManager.ChangePitch(trailSound, currentPitch);
+            float currentLength = Mathf.Min(Mathf.Lerp(minTrailLength, maxTrailLength, normalizedSpeed), maxTrailLength);
+            float currentWidth = Mathf.Lerp(0, targetDiameter * 0.8f, normalizedSpeed);
+            Color currentColor = new Color(trailColor.r, trailColor.g, trailColor.b, Mathf.Lerp(0.5f, 1f, normalizedSpeed));
 
-
-                float currentLength = Mathf.Min(Mathf.Lerp(minTrailLength, maxTrailLength, normalizedSpeed), maxTrailLength);
-                float currentWidth = Mathf.Lerp(0, targetDiameter, normalizedSpeed);
-                Color currentColor = new Color(trailColor.r, trailColor.g, trailColor.b, Mathf.Lerp(0.5f, 1f, normalizedSpeed));
-
-                trailRenderer.time = currentLength;
-                trailRenderer.startWidth = currentWidth;
-                trailRenderer.endWidth = 0f;
-                trailRenderer.startColor = currentColor;
-                trailRenderer.endColor = new Color(currentColor.r, currentColor.g, currentColor.b, 0f);
-            }
+            trailRenderer.time = currentLength;
+            trailRenderer.startWidth = currentWidth;
+            trailRenderer.endWidth = 0f;
+            trailRenderer.startColor = currentColor;
+            trailRenderer.endColor = new Color(currentColor.r, currentColor.g, currentColor.b, 0f);
         }
     }
+
+
+
+    private float GetNonLinearSpeed()
+    {
+        return Mathf.Pow(speed, 0.3f);
+    }
+
 
 
 
@@ -164,17 +140,17 @@ public class PointerTrailHandler : MonoBehaviour
     {
         bool currentRuntimeVisibility;
 
-        // If the speed is less than 1f, set the runtime visibility to false
-        if (speed < 1f)
-        {
-            currentRuntimeVisibility = false;
-            soundManager.ChangeVolume(trailSound, 0f);
-        }
-        // If the speed is greater than or equal to 0.05f, set the runtime visibility to true
-        else
-        {
-            currentRuntimeVisibility = true;
-        }
+        //// If the speed is less than 0.05f, set the runtime visibility to false
+        //if (speed < 0.05f)
+        //{
+        //    currentRuntimeVisibility = false;
+        //    soundManager.ChangeVolume(trailSound, 0f);
+        //}
+        // //If the speed is greater than or equal to 0.05f, set the runtime visibility to true
+        //else
+        currentRuntimeVisibility = true;
+        //{
+        //}
 
         // Only change the runtime visibility if it is different from the previous state
         if (currentRuntimeVisibility != lastRuntimeVisibilityState)

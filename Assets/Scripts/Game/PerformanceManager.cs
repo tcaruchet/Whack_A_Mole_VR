@@ -16,6 +16,7 @@ public enum JudgementType {
 }
 
 // Data Structures
+[System.Serializable]
 public class PerfData {
     public JudgementType judgementType = JudgementType.Speed;
     public Queue<float> lastVals = new Queue<float>();
@@ -45,13 +46,13 @@ public class PerformanceManager : MonoBehaviour
 
     // Action data
     private Dictionary<ControllerName, PerfData> perfData = new Dictionary<ControllerName, PerfData>();
-    private PerfData perfR = new PerfData();
-    private PerfData perfL = new PerfData();
+    public PerfData perfR = new PerfData();
+    public PerfData perfL = new PerfData();
 
     // Average configuration
     private float meanMemoryLimit = 20; // use the last 20 values for calculating mean
     private int minimumJudgeThreshold = 5;
-    private float MultiplierUp = 1.50f; // Upper/Lower Threshold multipliers
+    private float MultiplierUp = 2f; // Upper/Lower Threshold multipliers
     private float MultiplierDown = 0.50f;
 
     private void Awake()
@@ -70,7 +71,7 @@ public class PerformanceManager : MonoBehaviour
     }
 
     public float GetActionJudgement(ControllerName controllerName) {
-        return perfData[controllerName].lastVals.LastOrDefault();
+        return perfData[controllerName].lastJudges.LastOrDefault();
     }
 
     // Data Control
@@ -92,6 +93,7 @@ public class PerformanceManager : MonoBehaviour
     // Data Feeders
     // BasicPointer: OnPointerShoot and OnPointerMove
     public void OnPointerShoot(ShootData shootData) {
+        Debug.Log("Called");
         RaycastHit hit = shootData.hit;
         ControllerName controllerName = shootData.name;
 
@@ -180,11 +182,12 @@ public class PerformanceManager : MonoBehaviour
         // based on the distance accumulated since the beginning?
 
         // if we don't have a previous position, abort calculation.
-        if (perf.posPrev == Vector3.zero) return -1f;
+        if (perf.actionStartPos == Vector3.zero) return -1f;
 
         //Debug.Log("lastPosition: " + lastPositionSpeed);
-        float distance = Vector3.Distance(perf.pos, perf.posPrev);
-        float speed = distance / Time.deltaTime;
+        float distance = Vector3.Distance(perf.pos, perf.actionStartPos);
+        float time = Time.time - perf.actionStartTimestamp;
+        float speed = distance / time;
         return speed;
     }
 
@@ -198,8 +201,11 @@ public class PerformanceManager : MonoBehaviour
         // if we don't have a previous position, abort calculation.
         if (perf.posPrev == Vector3.zero) return -1f;
 
+        if (perf.perf == -1f) perf.perf = 0f;
+        float distance = perf.perf + Vector3.Distance(perf.pos, perf.posPrev);
+
         //Debug.Log("lastPosition: " + lastPositionSpeed);
-        float distance = Vector3.Distance(perf.actionStartPos, perf.pos);
+        //float distance = Vector3.Distance(perf.actionStartPos, perf.pos);
         return distance;
     }
 
@@ -255,7 +261,7 @@ public class PerformanceManager : MonoBehaviour
         // If there is less than the threshold to judge threshold, default to 100% postive feedback.
         if (perf.meanMemoryVals.Count < minimumJudgeThreshold)
         {
-            judgement = 1;
+            judgement = 0f;
             return judgement;
         }
 

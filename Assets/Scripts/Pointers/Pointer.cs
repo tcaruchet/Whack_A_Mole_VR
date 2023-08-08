@@ -103,7 +103,7 @@ public abstract class Pointer : MonoBehaviour
     private float lastTime = -1;
 
     protected int pointerShootOrder = -1;
-    private ControllerName controllerName;
+    protected ControllerName controllerName;
 
     Vector3 pos;
     Vector3 mappedPos;
@@ -208,23 +208,22 @@ public abstract class Pointer : MonoBehaviour
         active = false;
     }
 
-    public void Update() {
-        onPointerMove.Invoke(new MoveData {
-            controllerPos = pos,
-            cursorPos = mappedPosition,
-            name = controllerName
-        });
-    }
-
-    // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
+     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public virtual void PositionUpdated()
     {
         if (!active) return;
 
-        pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        Vector3 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
+        Vector3 mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
         Vector3 rayDirection = (mappedPosition - origin).normalized;
+
+        onPointerMove.Invoke(new MoveData
+        {
+            controllerPos = pos,
+            cursorPos = mappedPosition,
+            name = controllerName
+        });
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))
@@ -313,7 +312,7 @@ public abstract class Pointer : MonoBehaviour
         state = States.CoolingDown;
         StartCoroutine(WaitForCooldown());
 
-        onPointerShoot.Invoke(new ShootData {
+        performanceManager.OnPointerShoot(new ShootData {
             hit = hit,
             name = controllerName
         });    
@@ -323,6 +322,7 @@ public abstract class Pointer : MonoBehaviour
             if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
             {
                 float feedback = performanceManager.GetActionJudgement(controllerName);
+                Debug.Log(feedback);
                 Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point, feedback);
 
                 if (moleAnswer == Mole.MolePopAnswer.Ok)
