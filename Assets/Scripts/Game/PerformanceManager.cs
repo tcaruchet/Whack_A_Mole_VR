@@ -112,7 +112,7 @@ public class PerformanceManager : MonoBehaviour
         perf.actionEndPos = perf.actionStartPos;
         perf.actionStartPos = hit.point;
         perf.actionStartTimestamp = perf.actionEndTimestamp;
-        perf.actionEndTimestamp = Time.deltaTime;
+        perf.actionEndTimestamp = Time.time;
 
         float newVal;
 
@@ -213,7 +213,7 @@ public class PerformanceManager : MonoBehaviour
         // if we don't have a previous position, abort calculation.
         if (perf.posPrev == Vector3.zero) return -1f;
 
-        float time = Time.deltaTime - perf.actionStartTimestamp;
+        float time = Time.time - perf.actionStartTimestamp;
         return time;
     }
 
@@ -258,6 +258,8 @@ public class PerformanceManager : MonoBehaviour
             judgement = 1;
             return judgement;
         }
+
+        Debug.Log()
 
         if (val <= perf.lowerThreshold)
         {
