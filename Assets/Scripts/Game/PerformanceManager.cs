@@ -259,8 +259,6 @@ public class PerformanceManager : MonoBehaviour
             return judgement;
         }
 
-        Debug.Log()
-
         if (val <= perf.lowerThreshold)
         {
             judgement = 0;
