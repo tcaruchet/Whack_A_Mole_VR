@@ -14,6 +14,7 @@ public class ShootData {
     public Vector3 position = Vector3.zero;
     public RaycastHit hit;
     public ControllerName name;
+    public float dwell;
 }
 
 public enum ControllerName {
@@ -305,7 +306,7 @@ public abstract class Pointer : MonoBehaviour
 
     // Shoots a raycast. If Mole is hit, calls its Pop() function. Depending on the hit result, plays the hit/missed shooting animation
     // and raises a "Mole Missed" event.
-    protected virtual void Shoot(RaycastHit hit)
+    protected virtual void Shoot(RaycastHit hit, float dwellduration = 0f)
     {
         Mole mole;
 
@@ -314,6 +315,7 @@ public abstract class Pointer : MonoBehaviour
 
         performanceManager.OnPointerShoot(new ShootData {
             hit = hit,
+            dwell = dwellduration,
             name = controllerName
         });    
 

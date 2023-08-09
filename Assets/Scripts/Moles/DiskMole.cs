@@ -16,6 +16,9 @@ public class DiskMole : Mole
     private Color enabledColor;
 
     [SerializeField]
+    private Color feedbackLowColor;
+
+    [SerializeField]
     private Color popFast;
 
     [SerializeField]
@@ -201,7 +204,7 @@ public class DiskMole : Mole
         Vector3 feedbackSize = transform.localScale * popScale;
         checkmark.color = colorFeedback;
         float elapsedTime = 0;
-        circleOutline.color = new Color(circleOutline.color.r, circleOutline.color.g, circleOutline.color.b, 1.0f);
+        circleOutline.color = new Color(circleOutline.color.r, circleOutline.color.g, circleOutline.color.b, colorFeedback.a);
         while (elapsedTime < duration)
         {
             transform.localScale = Vector3.Lerp(normalSize, feedbackSize, (elapsedTime / duration));

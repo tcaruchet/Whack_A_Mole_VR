@@ -19,19 +19,21 @@ public enum JudgementType {
 // Data Structures
 [System.Serializable]
 public class PerfData {
-    public JudgementType judgementType = JudgementType.AverageSpeed;
     public Queue<float> lastVals = new Queue<float>();
     public Queue<float> lastJudges = new Queue<float>();
     public float movingAverage = -1f;
     public float upperThresholdAction = -1f;
     public float lowerThresholdAction = -1f;
     public Queue<float> meanMemoryVals = new Queue<float>();
-    public float perfMaxAction = -1f;
-    
+    public float perfBestAction = -1f;
+    public float perfActionFraction = -1f;
+    public float dwelltime = 0f;
+
     // State
     public float perfPrev = -1f;
     public float perf = -1f;
-    public float perfMax = -1f;
+    public float perfBest = -1f;
+    public float perfFraction = -1f;
     public float judge = -1f;
     public float upperThresholdInstant = -1f;
     public float lowerThresholdInstant = -1f;
@@ -59,7 +61,7 @@ public class PerformanceManager : MonoBehaviour
     private int minimumJudgeThreshold = 5;
     private float MultiplierUp = 2f; // Upper/Lower Threshold multipliers
     private float MultiplierDown = 0.50f;
-    private float maxFading = 0.1f; // how much the max should fade over time. 
+    private float fadingFraction = 0.1f; // how much the max should fade over time (1%)
 
     private void Awake()
     {
@@ -99,7 +101,6 @@ public class PerformanceManager : MonoBehaviour
     // Data Feeders
     // BasicPointer: OnPointerShoot and OnPointerMove
     public void OnPointerShoot(ShootData shootData) {
-        Debug.Log("Called");
         RaycastHit hit = shootData.hit;
         ControllerName controllerName = shootData.name;
 
@@ -117,31 +118,35 @@ public class PerformanceManager : MonoBehaviour
 
         PerfData perf = perfData[controllerName];
 
+        perf.dwelltime = shootData.dwell;
         perf.actionEndPos = perf.actionStartPos;
         perf.actionStartPos = hit.point;
         perf.actionStartTimestamp = perf.actionEndTimestamp;
         perf.actionEndTimestamp = Time.time;
 
         float newVal;
+        float judgement;
 
         if (judgementType == JudgementType.AverageSpeed) {
             newVal = CalculateActionSpeed(perf);
             UpdateActionMovingAverage(newVal, perf);
+            judgement = MakeActionJudgement(newVal, perf);
         } else if (judgementType == JudgementType.MaxSpeed) {
             newVal = CalculateActionSpeed(perf);
-            UpdateActionMaxSpeed(newVal, perf);
+            UpdateActionThresholds(newVal, perf);
+            judgement = MakeActionJudgement(newVal, perf);
         } else if (judgementType == JudgementType.Distance) {
             newVal = CalculateActionDistance(perf);
             UpdateActionMovingAverage(newVal, perf);
+            judgement = MakeActionJudgement(newVal, perf);
         } else if (judgementType == JudgementType.Time) {
             newVal = CalculateActionTime(perf);
-            UpdateActionMovingAverage(newVal, perf);
+            UpdateActionThresholds(newVal, perf, thresholdMax: false);
+            judgement = MakeActionJudgement(newVal, perf, thresholdMax: false);
         } else {
             newVal = -1f;
+            judgement = 0f;
         }
-
-
-        float judgement = MakeJudgement(newVal, perf);
 
         // Store Results
         perf.lastVals.Enqueue(newVal);
@@ -160,22 +165,31 @@ public class PerformanceManager : MonoBehaviour
         perf.perfPrev = perf.perf;
 
         float newPerf;
+        float judgement;
 
         if (judgementType == JudgementType.AverageSpeed) {
-            newPerf = CalculateInstantSpeed(perf);
-        } else if (judgementType == JudgementType.AverageSpeed) {
-            newPerf = CalculateInstantSpeed(perf);
+            newPerf = CalculateInstantAvgSpeed(perf);
+            UpdateInstantAvgSpeedThresholds(newPerf, perf);
+            judgement = MakeInstantJudgement(newPerf, perf);
+        } else if (judgementType == JudgementType.MaxSpeed) {
+            newPerf = CalculateInstantMaxSpeed(perf);
+            UpdateInstantThresholds(newPerf, perf);
+            judgement = MakeInstantJudgement(newPerf, perf);
         } else if (judgementType == JudgementType.Distance) {
             newPerf = CalculateInstantDistance(perf);
+            UpdateInstantAvgSpeedThresholds(newPerf, perf);
+            judgement = MakeInstantJudgement(newPerf, perf);
         } else if (judgementType == JudgementType.Time) {
             newPerf = CalculateInstantTime(perf);
+            UpdateInstantThresholds(newPerf, perf, thresholdMax: false);
+            judgement = MakeInstantJudgement(newPerf, perf, thresholdMax: false);
         } else {
             newPerf = -1f;
+            judgement = 0f;
         }
 
-        float newJudge = MakeJudgement(newPerf, perf);
         perf.perf = newPerf;
-        perf.judge = newJudge;
+        perf.judge = judgement;
     }
 
     // Average Calculator
@@ -194,42 +208,121 @@ public class PerformanceManager : MonoBehaviour
     }
 
     // Max-based Calculator
-    private void UpdateActionMaxSpeed(float val, PerfData perf) {
+    private void UpdateActionThresholds(float val, PerfData perf, bool thresholdMax = true) {
 
-        // Update memory
-        //perf.meanMemoryVals.Enqueue(val);
-        //if (perf.meanMemoryVals.Count > meanMemoryLimit)
-        //{
-        //    perf.meanMemoryVals.Dequeue();
-        //}
-        if (val > perf.perfMax) {
-            perf.perfMaxAction = val;
+        if (val == -1f) return;
+
+        // Update memory, just to ensure same number of performances are required.
+        perf.meanMemoryVals.Enqueue(val);
+        if (perf.meanMemoryVals.Count > meanMemoryLimit)
+        {
+            perf.meanMemoryVals.Dequeue();
+        }
+
+        Debug.Log(val + " " + perf.perfBestAction);
+        if (thresholdMax && perf.perfBestAction == -1f) {
+            perf.perfBestAction = val;
+            perf.perfActionFraction = perf.perfBestAction * fadingFraction;
+        } else if (!thresholdMax && perf.perfBestAction == -1f) { 
+            perf.perfBestAction = val;
+            perf.perfActionFraction = perf.perfBestAction * (1 - fadingFraction);
+        } else if (thresholdMax && val > perf.perfBestAction) {
+            perf.perfBestAction = val;
+            perf.perfActionFraction = perf.perfBestAction * fadingFraction;
+        } else if (!thresholdMax && val < perf.perfBestAction) {
+            perf.perfBestAction = val;
+            perf.perfActionFraction = perf.perfBestAction * (1 - fadingFraction);
         } else {
             float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
-            perf.perfMaxAction -= time * maxFading;
+            if (thresholdMax) { 
+            perf.perfBestAction -= time * fadingFraction;
+            } else
+            {
+                perf.perfBestAction += time * fadingFraction;
+            }
         }
-        //perf.movingAverage = perf.meanMemoryVals.Average();
 
-        float maxSpeed = perf.meanMemoryVals.Max();
-        perf.upperThresholdAction = maxSpeed;
-        perf.lowerThresholdAction = MultiplierDown * maxSpeed;
+        //Fading: subtracts 0.1 m/s per second
+        //  5, -0.05
+        //perf.movingAverage = perf.meanMemoryVals.Average();
+        if (thresholdMax)
+        {
+            perf.upperThresholdAction = perf.perfBestAction;
+            perf.lowerThresholdAction = MultiplierDown * perf.perfBestAction;
+        }
+        else
+        {
+            perf.upperThresholdAction = MultiplierUp * perf.perfBestAction;
+            perf.lowerThresholdAction = perf.perfBestAction;
+        }
+
+    }
+
+    private void UpdateInstantThresholds(float val, PerfData perf, bool thresholdMax = true)
+    {
+        if (val == -1f) return;
+
+        if (thresholdMax && perf.perfBest == -1f)
+        {
+            // Set the value as the new performance max.
+            perf.perfBest = val;
+            perf.perfFraction = perf.perfBest * fadingFraction;
+        } else if (!thresholdMax && perf.perfBest == -1f)
+        {
+            // Set the value as the new performance max.
+            perf.perfBest = val;
+            perf.perfFraction = perf.perfBest * (1 - fadingFraction);
+        } else if (thresholdMax && val > perf.perfBest)
+        {
+            // Set the value as the new performance max.
+            perf.perfBest = val;
+            perf.perfFraction = perf.perfBest * fadingFraction;
+        } else if (!thresholdMax && val < perf.perfBest)
+        {
+            perf.perfBest = val;
+            perf.perfFraction = perf.perfBest * (1 - fadingFraction);
+        }
+        else
+        {
+            if (thresholdMax) { 
+                // if the value was not higher, reduce the maximum value by a fraction.
+                perf.perfBest -= Time.deltaTime * fadingFraction;
+            } else
+            {
+                perf.perfBest += Time.deltaTime * fadingFraction;
+            }
+        }
+
+        if (thresholdMax) { 
+            perf.upperThresholdInstant = perf.perfBest;
+            perf.lowerThresholdInstant = MultiplierDown * perf.perfBest;
+        } else
+        {
+            perf.upperThresholdInstant = MultiplierUp * perf.perfBest;
+            perf.lowerThresholdInstant = perf.perfBest;
+        }
+    }
+
+    private void UpdateInstantAvgSpeedThresholds(float val, PerfData perf)
+    {
+        perf.upperThresholdInstant = perf.upperThresholdAction;
+        perf.lowerThresholdInstant = perf.lowerThresholdAction;
     }
 
     // Max-based Calculator
-    private void UpdateInstantMaxSpeed(float val, PerfData perf) {
+    private float CalculateInstantMaxSpeed(PerfData perf) {
 
-        if (val > perf.perfMax) {
-            perf.perfMax = val;
-        } else {
-            perf.perfMax -= (Time.deltaTime * maxFading);
-        }
+        // if we don't have a previous position, abort calculation.
+        if (perf.actionStartPos == Vector3.zero) return -1f;
 
-        perf.upperThresholdInstant = perf.perfMax;
-        perf.lowerThresholdInstant = MultiplierDown * perf.perfMax;
+        //Debug.Log("lastPosition: " + lastPositionSpeed);
+        float distance = Vector3.Distance(perf.pos, perf.posPrev);
+        float speed = distance / Time.deltaTime;
+        return speed;
     }
 
     // Calculators
-    private float CalculateInstantSpeed(PerfData perf) {
+    private float CalculateInstantAvgSpeed(PerfData perf) {
         // TODO: Should we calculate the instant speed (frame by frame), or should we calculate speed
         // based on the distance accumulated since the beginning?
 
@@ -272,6 +365,8 @@ public class PerformanceManager : MonoBehaviour
         if (perf.posPrev == Vector3.zero) return -1f;
 
         float time = Time.time - perf.actionStartTimestamp;
+        time = time;
+        if (time < 0f) time = 0f;
         return time;
     }
 
@@ -286,13 +381,15 @@ public class PerformanceManager : MonoBehaviour
     }
 
     private float CalculateActionTime(PerfData perf) {
-    if (perf.actionEndTimestamp == -1f || perf.actionEndPos == Vector3.zero) {
-        // if this is our first action, we don't have enough information to calculate speed.
-        return -1f;
-    }
+        if (perf.actionEndTimestamp == -1f || perf.actionEndPos == Vector3.zero) {
+            // if this is our first action, we don't have enough information to calculate speed.
+            return -1f;
+        }
 
-    float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
-    return time;
+        float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
+        time = time;
+        if (time < 0f) time = 0f;
+        return time;
     }
 
     private float CalculateActionSpeed(PerfData perf) {
@@ -303,13 +400,16 @@ public class PerformanceManager : MonoBehaviour
 
         float distance = Vector3.Distance(perf.actionStartPos, perf.actionEndPos);
         float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
+        Debug.Log(time);
+        time = time - perf.dwelltime; // subtract dwell time.
         float speed = distance / time;
 
         return speed;
     }
 
-    private float MakeJudgement(float val, PerfData perf) {
+    private float MakeActionJudgement(float val, PerfData perf, bool thresholdMax = true) {
         float judgement;
+
         // If there is less than the threshold to judge threshold, default to 100% postive feedback.
         if (perf.meanMemoryVals.Count < minimumJudgeThreshold)
         {
@@ -319,18 +419,53 @@ public class PerformanceManager : MonoBehaviour
 
         if (val <= perf.lowerThresholdAction)
         {
-            judgement = 0;
+            judgement = thresholdMax ? 0 : 1;
         }
         else if (val >= perf.upperThresholdAction)
         {
-            judgement = 1;
+            judgement = thresholdMax ? 1 : 0;
         }
         else
         {
             judgement = (val - perf.lowerThresholdAction) / (perf.upperThresholdAction - perf.lowerThresholdAction);
+            if (!thresholdMax) {
+                judgement = 1 - judgement;
+            }
         }
+
         return judgement;
     }
+
+    private float MakeInstantJudgement(float val, PerfData perf, bool thresholdMax = true)
+    {
+        float judgement;
+
+        if (val == -1f)
+        {
+            judgement = 0;
+            return judgement;
+        }
+
+        if (val <= perf.lowerThresholdInstant)
+        {
+            judgement = thresholdMax ? 0 : 1;
+        }
+        else if (val >= perf.upperThresholdInstant)
+        {
+            judgement = thresholdMax ? 1 : 0;
+        }
+        else
+        {
+            judgement = (val - perf.lowerThresholdInstant) / (perf.upperThresholdInstant - perf.lowerThresholdInstant);
+            if (!thresholdMax)
+            {
+                judgement = 1 - judgement;
+            }
+        }
+
+        return judgement;
+    }
+
 }
 
 

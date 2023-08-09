@@ -24,6 +24,7 @@ public class BasicPointer : Pointer
     private float totalShootTime;
     private float dwellTime = 3f;
     private float dwellTimer = 0f;
+    private float dwellduration = 0f;
     private delegate void Del();
     private string hover = "";
 
@@ -82,7 +83,7 @@ public class BasicPointer : Pointer
                                 {"ControllerName", gameObject.name}
                             });
                         }
-
+                        dwellduration += Time.deltaTime;
                         dwellTimer = dwellTimer + 0.1f;
                         if (dwellTimer > dwellTime)
                         {
@@ -109,7 +110,7 @@ public class BasicPointer : Pointer
                                 {"PointerShootOrder", pointerShootOrder},
                                 {"ControllerName", gameObject.name}
                             });
-                            Shoot(hit);
+                            Shoot(hit, dwellduration);
                         }
                     }
                     else
@@ -118,6 +119,7 @@ public class BasicPointer : Pointer
                         if (dwellTimer > 0f)
                         {
                             dwellTimer = dwellTimer - 0.1f;
+                            dwellduration = 0f;
                         }
                     }
                 }
@@ -127,6 +129,7 @@ public class BasicPointer : Pointer
                     if (dwellTimer > 0f)
                     {
                         dwellTimer = dwellTimer - 0.1f;
+                        dwellduration = 0f;
                     }
                 }
             }
@@ -136,6 +139,7 @@ public class BasicPointer : Pointer
                 if (dwellTimer > 0f)
                 {
                     dwellTimer = dwellTimer - 0.1f;
+                    dwellduration = 0f;
                 }
             }
         }

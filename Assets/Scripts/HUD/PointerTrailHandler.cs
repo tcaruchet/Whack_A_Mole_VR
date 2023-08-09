@@ -85,7 +85,7 @@ public class PointerTrailHandler : MonoBehaviour
 
         UpdateRuntimeVisibility();
         // If the final visibility is true, then update the trail properties
-        if (IsTrulyVisible() && speed > 0)
+        if (IsTrulyVisible())
         {
             UpdateTrailProperties();
         }
@@ -105,7 +105,7 @@ public class PointerTrailHandler : MonoBehaviour
 
             float targetDiameter = spriteRenderer.bounds.size.x;
 
-            soundManager.ChangeVolume(trailSound, (speed > 0.1f) ? Mathf.Lerp(0.6f, 1, speed) : 0f);
+            soundManager.ChangeVolume(trailSound, (speed > 0.1f) ? Mathf.Lerp(0f, 1, speed) : 0f);
 
             float targetPitch = Mathf.Lerp(minTargetPitch, maxTargetPitch, normalizedSpeed);
             currentPitch = Mathf.Lerp(currentPitch, targetPitch, Time.deltaTime * 1f);
