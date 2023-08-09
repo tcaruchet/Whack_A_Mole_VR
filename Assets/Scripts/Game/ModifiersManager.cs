@@ -99,6 +99,9 @@ public class ModifiersManager : MonoBehaviour
     private PlayerPanel playerPanel;
 
     [SerializeField]
+    private PerformanceManager performanceManager;
+
+    [SerializeField]
     private float hideWallHighestStart = 1.3f;
     [SerializeField]
     private float hideWallHighestEnd = 0.6f;
@@ -114,6 +117,7 @@ public class ModifiersManager : MonoBehaviour
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
     private ModifiersManager.PerformanceFeedback performanceFeedback = PerformanceFeedback.All;
+    private JudgementType judgementType = JudgementType.AverageSpeed;
     private bool mirrorEffect;
     private bool physicalMirrorEffect;
     private bool geometricMirrorEffect;
@@ -148,6 +152,7 @@ public class ModifiersManager : MonoBehaviour
             {"HideWallAmount", "No Hide Wall Amount Defined"},
             {"GeometricMirror", "No GeometricMirror Defined"},
             {"PerformanceFeedback", "No PerformanceFeedback Defined"},
+            {"JudgementType", "No JudgementType Defined"},
             {"Embodiment", "Undefined"},
         });
         // Initialization of the starting values of the parameters.
@@ -161,7 +166,8 @@ public class ModifiersManager : MonoBehaviour
             {"HideWall", System.Enum.GetName(typeof(ModifiersManager.HideWall), hideWall)},
             {"HideWallAmount", hideWallAmount},
             {"GeometricMirror", geometricMirrorEffect},
-            {"PerformanceFeedback", performanceFeedback}
+            {"PerformanceFeedback", performanceFeedback},
+            {"JudgementType", judgementType}
         });
 
         defaultModifiers = new Dictionary<string, object> () {
@@ -181,6 +187,7 @@ public class ModifiersManager : MonoBehaviour
         {"MotorRestrictionUpper", this.motorRestrictionUpper},
         {"MotorRestrictionLower", this.motorRestrictionLower},
         {"PerformanceFeedback", this.performanceFeedback},
+        {"JudgementType", this.judgementType},
         {"Embodiment", this.embodiment},
         };
     }
@@ -212,6 +219,7 @@ public class ModifiersManager : MonoBehaviour
         SetMainController((ModifiersManager.ControllerSetup) state["ControllerSetup"]);
         SetControllerEnabled((ModifiersManager.ControllerSetup) state["ControllerSetup"],true);
         SetPerformanceFeedback((ModifiersManager.PerformanceFeedback) state["PerformanceFeedback"]);
+        SetJudgementType((JudgementType) state["JudgementType"]);
         SetEmbodiment((ModifiersManager.Embodiment) state["Embodiment"]);
         SetMotorspaceOutOfBoundsSignifier((ModifiersManager.MotorspaceOutOfBoundsSignifier)state["MotorspaceOutOfBoundsSignifier"]);
     }
@@ -558,7 +566,7 @@ public class ModifiersManager : MonoBehaviour
         }
     }
 
-    internal void SetPerformanceFeedback(PerformanceFeedback value)
+    public void SetPerformanceFeedback(PerformanceFeedback value)
     {
         bool actionFeedback = false;
         bool operationFeedback = false;
@@ -603,6 +611,21 @@ public class ModifiersManager : MonoBehaviour
         
     }
 
+    public void SetJudgementType(JudgementType value)
+    {
+        if (judgementType == value) return;
+        performanceManager.SetJudgementType(value);
+
+        // Raises an Event and updates a PersistentEvent's parameter (in consequence, a PersistentEvent will also be raised)
+        loggerNotifier.NotifyLogger($"Judgement Type Set {Enum.GetName(typeof(JudgementType), value)}", EventLogger.EventType.ModifierEvent, new Dictionary<string, object>()
+        {
+            {"JudgementType", Enum.GetName(typeof(JudgementType), value)}
+        });
+        
+        modifierUpdateEvent.Invoke($"JudgementType", Enum.GetName(typeof(JudgementType), value));
+
+        this.judgementType = value;
+    }
 
 
     // Sets the level of embodiment used by the game. (Show hands (including controller) or just cursor).

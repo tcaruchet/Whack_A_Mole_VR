@@ -355,10 +355,10 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetMotorspaceOutOfBoundsSignifier((ModifiersManager.MotorspaceOutOfBoundsSignifier)System.Enum.Parse(typeof(ModifiersManager.MotorspaceOutOfBoundsSignifier), tempValue));
         }
-        //if (action.TryGetValue("PERFORMANCEFEEDBACK", out tempValue))
-        //{
-        //    modifiersManager.SetJudgmentActionFeedback(bool.Parse(tempValue));
-        //}
+        if (action.TryGetValue("JUDGEMENT", out tempValue))
+        {
+            modifiersManager.SetJudgementType((JudgementType)System.Enum.Parse(typeof(JudgementType), tempValue));
+        }
         // TYPE OF JUDGEMENT FEEDBACK : Enum with : None, Operation, Action, Task, All
         if (action.TryGetValue("PERFORMANCEFEEDBACK", out tempValue))
         {

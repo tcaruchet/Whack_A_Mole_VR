@@ -10,7 +10,8 @@ using UnityEngine.UIElements;
 using static WallManager;
 
 public enum JudgementType {
-    Speed,
+    AverageSpeed,
+    MaxSpeed,
     Distance,
     Time
 }
@@ -18,18 +19,22 @@ public enum JudgementType {
 // Data Structures
 [System.Serializable]
 public class PerfData {
-    public JudgementType judgementType = JudgementType.Speed;
+    public JudgementType judgementType = JudgementType.AverageSpeed;
     public Queue<float> lastVals = new Queue<float>();
     public Queue<float> lastJudges = new Queue<float>();
     public float movingAverage = -1f;
-    public float upperThreshold = -1f;
-    public float lowerThreshold = -1f;
+    public float upperThresholdAction = -1f;
+    public float lowerThresholdAction = -1f;
     public Queue<float> meanMemoryVals = new Queue<float>();
+    public float perfMaxAction = -1f;
     
     // State
     public float perfPrev = -1f;
     public float perf = -1f;
+    public float perfMax = -1f;
     public float judge = -1f;
+    public float upperThresholdInstant = -1f;
+    public float lowerThresholdInstant = -1f;
     public Vector3 posPrev = Vector3.zero;
     public Vector3 pos = Vector3.zero;
 
@@ -42,7 +47,7 @@ public class PerfData {
 public class PerformanceManager : MonoBehaviour
 {
     [SerializeField]
-    private JudgementType judgementType = JudgementType.Speed;
+    private JudgementType judgementType = JudgementType.AverageSpeed;
 
     // Action data
     private Dictionary<ControllerName, PerfData> perfData = new Dictionary<ControllerName, PerfData>();
@@ -54,6 +59,7 @@ public class PerformanceManager : MonoBehaviour
     private int minimumJudgeThreshold = 5;
     private float MultiplierUp = 2f; // Upper/Lower Threshold multipliers
     private float MultiplierDown = 0.50f;
+    private float maxFading = 0.1f; // how much the max should fade over time. 
 
     private void Awake()
     {
@@ -118,22 +124,32 @@ public class PerformanceManager : MonoBehaviour
 
         float newVal;
 
-        if (judgementType == JudgementType.Speed) {
+        if (judgementType == JudgementType.AverageSpeed) {
             newVal = CalculateActionSpeed(perf);
+            UpdateActionMovingAverage(newVal, perf);
+        } else if (judgementType == JudgementType.MaxSpeed) {
+            newVal = CalculateActionSpeed(perf);
+            UpdateActionMaxSpeed(newVal, perf);
         } else if (judgementType == JudgementType.Distance) {
             newVal = CalculateActionDistance(perf);
+            UpdateActionMovingAverage(newVal, perf);
         } else if (judgementType == JudgementType.Time) {
             newVal = CalculateActionTime(perf);
+            UpdateActionMovingAverage(newVal, perf);
         } else {
             newVal = -1f;
         }
 
-        UpdateMovingAverage(newVal, perf);
+
         float judgement = MakeJudgement(newVal, perf);
 
         // Store Results
         perf.lastVals.Enqueue(newVal);
         perf.lastJudges.Enqueue(judgement);
+    }
+
+    public void SetJudgementType(JudgementType judgement) {
+        judgementType = judgement;
     }
 
     public void OnPointerMove(MoveData moveData) {
@@ -145,7 +161,9 @@ public class PerformanceManager : MonoBehaviour
 
         float newPerf;
 
-        if (judgementType == JudgementType.Speed) {
+        if (judgementType == JudgementType.AverageSpeed) {
+            newPerf = CalculateInstantSpeed(perf);
+        } else if (judgementType == JudgementType.AverageSpeed) {
             newPerf = CalculateInstantSpeed(perf);
         } else if (judgementType == JudgementType.Distance) {
             newPerf = CalculateInstantDistance(perf);
@@ -161,7 +179,7 @@ public class PerformanceManager : MonoBehaviour
     }
 
     // Average Calculator
-    private void UpdateMovingAverage(float val, PerfData perf) {
+    private void UpdateActionMovingAverage(float val, PerfData perf) {
 
         // Update moving average
         perf.meanMemoryVals.Enqueue(val);
@@ -171,10 +189,44 @@ public class PerformanceManager : MonoBehaviour
         }
 
         perf.movingAverage = perf.meanMemoryVals.Average();
-        perf.upperThreshold = MultiplierUp * perf.movingAverage;
-        perf.lowerThreshold = MultiplierDown * perf.movingAverage;
+        perf.upperThresholdAction = MultiplierUp * perf.movingAverage;
+        perf.lowerThresholdAction = MultiplierDown * perf.movingAverage;
     }
 
+    // Max-based Calculator
+    private void UpdateActionMaxSpeed(float val, PerfData perf) {
+
+        // Update memory
+        //perf.meanMemoryVals.Enqueue(val);
+        //if (perf.meanMemoryVals.Count > meanMemoryLimit)
+        //{
+        //    perf.meanMemoryVals.Dequeue();
+        //}
+        if (val > perf.perfMax) {
+            perf.perfMaxAction = val;
+        } else {
+            float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
+            perf.perfMaxAction -= time * maxFading;
+        }
+        //perf.movingAverage = perf.meanMemoryVals.Average();
+
+        float maxSpeed = perf.meanMemoryVals.Max();
+        perf.upperThresholdAction = maxSpeed;
+        perf.lowerThresholdAction = MultiplierDown * maxSpeed;
+    }
+
+    // Max-based Calculator
+    private void UpdateInstantMaxSpeed(float val, PerfData perf) {
+
+        if (val > perf.perfMax) {
+            perf.perfMax = val;
+        } else {
+            perf.perfMax -= (Time.deltaTime * maxFading);
+        }
+
+        perf.upperThresholdInstant = perf.perfMax;
+        perf.lowerThresholdInstant = MultiplierDown * perf.perfMax;
+    }
 
     // Calculators
     private float CalculateInstantSpeed(PerfData perf) {
@@ -265,17 +317,17 @@ public class PerformanceManager : MonoBehaviour
             return judgement;
         }
 
-        if (val <= perf.lowerThreshold)
+        if (val <= perf.lowerThresholdAction)
         {
             judgement = 0;
         }
-        else if (val >= perf.upperThreshold)
+        else if (val >= perf.upperThresholdAction)
         {
             judgement = 1;
         }
         else
         {
-            judgement = (val - perf.lowerThreshold) / (perf.upperThreshold - perf.lowerThreshold);
+            judgement = (val - perf.lowerThresholdAction) / (perf.upperThresholdAction - perf.lowerThresholdAction);
         }
         return judgement;
     }

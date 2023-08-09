@@ -27,7 +27,7 @@ public class BasicPointer : Pointer
     private delegate void Del();
     private string hover = "";
 
-    public Vector3 MappedPosition { get; private set; }
+    internal Vector3 MappedPosition { get; private set; }
 
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
@@ -36,7 +36,7 @@ public class BasicPointer : Pointer
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        Vector3 MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
         Vector3 rayDirection = (MappedPosition - origin).normalized;
 
