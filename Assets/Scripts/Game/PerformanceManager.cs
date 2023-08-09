@@ -26,6 +26,7 @@ public class PerfData {
     public float lowerThresholdAction = -1f;
     public Queue<float> meanMemoryVals = new Queue<float>();
     public float perfBestAction = -1f;
+    public float perfWorstAction = -1f;
     public float perfActionFraction = -1f;
     public float dwelltime = 0f;
 
@@ -33,6 +34,7 @@ public class PerfData {
     public float perfPrev = -1f;
     public float perf = -1f;
     public float perfBest = -1f;
+    public float perfWorst = -1f;
     public float perfFraction = -1f;
     public float judge = -1f;
     public float upperThresholdInstant = -1f;
@@ -57,11 +59,14 @@ public class PerformanceManager : MonoBehaviour
     public PerfData perfL = new PerfData();
 
     // Average configuration
+    // we stopped using a memory limit based on "n", because counting operations is not equal
+    // to counting actions. instead we now use time, which acts the same in both temporal dimensions.
     private float meanMemoryLimit = 20; // use the last 20 values for calculating mean
     private int minimumJudgeThreshold = 5;
+    // using multipliers is not a fair. speed is one kind of unit, time is another kind of unit.
     private float MultiplierUp = 2f; // Upper/Lower Threshold multipliers
     private float MultiplierDown = 0.50f;
-    private float fadingFraction = 0.1f; // how much the max should fade over time (1%)
+    private float fadingFraction = 0.01f; // how much the max should fade over time (1%)
 
     private void Awake()
     {
@@ -220,20 +225,45 @@ public class PerformanceManager : MonoBehaviour
         }
 
         Debug.Log(val + " " + perf.perfBestAction);
-        if (thresholdMax && perf.perfBestAction == -1f) {
+        bool best = false;
+        bool worst = false;
+
+        if (perf.perfWorstAction == -1f)
+        {
+            perf.perfWorstAction = val;
+            worst = true;
+        } else if (thresholdMax && val < perf.perfWorstAction)
+        {
+            perf.perfWorstAction = val;
+            worst = true;
+        } else if (!thresholdMax && val > perf.perfWorstAction)
+        {
+            perf.perfWorstAction = val;
+            worst = true;
+        }
+
+        if (perf.perfBestAction == -1f)
+        {
             perf.perfBestAction = val;
-            perf.perfActionFraction = perf.perfBestAction * fadingFraction;
-        } else if (!thresholdMax && perf.perfBestAction == -1f) { 
+            best = true;
+        } else if (thresholdMax && val > perf.perfBestAction)
+        {
             perf.perfBestAction = val;
-            perf.perfActionFraction = perf.perfBestAction * (1 - fadingFraction);
-        } else if (thresholdMax && val > perf.perfBestAction) {
+            best = true;
+        }
+        else if (!thresholdMax && val < perf.perfBestAction)
+        {
             perf.perfBestAction = val;
-            perf.perfActionFraction = perf.perfBestAction * fadingFraction;
-        } else if (!thresholdMax && val < perf.perfBestAction) {
-            perf.perfBestAction = val;
-            perf.perfActionFraction = perf.perfBestAction * (1 - fadingFraction);
-        } else {
-            float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
+            best = true;
+        }
+
+        // Calculate action fraction
+        float actionRange = Mathf.Abs(perf.perfWorstAction - perf.perfBestAction);
+        perf.perfActionFraction = actionRange * fadingFraction;
+        float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
+        
+        // if this value is not the best/worst action, fade the best/worst action by a fraction.
+        if (!best) { 
             if (thresholdMax) { 
             perf.perfBestAction -= time * fadingFraction;
             } else
@@ -241,18 +271,26 @@ public class PerformanceManager : MonoBehaviour
                 perf.perfBestAction += time * fadingFraction;
             }
         }
+        if (worst)
+        {
+            if (thresholdMax)
+            {
+                perf.perfWorstAction += time * fadingFraction;
+            }
+            else
+            {
+                perf.perfWorstAction -= time * fadingFraction;
+            }
+        }
 
-        //Fading: subtracts 0.1 m/s per second
-        //  5, -0.05
-        //perf.movingAverage = perf.meanMemoryVals.Average();
         if (thresholdMax)
         {
             perf.upperThresholdAction = perf.perfBestAction;
-            perf.lowerThresholdAction = MultiplierDown * perf.perfBestAction;
+            perf.lowerThresholdAction = perf.perfWorstAction;
         }
         else
         {
-            perf.upperThresholdAction = MultiplierUp * perf.perfBestAction;
+            perf.upperThresholdAction = perf.perfWorstAction;
             perf.lowerThresholdAction = perf.perfBestAction;
         }
 
@@ -262,43 +300,87 @@ public class PerformanceManager : MonoBehaviour
     {
         if (val == -1f) return;
 
-        if (thresholdMax && perf.perfBest == -1f)
+        bool best = false;
+        bool worst = false;
+
+        if (perf.perfWorst == -1f)
         {
-            // Set the value as the new performance max.
-            perf.perfBest = val;
-            perf.perfFraction = perf.perfBest * fadingFraction;
-        } else if (!thresholdMax && perf.perfBest == -1f)
-        {
-            // Set the value as the new performance max.
-            perf.perfBest = val;
-            perf.perfFraction = perf.perfBest * (1 - fadingFraction);
-        } else if (thresholdMax && val > perf.perfBest)
-        {
-            // Set the value as the new performance max.
-            perf.perfBest = val;
-            perf.perfFraction = perf.perfBest * fadingFraction;
-        } else if (!thresholdMax && val < perf.perfBest)
-        {
-            perf.perfBest = val;
-            perf.perfFraction = perf.perfBest * (1 - fadingFraction);
+            perf.perfWorst = val;
+            worst = true;
         }
-        else
+        else if (thresholdMax && val < perf.perfWorst)
         {
-            if (thresholdMax) { 
+            perf.perfWorst = val;
+            worst = true;
+        }
+        else if (!thresholdMax && val > perf.perfWorst)
+        {
+            perf.perfWorst = val;
+            worst = true;
+        }
+
+        if (perf.perfBest == -1f)
+        {
+            perf.perfBest = val;
+            best = true;
+        }
+        else if (thresholdMax && val > perf.perfBest)
+        {
+            perf.perfBest = val;
+            best = true;
+        }
+        else if (!thresholdMax && val < perf.perfBest)
+        {
+            perf.perfBest = val;
+            best = true;
+        }
+
+        // Calculate action fraction
+        float range = Mathf.Abs(perf.perfWorst - perf.perfBest);
+        perf.perfFraction = range * fadingFraction;
+
+        // if this value is not the best/worst, fade the best/worst by a fraction.
+        if (!best)
+        {
+            if (thresholdMax)
+            {
                 // if the value was not higher, reduce the maximum value by a fraction.
                 perf.perfBest -= Time.deltaTime * fadingFraction;
-            } else
+            }
+            else
             {
                 perf.perfBest += Time.deltaTime * fadingFraction;
             }
         }
+        if (worst)
+        {
+            if (thresholdMax)
+            {
+                perf.perfWorst += Time.deltaTime * fadingFraction;
+            }
+            else
+            {
+                perf.perfWorst -= Time.deltaTime * fadingFraction;
+            }
+        }
+
+        if (thresholdMax)
+        {
+            perf.upperThresholdAction = perf.perfBestAction;
+            perf.lowerThresholdAction = perf.perfWorstAction;
+        }
+        else
+        {
+            perf.upperThresholdAction = perf.perfWorstAction;
+            perf.lowerThresholdAction = perf.perfBestAction;
+        }
 
         if (thresholdMax) { 
             perf.upperThresholdInstant = perf.perfBest;
-            perf.lowerThresholdInstant = MultiplierDown * perf.perfBest;
+            perf.lowerThresholdInstant = perf.perfWorst;
         } else
         {
-            perf.upperThresholdInstant = MultiplierUp * perf.perfBest;
+            perf.upperThresholdInstant = perf.perfWorst;
             perf.lowerThresholdInstant = perf.perfBest;
         }
     }
@@ -365,8 +447,7 @@ public class PerformanceManager : MonoBehaviour
         if (perf.posPrev == Vector3.zero) return -1f;
 
         float time = Time.time - perf.actionStartTimestamp;
-        time = time;
-        if (time < 0f) time = 0f;
+        time = time - perf.dwelltime;
         return time;
     }
 
@@ -387,8 +468,7 @@ public class PerformanceManager : MonoBehaviour
         }
 
         float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
-        time = time;
-        if (time < 0f) time = 0f;
+        time = time - perf.dwelltime;
         return time;
     }
 
@@ -400,7 +480,6 @@ public class PerformanceManager : MonoBehaviour
 
         float distance = Vector3.Distance(perf.actionStartPos, perf.actionEndPos);
         float time = perf.actionEndTimestamp - perf.actionStartTimestamp;
-        Debug.Log(time);
         time = time - perf.dwelltime; // subtract dwell time.
         float speed = distance / time;
 

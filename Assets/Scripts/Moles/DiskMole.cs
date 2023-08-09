@@ -197,7 +197,7 @@ public class DiskMole : Mole
     }
     IEnumerator ChangeColorOverTime(Color colorStart, Color colorFeedback, Color colorEnd, float duration, float waitTime, float feedback)
     {
-        float popScale = (feedback * 0.35f) + 1.15f;
+        float popScale = (feedback * 0.50f) + 1.15f;
         // float popScale = (feedback * 0.45f) + 1.05f; // other possibility
         Debug.Log("PopScale: " + popScale);
         Vector3 normalSize = transform.localScale;
