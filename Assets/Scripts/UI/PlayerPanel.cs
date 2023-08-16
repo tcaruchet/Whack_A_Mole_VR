@@ -46,6 +46,8 @@ public class PlayerPanel : MonoBehaviour
 
     private Canvas panelCanvas;
 
+    private bool gamePaused = false;
+
 
     void Awake()
     {
@@ -141,8 +143,16 @@ public class PlayerPanel : MonoBehaviour
         StartCoroutine(WaitShowMessage(time, text));
     }
 
+    public void OnGameStateChanged(GameDirector.GameState gameState)
+    {
+        gamePaused = gameState == GameDirector.GameState.Paused;
+        Debug.Log("Game PAUSED triggered by Player Panel");
+    }
+
     private IEnumerator WaitShowMessage(float duration, string text) {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
+
+
         float currentCountDownLeft = duration;
         int currentCountDownLeftRounded = -1;
         int prevCount = -1;
@@ -150,6 +160,12 @@ public class PlayerPanel : MonoBehaviour
         SetCountDownContainer(true);
 
         while (currentCountDownLeft > -0.4) {
+            while (gamePaused)
+                yield return null;
+
+            SetEnablePanel(true);
+            SetCountDownContainer(true);
+
             prevCount = currentCountDownLeftRounded;
 
             currentCountDownLeft -= Time.deltaTime;
@@ -170,6 +186,9 @@ public class PlayerPanel : MonoBehaviour
             }
             yield return null;
         }
+
+        
+
         SetEnablePanel(false);
         SetCountDownContainer(false);
     }
