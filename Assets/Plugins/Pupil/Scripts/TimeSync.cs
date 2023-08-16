@@ -26,10 +26,11 @@ namespace PupilLabs
                 return 0;
             }
 
-            string response;
-            requestCtrl.SendCommand("t", out response);
-
-            return double.Parse(response, System.Globalization.CultureInfo.InvariantCulture.NumberFormat); ;
+            requestCtrl.SendCommand("t", out string response);
+            if (!string.IsNullOrEmpty(response))
+                return double.Parse(response, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+            Debug.LogWarning("Response of t command from pupil is empty");
+            return 0;
         }
 
         public double ConvertToUnityTime(double pupilTimestamp)
