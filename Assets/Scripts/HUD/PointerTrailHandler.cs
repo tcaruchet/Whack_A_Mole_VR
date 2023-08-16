@@ -89,6 +89,10 @@ public class PointerTrailHandler : MonoBehaviour
         {
             UpdateTrailProperties();
         }
+        else
+        {
+            soundManager.ChangeVolume(trailSound, 0f);
+        }
     }
     private void OnDestroy()
     {
