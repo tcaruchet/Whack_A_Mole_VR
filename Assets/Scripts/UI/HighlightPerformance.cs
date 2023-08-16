@@ -43,6 +43,6 @@ public class HighlightPerformance : MonoBehaviour
                 progressBar.Show();
             }
         }
-        performanceManager.ResetPerfHistory();
+        performanceManager.ResetPerfData();
     }
 }

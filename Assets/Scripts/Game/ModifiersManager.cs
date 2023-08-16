@@ -117,7 +117,7 @@ public class ModifiersManager : MonoBehaviour
     private HideWall hideWall = HideWall.None;
     private ControllerSetup controllerSetup = ControllerSetup.Right;
     private ModifiersManager.PerformanceFeedback performanceFeedback = PerformanceFeedback.All;
-    private JudgementType judgementType = JudgementType.AverageSpeed;
+    private JudgementType judgementType = JudgementType.MaxSpeed;
     private bool mirrorEffect;
     private bool physicalMirrorEffect;
     private bool geometricMirrorEffect;

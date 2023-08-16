@@ -28,6 +28,9 @@ public class SampleLogger : MonoBehaviour
     [SerializeField]
     private ViewportLogger viewportLogger;
 
+    [SerializeField]
+    private PerformanceManager performanceLogger;
+
     private TrackerHub trackerHub;
     private LoggingManager loggingManager;
 
@@ -125,6 +128,14 @@ public class SampleLogger : MonoBehaviour
             if (viewportLogger != null) {
                 Dictionary<string, object> viewportLogs = viewportLogger.GetViewportData();
                 foreach (KeyValuePair<string, object> pair in viewportLogs)
+                {
+                    sampleLog[pair.Key] = pair.Value;
+                }
+            }
+            if (performanceLogger != null)
+            {
+                Dictionary<string, object> performanceLogs = performanceLogger.GetPerformanceData();
+                foreach (KeyValuePair<string, object> pair in performanceLogs)
                 {
                     sampleLog[pair.Key] = pair.Value;
                 }
