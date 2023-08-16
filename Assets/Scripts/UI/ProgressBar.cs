@@ -28,6 +28,14 @@ public class ProgressBar : MonoBehaviour
 
     private GameObject progressPanel;
 
+    private List<float> values = new List<float>();
+
+    [SerializeField]
+    private float soundDelay = 0.1f;
+
+    [SerializeField]
+    private SoundManager soundManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,6 +52,7 @@ public class ProgressBar : MonoBehaviour
     public void AddElement(float value, bool correct = true) {
         GameObject newElement = Instantiate(element, progressPanel.transform);
         elements.Add(newElement);
+        values.Add(value);
         Image eImage = newElement.transform.GetChild(0).GetComponent<Image>();
         if (correct) {
             eImage.color = Vector4.Lerp(baseColor, highlightColor, value);
@@ -58,6 +67,7 @@ public class ProgressBar : MonoBehaviour
 
     public void Reset() {
         progressPanel.SetActive(false);
+        values = new List<float>();
         foreach(GameObject e in elements) {
             Destroy(e);
         }
@@ -65,6 +75,16 @@ public class ProgressBar : MonoBehaviour
 
     public void Show() {
         progressPanel.SetActive(true);
+        StartCoroutine(PlaySound(values, soundDelay));
+    }
+
+    private IEnumerator PlaySound(List<float> values, float delay)
+    {
+        foreach(float value in values) { 
+            soundManager.PlaySoundWithPitch(gameObject, SoundManager.Sound.greenMoleHit, value);
+            yield return new WaitForSeconds(delay);
+        }
+        yield return null;
     }
 
 }
