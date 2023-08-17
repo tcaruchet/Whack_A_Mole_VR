@@ -98,6 +98,8 @@ public class BubbleDisplay : MonoBehaviour
     [SerializeField]
     private Color motorDisabledColor;
 
+    [SerializeReference]
+    private HUDManager hudPanel;
 
     [SerializeReference]
     private OutOfBoundIndicator staticArrowIndicator;
@@ -209,6 +211,7 @@ public class BubbleDisplay : MonoBehaviour
 
                 // Hide the out-of-bound indicator.
                 outOfBoundIndicatorManager.HideIndicator();
+                hudPanel.Reset();
 
                 // Invoke the event for entering the MotorSpace with all relevant information.
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
@@ -257,6 +260,7 @@ public class BubbleDisplay : MonoBehaviour
 
                 // Show the out-of-bound indicator.
                 outOfBoundIndicatorManager.ShowIndicator(newPos, laserMapper.GetWallMeshCenter(), LastLaserMapperNearestSide);
+                hudPanel.ActivateGradient(LastLaserMapperNearestSide, FadeAction.In);
 
                 // Invoke the event for exiting the MotorSpace with all relevant information.
                 enterMotorStateEvent.Invoke(new EnterMotorSpaceInfo
