@@ -172,7 +172,7 @@ public class DiskMole : Mole
                 Debug.Log(feedback);
                 Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
                 PlayAnimation("PopCorrectMole"); // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
-                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.1f, 0.15f, feedback));
+                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.15f, 0.15f, feedback));
                 meshMaterial.mainTexture = textureDisabled;
             }
             else
@@ -197,7 +197,7 @@ public class DiskMole : Mole
     }
     IEnumerator ChangeColorOverTime(Color colorStart, Color colorFeedback, Color colorEnd, float duration, float waitTime, float feedback)
     {
-        float popScale = (feedback * 0.50f) + 1.15f;
+        float popScale = feedback + 1.0f;
         // float popScale = (feedback * 0.45f) + 1.05f; // other possibility
         Debug.Log("PopScale: " + popScale);
         Vector3 normalSize = transform.localScale;
@@ -224,22 +224,22 @@ public class DiskMole : Mole
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        transform.localScale = normalSize;
         yield return new WaitForSeconds(0.2f);
         // Then transition to the end color
         elapsedTime = 0;
         while (elapsedTime < 0.8f)
         {
             Color checkmarkOpacity = checkmark.color;
-            checkmarkOpacity.a = Mathf.Lerp(1, 0, (elapsedTime / 0.8f));
+            checkmarkOpacity.a = Mathf.Lerp(colorFeedback.a, 0, (elapsedTime / 0.8f));
             checkmark.color = checkmarkOpacity;
-            circleOutline.color = new Color(circleOutline.color.r, circleOutline.color.g, circleOutline.color.b, Mathf.Lerp(1, 0, (elapsedTime / 0.8f)));
+            circleOutline.color = new Color(circleOutline.color.r, circleOutline.color.g, circleOutline.color.b, Mathf.Lerp(colorFeedback.a, 0, (elapsedTime / 0.8f)));
             meshMaterial.color = Color.Lerp(colorStart, colorEnd, (elapsedTime / 0.8f));
             elapsedTime += Time.deltaTime;
             yield return null;
         }
         circleOutline.color = new Color(circleOutline.color.r, circleOutline.color.g, circleOutline.color.b, 0.0f);
         ChangeColor(colorEnd);
+        transform.localScale = normalSize;
     }
 
 

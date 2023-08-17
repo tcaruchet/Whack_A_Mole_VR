@@ -541,7 +541,7 @@ MonoBehaviour:
   enabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921569, a: 1}
   feedbackLowColor: {r: 0, g: 0, b: 0, a: 0}
   popFast: {r: 0.43137255, g: 0.87058824, b: 0.18039216, a: 1}
-  popSlow: {r: 1, g: 1, b: 1, a: 0.69803923}
+  popSlow: {r: 1, g: 1, b: 1, a: 0.5372549}
   fakeEnabledColor: {r: 0.43137255, g: 0.7490196, b: 0.23921567, a: 1}
   hoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}
   fakeHoverColor: {r: 0.67058825, g: 0.8784314, b: 0.5882353, a: 1}

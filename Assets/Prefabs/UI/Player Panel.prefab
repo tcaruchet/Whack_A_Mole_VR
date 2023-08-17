@@ -2649,10 +2649,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   element: {fileID: 314628832216410507}
   highlightColor: {r: 0.43137255, g: 0.7490196, b: 0.23921569, a: 1}
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 1, g: 1, b: 1, a: 0.5372549}
   wrongColor: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
   spriteCorrect: {fileID: 21300000, guid: a48703d906a9b524faeaae24b680e15f, type: 3}
   spriteWrong: {fileID: 21300000, guid: 01ed1b50fe48bdb4b93aa5c6af288eee, type: 3}
+  soundDelay: 0.1
+  soundManager: {fileID: 0}
 --- !u!114 &9110587227295324649
 MonoBehaviour:
   m_ObjectHideFlags: 0
