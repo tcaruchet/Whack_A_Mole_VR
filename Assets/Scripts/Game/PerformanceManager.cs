@@ -82,17 +82,44 @@ public class PerformanceManager : MonoBehaviour
     }
 
     // Data Consumption
-    public PerfData GetPerfData(ControllerName controllerName) {
-        return perfData[controllerName];
+    public PerfData GetPerfData(ControllerName controllerName)
+    {
+        if (perfData.ContainsKey(controllerName))
+            return perfData[controllerName];
+        else
+        {
+            Debug.LogWarning($"PerfData for controller '{controllerName}' not found!");
+            return null;  //TODO: WE MAY RETURN A DEFAULT VALUE
+        }
     }
 
-    public float GetInstantJudgement(ControllerName controllerName) {
-        return perfData[controllerName].judge;
+
+    public float GetInstantJudgement(ControllerName controllerName)
+    {
+        if (perfData.ContainsKey(controllerName))
+            return perfData[controllerName].judge;
+        else
+        {
+            Debug.LogWarning($"Instant judgement for controller '{controllerName}' not found!");
+            return 0.0f; //TODO: WE MAY RETURN A DEFAULT VALUE
+        }
     }
 
-    public float GetActionJudgement(ControllerName controllerName) {
-        return perfData[controllerName].lastJudges.LastOrDefault();
+
+    public float GetActionJudgement(ControllerName controllerName)
+    {
+        if (perfData.ContainsKey(controllerName) && perfData[controllerName].lastJudges.Any())
+            return perfData[controllerName].lastJudges.LastOrDefault();
+        else
+        {
+            if (!perfData.ContainsKey(controllerName))
+                Debug.LogWarning($"Action judgement for controller '{controllerName}' not found!");
+            else
+                Debug.LogWarning($"No last judgements available for controller '{controllerName}'!");
+            return 0.0f;
+        }
     }
+
 
     // Logging
     public Dictionary<string, object> GetPerformanceData()

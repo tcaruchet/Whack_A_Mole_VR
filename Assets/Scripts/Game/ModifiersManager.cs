@@ -25,7 +25,7 @@ public class ModifiersManager : MonoBehaviour
 
     public enum ControllerSetup {Left, Both, Right, Off};
     public enum Embodiment {Hands, Cursor, Off};
-    public enum MotorspaceSize {Small, Medium, Large};
+    public enum MotorspaceSize {Tiny1, Tiny2, Tiny3, Small, Medium, Large};
     public enum MotorspaceOutOfBoundsSignifier { DynamicCenter, StaticPointing, DynamicCenterReversed };
     public enum PerformanceFeedback { None, Operation, Action, Task, All};
     public enum EyePatch {Left, None, Right};
@@ -349,6 +349,15 @@ public class ModifiersManager : MonoBehaviour
             motorSpaceManager.SetMotorSpaceMedium();
         } else if (size == ModifiersManager.MotorspaceSize.Large) {
             motorSpaceManager.SetMotorSpaceLarge();
+        } else if (size == ModifiersManager.MotorspaceSize.Tiny1)
+        {
+            motorSpaceManager.SetMotorSpaceTiny1();
+        } else if (size == ModifiersManager.MotorspaceSize.Tiny2)
+        {
+            motorSpaceManager.SetMotorSpaceTiny2();
+        } else if (size == ModifiersManager.MotorspaceSize.Tiny3)
+        {
+            motorSpaceManager.SetMotorSpaceTiny3();
         }
     }
 

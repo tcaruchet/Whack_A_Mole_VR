@@ -27,6 +27,15 @@ public class MotorSpaceManager : MonoBehaviour
     private Slider motorSpaceSlider;
 
     [SerializeField]
+    private MotorSpaceInfo motorSpaceTiny1;
+
+    [SerializeField]
+    private MotorSpaceInfo motorSpaceTiny2;
+
+    [SerializeField]
+    private MotorSpaceInfo motorSpaceTiny3;
+
+    [SerializeField]
     private MotorSpaceInfo motorSpaceSmall;
     [SerializeField]
     private MotorSpaceInfo motorSpaceMedium;
@@ -140,6 +149,21 @@ public class MotorSpaceManager : MonoBehaviour
         if (motorspace == ActiveMotorSpace.Right) {
 
         }
+    }
+
+    public void SetMotorSpaceTiny3()
+    {
+        SetMotorSpace((MotorSpaceInfo)motorSpaceTiny3.Clone());
+    }
+
+    public void SetMotorSpaceTiny2()
+    {
+        SetMotorSpace((MotorSpaceInfo)motorSpaceTiny2.Clone());
+    }
+
+    public void SetMotorSpaceTiny1()
+    {
+        SetMotorSpace((MotorSpaceInfo)motorSpaceTiny1.Clone());
     }
 
     public void SetMotorSpaceSmall() {
